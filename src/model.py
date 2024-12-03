@@ -262,6 +262,72 @@ class EF(nn.Module):
         atomic_energies *= atom_mask[..., None, None, None]
         return atomic_energies
 
+    def _calculate_electrostatics(
+        self,
+        atomic_charges: jnp.ndarray,
+        positions: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        batch_size: int,
+        batch_mask: jnp.ndarray,
+        atom_mask: jnp.ndarray,
+    ) -> jnp.ndarray:
+        """Calculate electrostatic interactions between atoms.
+
+        Uses a smoothly switched combination of short-range and long-range electrostatics
+        to avoid numerical instabilities at zero distance while maintaining accuracy.
+
+        Args:
+            atomic_charges: Predicted atomic charges
+            positions: Atomic positions
+            dst_idx: Destination indices for pair interactions
+            src_idx: Source indices for pair interactions
+            batch_segments: Batch assignment for each atom
+            batch_size: Number of molecules in batch
+            batch_mask: Mask for valid batch elements
+            atom_mask: Mask for valid atoms
+
+        Returns:
+            Array of electrostatic energies per atom
+        """
+        # Calculate distances between atom pairs
+        positions_dst = e3x.ops.gather_dst(positions, dst_idx=dst_idx)
+        positions_src = e3x.ops.gather_src(positions, src_idx=src_idx)
+        displacements = positions_src - positions_dst
+        displacements = displacements + (1 - batch_mask)[..., None]
+        distances = jnp.sqrt(jnp.sum(displacements**2, axis=1))
+
+        # Calculate smoothly switched interaction potential
+        sqrt_sqr_distances_plus_1 = jnp.sqrt(distances**2 + 1)
+        switch_dist = e3x.nn.smooth_switch(2 * distances, 0, 10)
+        one_minus_switch_dist = 1 - switch_dist
+
+        # Get charges for interacting pairs
+        q1 = jnp.take(atomic_charges, dst_idx, fill_value=0.0)
+        q2 = jnp.take(atomic_charges, src_idx, fill_value=0.0)
+
+        # Calculate interaction potential
+        # R1: Short-range regularized potential
+        # R2: Long-range Coulomb potential
+        R1 = switch_dist / sqrt_sqr_distances_plus_1
+        R2 = one_minus_switch_dist / distances
+        R = R1 + R2
+
+        # Calculate electrostatic energy (in Hartree)
+        # Conversion factor 7.199822675975274 is 1/(4π*ε₀) in atomic units
+        electrostatics = 7.199822675975274 * q1 * q2 * R * batch_mask
+
+        # Sum contributions for each atom
+        atomic_electrostatics = jax.ops.segment_sum(
+            electrostatics,
+            segment_ids=dst_idx,
+            num_segments=batch_size * self.natoms,
+        )
+        atomic_electrostatics *= atom_mask
+
+        return atomic_electrostatics
+
     @nn.compact
     def __call__(
         self,
