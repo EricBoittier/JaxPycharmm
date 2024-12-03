@@ -475,7 +475,6 @@ class EF(nn.Module):
             "charges": charges,
             "electrostatics": electrostatics,
         }
-        jax.debug.print("Output: {x}", x=output)
         # Debug output values
         if isinstance(self.debug, list):
             if "forces" in self.debug:

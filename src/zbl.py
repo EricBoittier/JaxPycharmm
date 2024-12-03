@@ -209,19 +209,19 @@ class ZBLRepulsion(nn.Module):
         scale_factor = 1e-2  # Adjust this value based on your needs
         Erep = Erep * scale_factor
 
-        # print everything for temporary debugging
-        jax.debug.print("erep {x} {y}", x=Erep, y=Erep.shape)
-        jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
-        jax.debug.print("switch {x} {y}", x=switch_off, y=switch_off.shape)
-        jax.debug.print("phi {x} {y}", x=phi, y=phi.shape)
-        jax.debug.print("rep {x} {y}", x=repulsion, y=repulsion.shape)
-        jax.debug.print("a {x} {y}", x=a_ij, y=a_ij.shape)
-        jax.debug.print("denom {x} {y}", x=denominator, y=denominator.shape)
-        jax.debug.print("za {x} {y}", x=za, y=za.shape)
-        jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
-        jax.debug.print("idxi {x} {y}", x=idx_i, y=idx_i.shape)
-        jax.debug.print("idxj {x} {y}", x=idx_j, y=idx_j.shape)
-        jax.debug.print("atom {x} {y}", x=atomic_numbers, y=atomic_numbers.shape)
-        jax.debug.print("rep {x} {y}", x=repulsion, y=repulsion.shape)
+        if False:  # print everything for temporary debugging
+            jax.debug.print("erep {x} {y}", x=Erep, y=Erep.shape)
+            jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
+            jax.debug.print("switch {x} {y}", x=switch_off, y=switch_off.shape)
+            jax.debug.print("phi {x} {y}", x=phi, y=phi.shape)
+            jax.debug.print("rep {x} {y}", x=repulsion, y=repulsion.shape)
+            jax.debug.print("a {x} {y}", x=a_ij, y=a_ij.shape)
+            jax.debug.print("denom {x} {y}", x=denominator, y=denominator.shape)
+            jax.debug.print("za {x} {y}", x=za, y=za.shape)
+            jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
+            jax.debug.print("idxi {x} {y}", x=idx_i, y=idx_i.shape)
+            jax.debug.print("idxj {x} {y}", x=idx_j, y=idx_j.shape)
+            jax.debug.print("atom {x} {y}", x=atomic_numbers, y=atomic_numbers.shape)
+            jax.debug.print("rep {x} {y}", x=repulsion, y=repulsion.shape)
 
         return Erep[..., None, None, None]
