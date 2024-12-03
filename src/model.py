@@ -191,10 +191,10 @@ class EF(nn.Module):
         displacements: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
+        atom_mask: jnp.ndarray,
+        batch_mask: jnp.ndarray,
         batch_segments: jnp.ndarray,
         batch_size: int,
-        batch_mask: jnp.ndarray,
-        atom_mask: jnp.ndarray,
     ) -> Tuple[float, Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]]:
         """Calculate energies including charge interactions."""
         atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
@@ -280,9 +280,9 @@ class EF(nn.Module):
         displacements: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
-        batch_segments: jnp.ndarray,
-        batch_mask: jnp.ndarray,
         atom_mask: jnp.ndarray,
+        batch_mask: jnp.ndarray,
+        batch_segments: jnp.ndarray,
         batch_size: int,
     ) -> jnp.ndarray:
         """Calculate repulsion energies between atoms."""
@@ -328,10 +328,10 @@ class EF(nn.Module):
         displacements: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
+        atom_mask: jnp.ndarray,
+        batch_mask: jnp.ndarray,
         batch_segments: jnp.ndarray,
         batch_size: int,
-        batch_mask: jnp.ndarray,
-        atom_mask: jnp.ndarray,
     ) -> Tuple[jnp.ndarray, jnp.array]:
         """Calculate electrostatic interactions between atoms.
 
