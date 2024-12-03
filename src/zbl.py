@@ -117,7 +117,7 @@ class ZBLRepulsion(nn.Module):
         distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
 
         # Compute switch-off function
-        switch_off = e3x.nn.smooth_switch(distances, 0.0, 10.0)
+        switch_off = e3x.nn.smooth_switch(distances, 0.1, 10.0)
 
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values
