@@ -243,9 +243,9 @@ class EF(nn.Module):
         atomic_charges = e3x.nn.hard_tanh(atomic_charges) * 2.0
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
-        return x
+        return atomic_charges
 
-    def calculate_atomic_energies(
+    def _calculate_atomic_energies(
         self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
     ) -> jnp.ndarray:
         """Calculate atomic energies from atomic features."""
@@ -339,7 +339,7 @@ class EF(nn.Module):
         batch_size: Optional[int] = None,
         batch_mask: Optional[jnp.ndarray] = None,
         atom_mask: Optional[jnp.ndarray] = None,
-    ) -> Dict[str, Union[jnp.ndarray, bool]]:
+    ) -> Dict[str, Optional[jnp.ndarray]]:
         """Forward pass of the model.
 
         Args:
