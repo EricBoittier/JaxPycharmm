@@ -14,9 +14,12 @@ from jax import random
 from data import prepare_batches
 from evalstep import eval_step
 from model import EF
-from optimizer import optimizer, schedule_fn, transform
+from optimizer import base_schedule_fn, base_transform, get_optimizer
 from trainstep import train_step
 from utils import get_last, get_params_model
+
+schedule_fn = base_schedule_fn
+transform = base_transform
 
 # Energy/force unit conversions
 CONVERSION = {
