@@ -32,6 +32,7 @@ class ZBLRepulsion(nn.Module):
     cuton: Optional[float] = None
     trainable: bool = False
     dtype: Any = jnp.float32
+    debug: bool = False
 
     def setup(self):
         """Initialize model parameters."""
@@ -129,7 +130,6 @@ class ZBLRepulsion(nn.Module):
 
         # Compute denominator with better numerical stability
         za_sum = za[idx_i] + za[idx_j]
-        jax.debug.print("za_sum {x} {y}", x=za_sum, y=za_sum.shape)
         denominator = jnp.maximum(za_sum, 1e-6)
 
         # Compute screening length
@@ -209,7 +209,8 @@ class ZBLRepulsion(nn.Module):
         scale_factor = 1e-2  # Adjust this value based on your needs
         Erep = Erep * scale_factor
 
-        if False:  # print everything for temporary debugging
+        if self.debug:  # print everything for temporary debugging
+            jax.debug.print("za_sum {x} {y}", x=za_sum, y=za_sum.shape)
             jax.debug.print("erep {x} {y}", x=Erep, y=Erep.shape)
             jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
             jax.debug.print("switch {x} {y}", x=switch_off, y=switch_off.shape)
