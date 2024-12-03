@@ -216,9 +216,9 @@ class EF(nn.Module):
                 displacements,
                 dst_idx,
                 src_idx,
+                atom_mask,
                 batch_segments,
                 batch_mask,
-                atom_mask,
                 batch_size,
             )
             if isinstance(self.debug, list) and "repulsion" in self.debug:
