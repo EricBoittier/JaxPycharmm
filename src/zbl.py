@@ -173,19 +173,25 @@ class ZBLRepulsion(nn.Module):
         safe_phi = jnp.maximum(phi, 1e-30)
         safe_switch = jnp.maximum(switch_off, 1e-30)
 
-        # Compute repulsion directly with careful ordering of operations
-        repulsion = 0.5 * (
-            (safe_atomic_numbers[idx_i] * safe_atomic_numbers[idx_j]) / safe_distances
-        )
+        # Compute repulsion in steps with careful numerical control
+        # First compute Z_i * Z_j
+        charge_product = safe_atomic_numbers[idx_i] * safe_atomic_numbers[idx_j]
+        charge_product = jnp.minimum(charge_product, 1e4)  # Limit maximum value
 
-        # Apply phi and switch separately to maintain better numerical control
-        repulsion = repulsion * safe_phi
-        repulsion = repulsion * safe_switch
+        # Compute base repulsion with distance
+        base_repulsion = 0.5 * charge_product / safe_distances
+        base_repulsion = jnp.minimum(base_repulsion, 1e6)  # Limit maximum value
+
+        # Apply screening function and switch
+        repulsion = base_repulsion * safe_phi * safe_switch
+
+        # Clip extremely large values to prevent gradient explosions
+        repulsion = jnp.clip(repulsion, 0.0, 1e6)
 
         # Clean up any remaining numerical artifacts
-        repulsion = jnp.nan_to_num(repulsion, nan=0.0, posinf=0.0, neginf=0.0)
+        repulsion = jnp.nan_to_num(repulsion, nan=0.0, posinf=1e6, neginf=0.0)
 
-        # Apply batch segmentation
+        # Apply batch segmentation with safe multiplication
         repulsion = jnp.multiply(repulsion, batch_mask)
 
         # Sum contributions for each atom using safe operations
@@ -193,8 +199,14 @@ class ZBLRepulsion(nn.Module):
             repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
         )
 
-        # Apply atom mask
+        # Apply atom mask and final safety checks
         Erep = jnp.multiply(Erep, atom_mask)
+        Erep = jnp.clip(Erep, 0.0, 1e6)  # Final clip to ensure bounded values
+        Erep = jnp.nan_to_num(Erep, nan=0.0, posinf=1e6, neginf=0.0)
+
+        # Scale the output to prevent gradient explosions
+        scale_factor = 1e-2  # Adjust this value based on your needs
+        Erep = Erep * scale_factor
 
         # print everything for temporary debugging
         jax.debug.print("erep {x} {y}", x=Erep, y=Erep.shape)
