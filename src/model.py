@@ -98,10 +98,10 @@ class EF(nn.Module):
                 displacements,
                 dst_idx,
                 src_idx,
+                atom_mask,
+                batch_mask,
                 batch_segments,
                 batch_size,
-                batch_mask,
-                atom_mask,
             )
 
         return self._calculate_without_charges(
