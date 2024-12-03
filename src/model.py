@@ -277,7 +277,10 @@ class EF(nn.Module):
         atom_mask: jnp.ndarray,
     ) -> jnp.ndarray:
         """Calculate repulsion energies between atoms."""
-        repulsion = ZBLRepulsion()
+        repulsion = ZBLRepulsion(
+            cutoff=3.0,
+            trainable=True,
+        )
         repulsion_energy = repulsion.energy(
             atomic_numbers, positions, dst_idx, src_idx, batch_segments, batch_size
         )
