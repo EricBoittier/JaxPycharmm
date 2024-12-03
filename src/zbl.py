@@ -1,4 +1,3 @@
-
 """
 JAX/Flax implementation of Ziegler-Biersack-Littmark nuclear repulsion model.
 
@@ -6,10 +5,11 @@ This module provides a neural network model for calculating nuclear repulsion
 using the ZBL potential with smooth cutoffs.
 """
 
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
+
+import flax.linen as nn
 import jax
 import jax.numpy as jnp
-import flax.linen as nn
 
 # Constants
 BOHR_TO_ANGSTROM = 0.529177249  # Conversion factor from Bohr to Angstrom
@@ -44,7 +44,9 @@ class ZBLRepulsion(nn.Module):
 
         if self.cuton is not None and self.cuton < self.cutoff:
             self.cuton_dist = jnp.array([self.cuton], dtype=self.dtype)
-            self.switchoff_range = jnp.array([self.cutoff - self.cuton], dtype=self.dtype)
+            self.switchoff_range = jnp.array(
+                [self.cutoff - self.cuton], dtype=self.dtype
+            )
             self.use_switch = True
         else:
             self.cuton_dist = jnp.array([0.0], dtype=self.dtype)
@@ -52,16 +54,15 @@ class ZBLRepulsion(nn.Module):
             self.use_switch = True if self.cuton is None else False
 
         # Initialize parameters
-        param_init = lambda x: self.param(
-            'param',
-            lambda _: jnp.array(x, dtype=self.dtype),
-            x
-        ) if self.trainable else jnp.array(x, dtype=self.dtype)
+        def make_param(name, value):
+            if self.trainable:
+                return self.param(name, lambda key: jnp.array(value, dtype=self.dtype))
+            return jnp.array(value, dtype=self.dtype)
 
-        self.a_coefficient = param_init(a_coefficient)
-        self.a_exponent = param_init(a_exponent)
-        self.phi_coefficients = param_init(phi_coefficients)
-        self.phi_exponents = param_init(phi_exponents)
+        self.a_coefficient = make_param("a_coefficient", a_coefficient)
+        self.a_exponent = make_param("a_exponent", a_exponent)
+        self.phi_coefficients = make_param("phi_coefficients", phi_coefficients)
+        self.phi_exponents = make_param("phi_exponents", phi_exponents)
 
     def switch_fn(self, distances: jnp.ndarray) -> jnp.ndarray:
         """Compute smooth switch factors from 1 to 0.
@@ -80,17 +81,17 @@ class ZBLRepulsion(nn.Module):
             jnp.where(
                 distances >= self.cutoff_dist,
                 jnp.zeros_like(x),
-                ((6.0 * x - 15.0) * x + 10.0) * x ** 3
-            )
+                ((6.0 * x - 15.0) * x + 10.0) * x**3,
+            ),
         )
         return switch
 
     def __call__(
-            self,
-            atomic_numbers: jnp.ndarray,
-            distances: jnp.ndarray,
-            idx_i: jnp.ndarray,
-            idx_j: jnp.ndarray,
+        self,
+        atomic_numbers: jnp.ndarray,
+        distances: jnp.ndarray,
+        idx_i: jnp.ndarray,
+        idx_j: jnp.ndarray,
     ) -> jnp.ndarray:
         """Calculate ZBL nuclear repulsion energies.
 
@@ -110,43 +111,38 @@ class ZBLRepulsion(nn.Module):
             switch_off = jnp.where(
                 distances < self.cutoff_dist,
                 jnp.ones_like(distances),
-                jnp.zeros_like(distances)
+                jnp.zeros_like(distances),
             )
 
         # Compute atomic number dependent screening length
         za = atomic_numbers ** jnp.abs(self.a_exponent)
-        a_ij = (
-                jnp.abs(self.a_coefficient)
-                / (za[idx_i] + za[idx_j])
-        )
+        a_ij = jnp.abs(self.a_coefficient) / (za[idx_i] + za[idx_j])
 
         # Compute screening function phi
         arguments = distances / a_ij
-        coefficients = jax.nn.normalize(
-            jnp.abs(self.phi_coefficients), axis=0, ord=1
-        )
+        coefficients = jax.nn.normalize(jnp.abs(self.phi_coefficients), axis=0, ord=1)
         exponents = jnp.abs(self.phi_exponents)
         phi = jnp.sum(
-            coefficients[None, ...] * jnp.exp(
-                -exponents[None, ...] * arguments[..., None]
-            ),
-            axis=1
+            coefficients[None, ...]
+            * jnp.exp(-exponents[None, ...] * arguments[..., None]),
+            axis=1,
         )
 
         # Compute nuclear repulsion potential
         # Factor 1.0 represents e^2/(4πε₀) in atomic units
         repulsion = (
-                0.5 * 1.0
-                * atomic_numbers[idx_i] * atomic_numbers[idx_j] / distances
-                * phi
-                * switch_off
+            0.5
+            * 1.0
+            * atomic_numbers[idx_i]
+            * atomic_numbers[idx_j]
+            / distances
+            * phi
+            * switch_off
         )
 
         # Sum contributions for each atom
         Erep = jax.ops.segment_sum(
-            repulsion,
-            segment_ids=idx_i,
-            num_segments=atomic_numbers.shape[0]
+            repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
         )
 
         return Erep
