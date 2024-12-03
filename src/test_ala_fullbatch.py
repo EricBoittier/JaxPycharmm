@@ -1,54 +1,60 @@
-import os
+"""
+Training script for the EF model on alanine dataset.
+Handles model initialization, training, and checkpointing.
+"""
 
-# Set environment variables
+import os
+import sys
+from pathlib import Path
+
+# JAX imports
+import jax
+import jax.numpy as jnp
+import optax
+import orbax.checkpoint
+
+# Custom imports
+sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
+from data import prepare_datasets
+from model import EF
+from training import get_files, get_last, get_params_model, train_model
+
+# Configure environment
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-import jax
 
-# from jax import config
-# config.update('jax_enable_x64', True)
+# Verify JAX configuration
+print("JAX devices:", jax.local_devices())
+print("JAX backend:", jax.default_backend())
 
-# Check JAX configuration
-devices = jax.local_devices()
-print(devices)
-print(jax.default_backend())
-print(jax.devices())
+# Configuration
+NATOMS = 37
+BATCH_SIZE = 5
+DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
+DATA_FILES = ["/pchem-data/meuwly/boittier/home/jaxeq/notebooks/ala-esp-dip-0.npz"]
+CHECKPOINT_DIR = Path("/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/")
 
-import sys
-
-# Add custom path
-sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
-
-import e3x
-import jax
-import numpy as np
-import optax
-import orbax
-
-from data import prepare_batches, prepare_datasets
-from loss import dipole_calc
-from model import EF
-from training import train_model  # from model import dipole_calc
-
-orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
-
+# Initialize random keys
 data_key, train_key = jax.random.split(jax.random.PRNGKey(43), 2)
 
-# files = ["/pchem-data/meuwly/boittier/home/ini.to.dioxi.npz"]
-files = ["/pchem-data/meuwly/boittier/home/jaxeq/notebooks/ala-esp-dip-0.npz"]
-NATOMS = 37
-
-batch_size = 5 
-
+# Prepare datasets
 train_data, valid_data = prepare_datasets(
-    data_key, 8000, 1000, files, clip_esp=False, natoms=NATOMS, clean=False
+    data_key,
+    train_size=8000,
+    valid_size=1000,
+    files=DATA_FILES,
+    clip_esp=False,
+    natoms=NATOMS,
+    clean=False,
 )
-print(NATOMS)
+
+# Split validation data into validation and test sets
 ntest = len(valid_data["E"]) // 2
 test_data = {k: v[ntest:] for k, v in valid_data.items()}
 valid_data = {k: v[:ntest] for k, v in valid_data.items()}
+
+# Initialize model
 model = EF(
-    # attributes
     features=12,
     max_degree=2,
     num_iterations=4,
@@ -62,12 +68,7 @@ model = EF(
     debug=[],
 )
 
-from pathlib import Path
-restart_dir_base = Path("/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/")
-restart_dir = restart_dir_base / "test-ef20ef7e-f086-428c-867e-c7f631eead87"
-from training import get_last, get_files, get_params_model
-
-DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
+# Train model
 params = train_model(
     train_key,
     model,
@@ -75,13 +76,9 @@ params = train_model(
     valid_data,
     num_epochs=20000,
     learning_rate=0.01,
-    # forces_weight=100,
-    # charges_weight=1,
-    batch_size=batch_size,
+    batch_size=BATCH_SIZE,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-    # restart=restart_dir,
     print_freq=1,
     best=100000,
-    # name=name,
 )

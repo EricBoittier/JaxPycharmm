@@ -201,6 +201,7 @@ def train_model(
                 batch_size=batch_size,
                 energy_weight=energy_weight,
                 forces_weight=forces_weight,
+                dipole_weight=dipole_weight,
                 charges_weight=charges_weight,
                 charges=doCharges,
                 params=ema_params,
