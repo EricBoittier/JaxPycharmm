@@ -203,10 +203,10 @@ class EF(nn.Module):
             displacements,
             dst_idx,
             src_idx,
+            atom_mask,
+            batch_mask,
             batch_segments,
             batch_size,
-            batch_mask,
-            atom_mask,
         )
         atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
 
