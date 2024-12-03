@@ -84,7 +84,9 @@ class EF(nn.Module):
             - Either energy array or tuple of (energy, charges, electrostatics)
         """
         # Calculate basic geometric features
-        basis = self._calculate_geometric_features(positions, dst_idx, src_idx)
+        basis, displacements = self._calculate_geometric_features(
+            positions, dst_idx, src_idx
+        )
 
         # Embed and process atomic features
         x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx)
@@ -93,7 +95,7 @@ class EF(nn.Module):
             return self._calculate_with_charges(
                 x,
                 atomic_numbers,
-                positions,
+                displacements,
                 dst_idx,
                 src_idx,
                 batch_segments,
@@ -111,18 +113,21 @@ class EF(nn.Module):
         positions: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
-    ) -> jnp.ndarray:
+    ) -> Tuple[jnp.ndarray, jnp.ndarray]:
         """Calculate geometric features including displacements and basis functions."""
         positions_dst = e3x.ops.gather_dst(positions, dst_idx=dst_idx)
         positions_src = e3x.ops.gather_src(positions, src_idx=src_idx)
         displacements = positions_src - positions_dst
 
-        return e3x.nn.basis(
+        return (
+            e3x.nn.basis(
+                displacements,
+                num=self.num_basis_functions,
+                max_degree=self.max_degree,
+                radial_fn=e3x.nn.reciprocal_bernstein,
+                cutoff_fn=functools.partial(e3x.nn.smooth_cutoff, cutoff=self.cutoff),
+            ),
             displacements,
-            num=self.num_basis_functions,
-            max_degree=self.max_degree,
-            radial_fn=e3x.nn.reciprocal_bernstein,
-            cutoff_fn=functools.partial(e3x.nn.smooth_cutoff, cutoff=self.cutoff),
         )
 
     def _process_atomic_features(
@@ -183,7 +188,7 @@ class EF(nn.Module):
         self,
         x: jnp.ndarray,
         atomic_numbers: jnp.ndarray,
-        positions: jnp.ndarray,
+        displacements: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
         batch_segments: jnp.ndarray,
@@ -195,7 +200,7 @@ class EF(nn.Module):
         atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
         electrostatics, batch_electrostatics = self._calculate_electrostatics(
             atomic_charges,
-            positions,
+            displacements,
             dst_idx,
             src_idx,
             batch_segments,
@@ -208,7 +213,7 @@ class EF(nn.Module):
         if self.zbl:
             repulsion = self._calculate_repulsion(
                 atomic_numbers,
-                positions,
+                displacements,
                 dst_idx,
                 src_idx,
                 batch_segments,
@@ -314,7 +319,7 @@ class EF(nn.Module):
     def _calculate_electrostatics(
         self,
         atomic_charges: jnp.ndarray,
-        positions: jnp.ndarray,
+        displacements: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
         batch_segments: jnp.ndarray,
@@ -347,9 +352,6 @@ class EF(nn.Module):
         SWITCH_END = 10.0  # Complete switch by 10 Angstroms
 
         # Calculate distances between atom pairs
-        positions_dst = e3x.ops.gather_dst(positions, dst_idx=dst_idx)
-        positions_src = e3x.ops.gather_src(positions, src_idx=src_idx)
-        displacements = positions_src - positions_dst
         displacements = displacements + (1 - batch_mask)[..., None]
 
         # Safe distance calculation with minimum cutoff
