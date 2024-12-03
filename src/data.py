@@ -218,7 +218,7 @@ def prepare_multiple_datasets(
 
     print("R", dataR.shape)
 
-    assert_dataset_size(dataR.squeeze(), num_train, num_valid)
+    assert_dataset_size(dataR.squeeze(), train_size, valid_size)
 
     return (
         data,
