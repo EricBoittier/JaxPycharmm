@@ -70,7 +70,7 @@ def train_model(
     batch_size=1,
     num_atoms=60,
     restart=False,
-    conversion=conversion,
+    conversion=CONVERSION,
     print_freq=1,
     name="test",
     best=False,
