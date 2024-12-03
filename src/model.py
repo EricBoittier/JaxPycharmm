@@ -299,8 +299,8 @@ class EF(nn.Module):
             dst_idx,
             src_idx,
             atom_mask,
-            batch_segments,
             batch_mask,
+            batch_segments,
             batch_size,
         )
         return repulsion_energy

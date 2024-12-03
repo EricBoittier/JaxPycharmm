@@ -95,8 +95,8 @@ class ZBLRepulsion(nn.Module):
         idx_i: jnp.ndarray,
         idx_j: jnp.ndarray,
         atom_mask: jnp.ndarray,
-        batch_segments: jnp.ndarray,
         batch_mask: jnp.ndarray,
+        batch_segments: jnp.ndarray,
         batch_size: int,
     ) -> jnp.ndarray:
         """Calculate ZBL nuclear repulsion energies.
