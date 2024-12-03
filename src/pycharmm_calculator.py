@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 import numpy as np
-import jax 
+import jax
 
 # from model import EF
 
@@ -237,7 +237,7 @@ class PyCharmm_Calculator:
         self.results["energy"] = self.results["energy"][0]
         # Apply dtype conversion
         E = self.results["energy"]
-        ml_F = np.array(self.results["forces"]) 
+        ml_F = np.array(self.results["forces"])
 
         # jax.debug.print("{x}", x=E)
         # print(ml_F)
@@ -282,4 +282,4 @@ class PyCharmm_Calculator:
         #         dy[ai] -= mlmm_F[ia, 1]
         #         dz[ai] -= mlmm_F[ia, 2]
 
-        return E 
+        return E

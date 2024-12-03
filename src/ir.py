@@ -20,6 +20,7 @@ hbar = hbar.magnitude
 Kb = 3.1668114e-6  # Boltzmann constant in atomic units (Hartree/K)
 beta = 1.0 / (Kb / float(300))  # atomic units
 
+
 def autocorrelation_ft(series, timestep, verbose=False):
     """
     Compute the autocorrelation function of a time series using the Fourier
@@ -42,11 +43,12 @@ def autocorrelation_ft(series, timestep, verbose=False):
     spectra = np.abs(np.fft.rfftn(acv))
     return freq, spectra
 
+
 def intensity_correction(freq, spectra, volume):
     twopiomega = 2 * np.pi * freq
-    exp_corr = (1 - np.exp(-beta * hbar * freq))
+    exp_corr = 1 - np.exp(-beta * hbar * freq)
     three_h_c_v = 3 * hbar * c * volume
-    spectra = spectra*(twopiomega * exp_corr) / three_h_c_v
+    spectra = spectra * (twopiomega * exp_corr) / three_h_c_v
     # scale the spectra
     # spectra = spectra / np.max(spectra)
 
@@ -54,6 +56,7 @@ def intensity_correction(freq, spectra, volume):
     spectra = spectra / np.trapz(spectra, freq)
 
     return freq, spectra
+
 
 def read_dat_file(filename):
     """
@@ -68,8 +71,9 @@ def rolling_avg(freq, spectra, window=10):
     Compute the rolling average of a data set.
     """
     freq = freq[window:]
-    spectra = np.convolve(spectra, np.ones(window), 'valid') / window
+    spectra = np.convolve(spectra, np.ones(window), "valid") / window
     return freq, spectra[1:]
+
 
 def assign_peaks(spectra, n_peaks=10, height=0.1):
     """

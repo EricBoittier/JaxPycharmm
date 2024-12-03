@@ -5,6 +5,7 @@ from tqdm import tqdm
 from loss import dipole_calc
 import numpy as np
 
+
 def plot(x, y, ax, units="kcal/mol", _property="", kde=True, s=1, diag=True):
     x = x.flatten()
     y = y.flatten()
