@@ -64,7 +64,7 @@ model = EF(
     natoms=NATOMS,
     total_charge=0,
     n_res=1,
-    debug=[],
+    debug=["repulsion"],
 )
 
 # Train model

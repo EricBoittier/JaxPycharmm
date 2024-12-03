@@ -216,6 +216,8 @@ class EF(nn.Module):
                 batch_mask,
                 atom_mask,
             )
+            if isinstance(self.debug, list) and "repulsion" in self.debug:
+                jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
             atomic_energies += repulsion
 
         energy = jax.ops.segment_sum(
