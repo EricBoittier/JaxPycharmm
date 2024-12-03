@@ -370,7 +370,10 @@ class EF(nn.Module):
         # jax.value_and_grad to create a function for predicting both energy and forces for us.
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
 
-        if "idx" in self.debug:
+        # Debug input shapes
+        if isinstance(self.debug, list) and "idx" in self.debug:
+            jax.debug.print("atomic_numbers {x}", x=atomic_numbers.shape)
+            jax.debug.print("positions {x}", x=positions.shape)
             jax.debug.print("dst_idx {x}", x=dst_idx.shape)
             jax.debug.print("src_idx {x}", x=src_idx.shape)
             jax.debug.print("batch_segments {x}", x=batch_segments.shape)
@@ -378,6 +381,7 @@ class EF(nn.Module):
             jax.debug.print("batch_mask {x}", x=batch_mask.shape)
             jax.debug.print("atom_mask {x}", x=atom_mask.shape)
 
+        # Calculate energies and forces
         (_, (energy, charges, electrostatics)), forces = energy_and_forces(
             atomic_numbers,
             positions,
@@ -389,17 +393,34 @@ class EF(nn.Module):
             atom_mask,
         )
 
+        # Apply atom mask to forces
         forces = forces * atom_mask[..., None]
 
+        # Prepare output dictionary
         output = {
             "energy": energy,
             "forces": forces,
             "charges": charges,
             "electrostatics": electrostatics,
         }
-        if "forces" in self.debug:
-            for k in output.keys():
-                hasnans = jnp.isnan(output[k]).any()
-                jax.debug.print("{k} {nank} {blah}", k=k, nank=hasnans, blah="")
-            jax.debug.print("forces {x}", x=forces)
+
+        # Debug output values
+        if isinstance(self.debug, list):
+            if "forces" in self.debug:
+                for k in output.keys():
+                    if output[k] is not None:
+                        hasnans = jnp.isnan(output[k]).any()
+                        hasninf = ~jnp.isfinite(output[k]).any()
+                        jax.debug.print(
+                            "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
+                            k=k,
+                            nans=hasnans,
+                            ninf=hasninf,
+                        )
+                jax.debug.print("Forces shape: {x}", x=forces.shape)
+            if "energy" in self.debug:
+                jax.debug.print("Energy: {x}", x=energy)
+            if "charges" in self.debug and charges is not None:
+                jax.debug.print("Charges shape: {x}", x=charges.shape)
+
         return output
