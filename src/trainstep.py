@@ -1,4 +1,3 @@
-
 import os
 import sys
 import uuid
@@ -43,8 +42,6 @@ from loss import (
 from model import EF
 
 DTYPE = jnp.float32
-
-orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 
 @functools.partial(

@@ -29,18 +29,14 @@ from optax import tree_utils as otu
 from tqdm import tqdm
 
 from data import prepare_batches, prepare_datasets
-from trainstep import train_step
 from evalstep import eval_step
-# from jax import config
-# config.update('jax_enable_x64', True)
-from loss import (
-    dipole_calc,
-    mean_absolute_error,
-    mean_squared_loss,
-    mean_squared_loss_D,
-    mean_squared_loss_QD,
-)
 from model import EF
+from optimizer import optimizer, transform
+from trainstep import train_step
+
+DTYPE = jnp.float32
+
+orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 
 def get_files(path):
@@ -97,10 +93,6 @@ def get_params_model(restart, natoms=None):
     return params, model
 
 
-
-
-
-
 conversion = {
     "energy": 1 / (ase.units.kcal / ase.units.mol),
     "forces": 1 / (ase.units.kcal / ase.units.mol),
@@ -143,24 +135,6 @@ def train_model(
         transition_steps=10,
         decay_rate=0.999,
     )
-    optimizer = optax.chain(
-        # optax.adaptive_grad_clip(1.0),
-        # optax.zero_nans(),
-        optax.clip_by_global_norm(1000.0),
-        optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-6),
-        # optax.adam(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3, eps_root=1e-8),
-        # optax.adamw(learning_rate=schedule_fn),
-        # optax.ema(decay=0.999, debias=False),
-    )
-    # optimizer = optax.adamw(learning_rate=learning_rate)
-    transform = optax.contrib.reduce_on_plateau(
-        patience=5,
-        cooldown=5,
-        factor=0.99,
-        rtol=1e-4,
-        accumulation_size=5,
-        min_scale=0.01,
-    )
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
     valid_batches = prepare_batches(
@@ -200,11 +174,11 @@ def train_model(
     else:
         ema_params = params
         best_loss = 10000
-        # Creates initial state for `contrib.reduce_on_plateau` transformation.
         step = 1
 
     if best:
         best_loss = best
+
     opt_state = optimizer.init(params)
     transform_state = transform.init(params)
 
@@ -215,7 +189,7 @@ def train_model(
     print("model", model)
     # Train for 'num_epochs' epochs.
     for epoch in range(step, num_epochs + 1):
-        
+
         # adjust weights for the loss function
         # forces_weight = np.tanh(1.1**(0.05 * (epoch - 100))) * 100 + 1
         # energy_weight = np.tanh(1.1**(0.05 * (-epoch + 500))) * 10 + 10
@@ -228,9 +202,9 @@ def train_model(
         else:
             forces_weight = 50
             energy_weight = 1
-            
+
         print("Wf, We =", forces_weight, energy_weight)
-        
+
         # Prepare batches.
         key, shuffle_key = jax.random.split(key)
         train_batches = prepare_batches(
@@ -306,13 +280,15 @@ def train_model(
         train_energy_mae *= conversion["energy"]
         train_forces_mae *= conversion["forces"]
 
-        obj_res = {"valid_energy_mae" : valid_energy_mae, 
-        "valid_forces_mae" : valid_forces_mae, 
-        "train_energy_mae" : train_energy_mae, 
-        "train_forces_mae" : train_forces_mae, 
-        "train_loss": train_loss,
-        "valid_loss": valid_loss}
-        
+        obj_res = {
+            "valid_energy_mae": valid_energy_mae,
+            "valid_forces_mae": valid_forces_mae,
+            "train_energy_mae": train_energy_mae,
+            "train_forces_mae": train_forces_mae,
+            "train_loss": train_loss,
+            "valid_loss": valid_loss,
+        }
+
         lr_eff = transform_state.scale * schedule_fn(epoch)
         best_ = False
         if obj_res[objective] < best_loss:
