@@ -1,7 +1,7 @@
 import optax
 import optax.contrib
 
-base_learning_rate = 0.01
+base_learning_rate = 0.001
 
 base_schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
     init_value=base_learning_rate,
