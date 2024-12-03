@@ -58,8 +58,8 @@ class ZBLRepulsion(nn.Module):
             x
         ) if self.trainable else jnp.array(x, dtype=self.dtype)
 
-        self.a_coefficient = param_init([a_coefficient])
-        self.a_exponent = param_init([a_exponent])
+        self.a_coefficient = param_init(a_coefficient)
+        self.a_exponent = param_init(a_exponent)
         self.phi_coefficients = param_init(phi_coefficients)
         self.phi_exponents = param_init(phi_exponents)
 
