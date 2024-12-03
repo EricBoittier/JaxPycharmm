@@ -416,8 +416,6 @@ def prepare_batches(
     dst_idx = dst_idx + offsets[:, None]  # .reshape(-1)  # * good_indices
     src_idx = src_idx + offsets[:, None]  # .reshape(-1)  # * good_indices
 
-    print("len dst", dst_idx.shape)
-
     output = []
     if data_keys is None:
         data_keys = [

@@ -15,6 +15,8 @@ import jax
 import jax.numpy as jnp
 import numpy.typing as npt
 
+from zbl import ZBLRepulsion
+
 # Constants
 DTYPE = jnp.float32
 HARTREE_TO_KCAL_MOL = 627.509  # Conversion factor for energy units
@@ -50,6 +52,7 @@ class EF(nn.Module):
     natoms: int = 60
     total_charge: float = 0
     n_res: int = 3
+    zbl: bool = True
     debug: bool | List[str] = False
 
     def energy(
@@ -202,6 +205,19 @@ class EF(nn.Module):
         )
         atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
 
+        if self.zbl:
+            repulsion = self._calculate_repulsion(
+                atomic_numbers,
+                positions,
+                dst_idx,
+                src_idx,
+                batch_segments,
+                batch_size,
+                batch_mask,
+                atom_mask,
+            )
+            atomic_energies += repulsion
+
         energy = jax.ops.segment_sum(
             atomic_energies + electrostatics,
             segment_ids=batch_segments,
@@ -247,6 +263,24 @@ class EF(nn.Module):
 
         return atomic_charges
 
+    def _calculate_repulsion(
+        self,
+        atomic_numbers: jnp.ndarray,
+        positions: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        batch_size: int,
+        batch_mask: jnp.ndarray,
+        atom_mask: jnp.ndarray,
+    ) -> jnp.ndarray:
+        """Calculate repulsion energies between atoms."""
+        repulsion = ZBLRepulsion()
+        repulsion_energy = repulsion.energy(
+            atomic_numbers, positions, dst_idx, src_idx, batch_segments, batch_size
+        )
+        return repulsion_energy
+
     def _calculate_atomic_energies(
         self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
     ) -> jnp.ndarray:
@@ -275,7 +309,7 @@ class EF(nn.Module):
         batch_size: int,
         batch_mask: jnp.ndarray,
         atom_mask: jnp.ndarray,
-    ) -> jnp.ndarray:
+    ) -> Tuple[jnp.ndarray, jnp.array]:
         """Calculate electrostatic interactions between atoms.
 
         Uses a smoothly switched combination of short-range and long-range electrostatics
