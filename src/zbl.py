@@ -53,8 +53,8 @@ class ZBLRepulsion(nn.Module):
             )
             self.use_switch = True
         else:
-            self.cuton_dist = jnp.array([0.0], dtype=self.dtype)
-            self.switchoff_range = jnp.array([self.cutoff], dtype=self.dtype)
+            self.cuton_dist = 0.0
+            self.switchoff_range = self.cutoff
             self.use_switch = True if self.cuton is None else False
 
         # Initialize parameters
