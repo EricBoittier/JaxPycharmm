@@ -30,10 +30,13 @@ print("JAX backend:", jax.default_backend())
 
 # Configuration
 NATOMS = 37
-BATCH_SIZE = 5
+BATCH_SIZE = 1
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 DATA_FILES = ["/pchem-data/meuwly/boittier/home/jaxeq/notebooks/ala-esp-dip-0.npz"]
 CHECKPOINT_DIR = Path("/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/")
+
+restart = CHECKPOINT_DIR / "test-9392c2e7-af2a-4756-ae2a-35ffdf01951d"
+# restart = None
 
 # Initialize random keys
 data_key, train_key = jax.random.split(jax.random.PRNGKey(43), 2)
@@ -74,10 +77,12 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=20000,
-    learning_rate=0.01,
+    learning_rate=0.001,
+    forces_weight=100,
     batch_size=BATCH_SIZE,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     print_freq=1,
+    restart=restart,
     best=100000,
 )
