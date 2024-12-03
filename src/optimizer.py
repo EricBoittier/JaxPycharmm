@@ -1,6 +1,15 @@
 import optax
 import optax.contrib
 
+learning_rate = 0.01
+
+schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
+        init_value=learning_rate,
+        peak_value=learning_rate * 1.05,
+        warmup_steps=10,
+        transition_steps=10,
+        decay_rate=0.999,
+    )
 optimizer = optax.chain(
     # optax.adaptive_grad_clip(1.0),
     # optax.zero_nans(),

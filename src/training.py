@@ -31,7 +31,7 @@ from tqdm import tqdm
 from data import prepare_batches, prepare_datasets
 from evalstep import eval_step
 from model import EF
-from optimizer import optimizer, transform
+from optimizer import optimizer, transform, schedule_fn
 from trainstep import train_step
 
 DTYPE = jnp.float32
@@ -128,13 +128,7 @@ def train_model(
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = f"/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/{name}-{uuid_}/"
-    schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
-        init_value=learning_rate,
-        peak_value=learning_rate * 1.05,
-        warmup_steps=10,
-        transition_steps=10,
-        decay_rate=0.999,
-    )
+    
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
     valid_batches = prepare_batches(
