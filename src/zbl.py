@@ -124,35 +124,80 @@ class ZBLRepulsion(nn.Module):
             )
 
         # Compute atomic number dependent screening length with safe operations
-        za = jnp.power(atomic_numbers, jnp.abs(self.a_exponent))
-        denominator = jnp.maximum(za[idx_i] + za[idx_j], 1e-10)
+        # Clip atomic numbers to prevent zero or negative values
+        safe_atomic_numbers = jnp.maximum(atomic_numbers, 1e-6)
+        
+        # Use safe power operation
+        za = jnp.exp(jnp.log(safe_atomic_numbers) * jnp.abs(self.a_exponent))
+        
+        # Ensure za values are finite
+        za = jnp.nan_to_num(za, nan=1e-6, posinf=1e6, neginf=1e-6)
+        
+        # Compute denominator with better numerical stability
+        za_sum = za[idx_i] + za[idx_j]
+        denominator = jnp.maximum(za_sum, 1e-6)
+        
+        # Compute screening length
         a_ij = jnp.abs(self.a_coefficient) / denominator
-
+        a_ij = jnp.nan_to_num(a_ij, nan=1e-6, posinf=1e6, neginf=1e-6)
+        
         # Compute screening function phi with numerical stability
-        arguments = distances / a_ij
+        arguments = jnp.maximum(distances, 1e-10) / jnp.maximum(a_ij, 1e-10)
+        arguments = jnp.nan_to_num(arguments, nan=1e-6, posinf=1e6, neginf=1e-6)
+        
         # Normalize coefficients using softmax for better numerical stability
         coefficients = jax.nn.softmax(jnp.abs(self.phi_coefficients))
         exponents = jnp.abs(self.phi_exponents)
-
-        # Use log-space operations for numerical stability
-        log_terms = -exponents[None, ...] * arguments[..., None]
-        max_log = jnp.max(log_terms, axis=1, keepdims=True)
-        exp_terms = jnp.exp(log_terms - max_log)
+        
+        # Compute phi with better numerical stability
+        exp_terms = jnp.exp(-jnp.maximum(exponents[None, ...] * arguments[..., None], -50.0))
+        exp_terms = jnp.nan_to_num(exp_terms, nan=0.0, posinf=1.0, neginf=0.0)
         phi = jnp.sum(coefficients[None, ...] * exp_terms, axis=1)
+        phi = jnp.maximum(phi, 1e-30)  # Ensure phi is positive
+        a_ij = jnp.nan_to_num(a_ij, nan=1e-6, posinf=1e6, neginf=1e-6)
+# Compute nuclear repulsion potential with numerical stability
+# Factor 1.0 represents e^2/(4πε₀) in atomic units
+
+# Ensure all inputs are positive and finite
+safe_distances = jnp.maximum(distances, 1e-10)
+safe_phi = jnp.maximum(phi, 1e-30)
+safe_switch = jnp.maximum(switch_off, 1e-30)
+
+# Compute repulsion directly with careful ordering of operations
+repulsion = 0.5 * (
+    (safe_atomic_numbers[idx_i] * safe_atomic_numbers[idx_j]) 
+    / safe_distances
+)
+
+# Apply phi and switch separately to maintain better numerical control
+repulsion = repulsion * safe_phi
+repulsion = repulsion * safe_switch
+
+# Clean up any remaining numerical artifacts
+repulsion = jnp.nan_to_num(repulsion, nan=0.0, posinf=0.0, neginf=0.0)
+        exp_terms = jnp.nan_to_num(exp_terms, nan=0.0, posinf=1.0, neginf=0.0)
+        phi = jnp.sum(coefficients[None, ...] * exp_terms, axis=1)
+        phi = jnp.maximum(phi, 1e-30)  # Ensure phi is positive
 
         # Compute nuclear repulsion potential with numerical stability
         # Factor 1.0 represents e^2/(4πε₀) in atomic units
-        # Use log-space operations for better numerical stability
-        log_repulsion = (
-            jnp.log(0.5)
-            + jnp.log(atomic_numbers[idx_i])
-            + jnp.log(atomic_numbers[idx_j])
-            - jnp.log(distances)
-            + jnp.log(jnp.maximum(phi, 1e-30))
-            + jnp.log(jnp.maximum(switch_off, 1e-30))
+
+        # Ensure all inputs are positive and finite
+        safe_distances = jnp.maximum(distances, 1e-10)
+        safe_phi = jnp.maximum(phi, 1e-30)
+        safe_switch = jnp.maximum(switch_off, 1e-30)
+
+        # Compute repulsion directly with careful ordering of operations
+        repulsion = 0.5 * (
+            (safe_atomic_numbers[idx_i] * safe_atomic_numbers[idx_j]) / safe_distances
         )
 
-        repulsion = jnp.exp(log_repulsion)
+        # Apply phi and switch separately to maintain better numerical control
+        repulsion = repulsion * safe_phi
+        repulsion = repulsion * safe_switch
+
+        # Clean up any remaining numerical artifacts
+        repulsion = jnp.nan_to_num(repulsion, nan=0.0, posinf=0.0, neginf=0.0)
 
         # Apply batch segmentation
         repulsion = jnp.multiply(repulsion, batch_mask)
