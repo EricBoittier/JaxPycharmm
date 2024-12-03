@@ -227,6 +227,24 @@ class EF(nn.Module):
         )
         return -1.0 * jnp.sum(energy), (energy, None, None)
 
+    def _calculate_atomic_charges(
+        self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
+    ) -> jnp.ndarray:
+        """Calculate atomic charges from atomic features."""
+        x = e3x.nn.Dense(1, bias=False)(x)
+        charge_bias = self.param(
+            "charge_bias",
+            lambda rng, shape: jnp.zeros(shape),
+            (self.max_atomic_number + 1),
+        )
+        atomic_charges = nn.Dense(
+            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
+        )(x)
+        atomic_charges = e3x.nn.hard_tanh(atomic_charges) * 2.0
+        atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
+        atomic_charges *= atom_mask[..., None, None, None]
+        return x
+
     @nn.compact
     def __call__(
         self,
