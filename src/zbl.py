@@ -10,6 +10,8 @@ from typing import Any, Dict, Optional
 import flax.linen as nn
 import jax
 import jax.numpy as jnp
+from jax import lax
+from jax.nn import standardize
 
 # Constants
 BOHR_TO_ANGSTROM = 0.529177249  # Conversion factor from Bohr to Angstrom
@@ -108,8 +110,8 @@ class ZBLRepulsion(nn.Module):
         Returns:
             Array of repulsion energies per atom
         """
-        # Compute distances
-        distances = jnp.linalg.norm(displacements, axis=-1)
+        # Compute distances with numerical stability
+        distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
 
         # Compute switch-off function
         if self.use_switch:
@@ -121,39 +123,46 @@ class ZBLRepulsion(nn.Module):
                 jnp.zeros_like(distances),
             )
 
-        # Compute atomic number dependent screening length
-        za = atomic_numbers ** jnp.abs(self.a_exponent)
-        a_ij = jnp.abs(self.a_coefficient) / (za[idx_i] + za[idx_j])
+        # Compute atomic number dependent screening length with safe operations
+        za = jnp.power(atomic_numbers, jnp.abs(self.a_exponent))
+        denominator = jnp.maximum(za[idx_i] + za[idx_j], 1e-10)
+        a_ij = jnp.abs(self.a_coefficient) / denominator
 
-        # Compute screening function phi
+        # Compute screening function phi with numerical stability
         arguments = distances / a_ij
-        coefficients = jax.nn.normalize(jnp.abs(self.phi_coefficients), axis=0, ord=1)
+        # Normalize coefficients using softmax for better numerical stability
+        coefficients = jax.nn.softmax(jnp.abs(self.phi_coefficients))
         exponents = jnp.abs(self.phi_exponents)
-        phi = jnp.sum(
-            coefficients[None, ...]
-            * jnp.exp(-exponents[None, ...] * arguments[..., None]),
-            axis=1,
-        )
 
-        # Compute nuclear repulsion potential
+        # Use log-space operations for numerical stability
+        log_terms = -exponents[None, ...] * arguments[..., None]
+        max_log = jnp.max(log_terms, axis=1, keepdims=True)
+        exp_terms = jnp.exp(log_terms - max_log)
+        phi = jnp.sum(coefficients[None, ...] * exp_terms, axis=1)
+
+        # Compute nuclear repulsion potential with numerical stability
         # Factor 1.0 represents e^2/(4πε₀) in atomic units
-        repulsion = (
-            0.5
-            * 1.0
-            * atomic_numbers[idx_i]
-            * atomic_numbers[idx_j]
-            / distances
-            * phi
-            * switch_off
+        # Use log-space operations for better numerical stability
+        log_repulsion = (
+            jnp.log(0.5)
+            + jnp.log(atomic_numbers[idx_i])
+            + jnp.log(atomic_numbers[idx_j])
+            - jnp.log(distances)
+            + jnp.log(jnp.maximum(phi, 1e-30))
+            + jnp.log(jnp.maximum(switch_off, 1e-30))
         )
 
-        repulsion *= batch_segments
+        repulsion = jnp.exp(log_repulsion)
 
-        # Sum contributions for each atom
+        # Apply batch segmentation
+        repulsion = jnp.multiply(repulsion, batch_segments)
+
+        # Sum contributions for each atom using safe operations
         Erep = jax.ops.segment_sum(
             repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
         )
 
-        Erep *= atom_mask
+        # Apply atom mask
+        Erep = jnp.multiply(Erep, atom_mask)
 
         return Erep
