@@ -243,6 +243,7 @@ class EF(nn.Module):
         atomic_charges = e3x.nn.hard_tanh(atomic_charges) * 2.0
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
+
         return atomic_charges
 
     def _calculate_atomic_energies(
@@ -260,6 +261,8 @@ class EF(nn.Module):
         )(x)
         atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
         atomic_energies *= atom_mask[..., None, None, None]
+        jax.debug.print("atomic_energies {x}", x=atomic_energies.shape)
+
         return atomic_energies
 
     def _calculate_electrostatics(
@@ -382,7 +385,7 @@ class EF(nn.Module):
             jax.debug.print("atom_mask {x}", x=atom_mask.shape)
 
         # Calculate energies and forces
-        (_energy, (energy, charges, electrostatics)), forces = energy_and_forces(
+        (_, (energy, charges, electrostatics)), forces = energy_and_forces(
             atomic_numbers,
             positions,
             dst_idx,
@@ -398,8 +401,7 @@ class EF(nn.Module):
 
         # Prepare output dictionary
         output = {
-            "energy": _energy,
-            "energy_": energy,
+            "energy": energy,
             "forces": forces,
             "charges": charges,
             "electrostatics": electrostatics,
