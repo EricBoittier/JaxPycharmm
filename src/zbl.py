@@ -165,4 +165,4 @@ class ZBLRepulsion(nn.Module):
         # Apply atom mask
         Erep = jnp.multiply(Erep, atom_mask)
 
-        return Erep
+        return Erep[..., None, None, None]
