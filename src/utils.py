@@ -6,6 +6,8 @@ from typing import Any, Dict, List
 import jax.numpy as jnp
 import orbax
 
+from model import EF
+
 DTYPE = jnp.float32
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
@@ -62,7 +64,7 @@ def _process_model_attributes(
         "max_atomic_number",
     ]
     float_fields = ["cutoff", "total_charge"]
-    bool_fields = ["charges"]
+    bool_fields = ["charges", "zbl"]
 
     for field in int_fields:
         kwargs[field] = int(kwargs[field])
