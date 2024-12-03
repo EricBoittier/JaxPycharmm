@@ -7,6 +7,7 @@ using the ZBL potential with smooth cutoffs.
 
 from typing import Any, Dict, Optional
 
+import e3x
 import flax.linen as nn
 import jax
 import jax.numpy as jnp
@@ -116,7 +117,7 @@ class ZBLRepulsion(nn.Module):
         distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
 
         # Compute switch-off function
-        switch_off = self.switch_fn(distances)
+        switch_off = e3x.nn.smooth_switch(distances, self.cuton_dist, self.cutoff_dist)
 
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values

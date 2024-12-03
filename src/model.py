@@ -394,6 +394,7 @@ class EF(nn.Module):
             segment_ids=batch_segments,
             num_segments=batch_size,
         )
+        atomic_electrostatics = e3x.nn.smooth_damp(atomic_electrostatics)
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
 
         return atomic_electrostatics, batch_electrostatics
