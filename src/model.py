@@ -190,7 +190,7 @@ class EF(nn.Module):
     ) -> Tuple[float, Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]]:
         """Calculate energies including charge interactions."""
         atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
-        electrostatics = self._calculate_electrostatics(
+        electrostatics, batch_electrostatics = self._calculate_electrostatics(
             atomic_charges,
             positions,
             dst_idx,
@@ -208,7 +208,7 @@ class EF(nn.Module):
             num_segments=batch_size,
         )
 
-        return -1 * jnp.sum(energy), (energy, atomic_charges, electrostatics)
+        return -1 * jnp.sum(energy), (energy, atomic_charges, batch_electrostatics)
 
     def _calculate_without_charges(
         self,
@@ -334,7 +334,7 @@ class EF(nn.Module):
             segment_ids=batch_segments,
             num_segments=batch_size,
         )
-        return batch_electrostatics[..., None, None, None]
+        return atomic_electrostatics[..., None, None, None], batch_electrostatics
 
     @nn.compact
     def __call__(
