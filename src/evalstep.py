@@ -1,5 +1,3 @@
-
-
 import os
 import sys
 import uuid
@@ -50,7 +48,15 @@ orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 @functools.partial(jax.jit, static_argnames=("model_apply", "batch_size", "charges"))
 def eval_step(
-    model_apply, batch, batch_size, charges, energy_weight, forces_weight, charges_weight, params
+    model_apply,
+    batch,
+    batch_size,
+    charges,
+    energy_weight,
+    forces_weight,
+    dipole_weight,
+    charges_weight,
+    params,
 ):
     if charges:
         output = model_apply(
@@ -86,10 +92,10 @@ def eval_step(
             forces_weight=forces_weight,
             dipole_prediction=dipole,
             dipole_target=batch["D"],
-            dipole_weight=charges_weight,
+            dipole_weight=dipole_weight,
             total_charges_prediction=sum_charges,
             total_charge_target=jnp.zeros_like(sum_charges),
-            total_charge_weight=14.399645351950548,
+            total_charge_weight=charges_weight,
             atomic_mask=batch["atom_mask"],
         )
 

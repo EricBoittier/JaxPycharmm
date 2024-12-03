@@ -63,6 +63,7 @@ def train_step(
     doCharges,
     energy_weight,
     forces_weight,
+    dipole_weight,
     charges_weight,
     opt_state,
     params,
@@ -106,10 +107,10 @@ def train_step(
                 forces_weight=forces_weight,
                 dipole_prediction=dipole,
                 dipole_target=batch["D"],
-                dipole_weight=charges_weight,
+                dipole_weight=dipole_weight,
                 total_charges_prediction=sum_charges,
                 total_charge_target=jnp.zeros_like(sum_charges),
-                total_charge_weight=14.399645351950548,
+                total_charge_weight=charges_weight,
                 atomic_mask=batch["atom_mask"],
             )
             return loss, (output["energy"], output["forces"], output["charges"], dipole)
