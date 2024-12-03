@@ -1,49 +1,51 @@
-import sys
-from typing import List
+"""
+Energy and Forces Neural Network Model implementation.
 
-from ase import atom
-
-# Add custom path
-sys.path.append("/home/boittier/jaxeq/dcmnet")
+This module implements a neural network model for predicting molecular energies 
+and forces using message passing and equivariant transformations.
+"""
 
 import functools
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-import ase
-import dcmnet
 import e3x
 import flax.linen as nn
 import jax
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
-import numpy as np
-import optax
-from dcmnet.analysis import create_model_and_params
-from dcmnet.data import prepare_batches, prepare_datasets
-from dcmnet.electrostatics import batched_electrostatic_potential, calc_esp
-from dcmnet.modules import NATOMS, MessagePassingModel
-from dcmnet.plotting import evaluate_dc, plot_esp, plot_model
-from dcmnet.training import train_model
-from dcmnet.training_dipole import train_model_dipo
-from dcmnet.utils import apply_model, reshape_dipole, safe_mkdir
-from jax.random import randint
-from optax import contrib
-from optax import tree_utils as otu
-from tqdm import tqdm
+import numpy.typing as npt
 
-# from jax import config
-# config.update('jax_enable_x64', True)
-
-
+# Constants
 DTYPE = jnp.float32
+HARTREE_TO_KCAL_MOL = 627.509  # Conversion factor for energy units
 
 
 class EF(nn.Module):
+    """Energy and Forces Neural Network Model.
+
+    A neural network model that predicts molecular energies and forces using message passing
+    and equivariant transformations.
+
+    Attributes:
+        features: Number of features in the neural network layers
+        max_degree: Maximum degree for spherical harmonics
+        num_iterations: Number of message passing iterations
+        num_basis_functions: Number of radial basis functions
+        cutoff: Cutoff distance for interactions
+        max_atomic_number: Maximum atomic number supported
+        charges: Whether to predict atomic charges
+        natoms: Maximum number of atoms in a molecule
+        total_charge: Total molecular charge constraint
+        n_res: Number of residual blocks
+        debug: Debug flags (False or list of debug areas)
+    """
+
     features: int = 32
     max_degree: int = 3
     num_iterations: int = 2
     num_basis_functions: int = 16
     cutoff: float = 6.0
-    max_atomic_number: int = 118  # This is overkill for most applications.
+    max_atomic_number: int = 118
     charges: bool = False
     natoms: int = 60
     total_charge: float = 0
@@ -52,228 +54,210 @@ class EF(nn.Module):
 
     def energy(
         self,
-        atomic_numbers,
-        positions,
-        dst_idx,
-        src_idx,
-        batch_segments,
-        batch_size,
-        batch_mask,
-        atom_mask,
-    ):
-        # 1. Calculate displacement vectors.
+        atomic_numbers: jnp.ndarray,
+        positions: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        batch_size: int,
+        batch_mask: jnp.ndarray,
+        atom_mask: jnp.ndarray,
+    ) -> Tuple[float, Union[jnp.ndarray, Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]]]:
+        """Calculate molecular energy and related properties.
+
+        Args:
+            atomic_numbers: Array of atomic numbers for each atom
+            positions: Array of atomic coordinates
+            dst_idx: Destination indices for message passing
+            src_idx: Source indices for message passing
+            batch_segments: Batch segment indices
+            batch_size: Number of molecules in batch
+            batch_mask: Mask for valid batch elements
+            atom_mask: Mask for valid atoms
+
+        Returns:
+            Tuple containing:
+            - Total energy (negative sum)
+            - Either energy array or tuple of (energy, charges, electrostatics)
+        """
+        # Calculate basic geometric features
+        basis = self._calculate_geometric_features(positions, dst_idx, src_idx)
+
+        # Embed and process atomic features
+        x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx)
+
+        if self.charges:
+            return self._calculate_with_charges(
+                x,
+                atomic_numbers,
+                positions,
+                dst_idx,
+                src_idx,
+                batch_segments,
+                batch_size,
+                batch_mask,
+                atom_mask,
+            )
+
+        return self._calculate_without_charges(
+            x, atomic_numbers, batch_segments, batch_size, atom_mask
+        )
+
+    def _calculate_geometric_features(
+        self,
+        positions: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+    ) -> jnp.ndarray:
+        """Calculate geometric features including displacements and basis functions."""
         positions_dst = e3x.ops.gather_dst(positions, dst_idx=dst_idx)
         positions_src = e3x.ops.gather_src(positions, src_idx=src_idx)
-        displacements = positions_src - positions_dst  # Shape (num_pairs, 3).
-        # 2. Expand displacement vectors in basis functions.
-        basis = e3x.nn.basis(  # Shape (num_pairs, 1, (max_degree+1)**2, num_basis_functions).
+        displacements = positions_src - positions_dst
+
+        return e3x.nn.basis(
             displacements,
             num=self.num_basis_functions,
             max_degree=self.max_degree,
             radial_fn=e3x.nn.reciprocal_bernstein,
-            # radial_fn=functools.partial(
-            #    e3x.nn.exponential_gaussian,
-            #    cuspless=False,
-            #    use_exponential_weighting=True,
-            # ),
             cutoff_fn=functools.partial(e3x.nn.smooth_cutoff, cutoff=self.cutoff),
         )
-        # if self.debug:
-        #     jax.debug.print("basis {x}", x=basis)
-        # 3. Embed atomic numbers in feature space, x has shape (num_atoms, 1, 1, features).
+
+    def _process_atomic_features(
+        self,
+        atomic_numbers: jnp.ndarray,
+        basis: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+    ) -> jnp.ndarray:
+        """Process atomic features through message passing and refinement."""
         x = e3x.nn.Embed(
             num_embeddings=self.max_atomic_number + 1,
             features=self.features,
             dtype=DTYPE,
         )(atomic_numbers)
 
-        # 4. Perform iterations (message-passing + atom-wise refinement).
         for i in range(self.num_iterations):
-            # Message-pass.
-            if i == self.num_iterations - 1:  # Final iteration.
-                # Since we will only use scalar features after the final message-pass, we do not want to produce non-scalar
-                # features for efficiency reasons.
-                x = e3x.nn.MessagePass(max_degree=0, include_pseudotensors=False)(
-                    x, basis, dst_idx=dst_idx, src_idx=src_idx
-                )
-                # After the final message pass, we can safely throw away all non-scalar features.
-                x = e3x.nn.change_max_degree_or_type(
-                    x, max_degree=0, include_pseudotensors=False
-                )
-            else:
-                # In intermediate iterations, the message-pass should consider all possible coupling paths.
-                x = e3x.nn.MessagePass(include_pseudotensors=False)(
-                    x, basis, dst_idx=dst_idx, src_idx=src_idx
-                )
+            x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
+            x = self._refinement_iteration(x)
 
-            for _ in range(self.n_res):
-                y = e3x.nn.silu(x)
-                # Atom-wise refinement MLP.
-                y = e3x.nn.Dense(self.features)(y)
-                y = e3x.nn.relu(y)
-                y = e3x.nn.Dense(self.features)(y)
-                # Residual connection.
-                x = e3x.nn.add(x, y)
+        return x
 
-            y = e3x.nn.Dense(self.features)(y)
-            y = e3x.nn.silu(y)
-            # Residual connection.
-            x = e3x.nn.add(x, y)
-        # x = e3x.nn.silu(x)
-        # jax.debug.print("nans in x? {x}", x=jnp.isnan(x).any())
-
-        if self.charges:
-            charge_bias = self.param(
-                "charge_bias",
-                lambda rng, shape: jnp.zeros(shape),
-                (self.max_atomic_number + 1),
+    def _message_passing_iteration(
+        self,
+        x: jnp.ndarray,
+        basis: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+        iteration: int,
+    ) -> jnp.ndarray:
+        """Perform one iteration of message passing."""
+        if iteration == self.num_iterations - 1:
+            x = e3x.nn.MessagePass(max_degree=0, include_pseudotensors=False)(
+                x, basis, dst_idx=dst_idx, src_idx=src_idx
             )
-            atomic_charges = nn.Dense(
-                1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
-            )(x)
-            # atomic_charges = e3x.nn.hard_tanh(atomic_charges)
-            atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
-            atomic_charges *= atom_mask[..., None, None, None]
-            # atomic_charges = e3x.nn.hard_tanh(atomic_charges)
-            # atomic_charges = atomic_charges.reshape(batch_size * self.natoms, 1)
-            # atomic_charges = jnp.nan_to_num(atomic_charges, nan=0.0)
-            # constrain the total charge to the charge of the molecule
-            #     sum_charges = jax.ops.segment_sum(
-            #     atomic_charges,
-            #         segment_ids=batch_segments,
-            #         num_segments=batch_size
-            # ) - self.total_charge
-            #     sum_charges = sum_charges.reshape(batch_size, 1)
-            #     atomic_charges_mean = jnp.take(sum_charges/self.natoms, batch_segments)
-            #     atomic_charges = atomic_charges - atomic_charges_mean.reshape(atomic_charges.shape)
-            # add on the electrostatic energy
-            # displacements, positions_dst, positions_src, atomic_charges
-            # valid indices
-            # valid_idx = jnp.where(atomic_numbers != 0)
-            # jax.debug.print("valid_idx {x}", x=valid_idx)
-            # jax.debug.print("batch_mask {x}", x=batch_mask)
-            # jax.debug.print("displacements {x}", x=displacements)
-            displacements = displacements + (1 - batch_mask)[..., None]
-            distances = (displacements**2).sum(axis=1) ** 0.5
-            if self.debug and "dist" in self.debug:
-                jax.debug.print("atomic_numbers {x}", x=atomic_numbers)
-                jax.debug.print("atom mask {x}", x=atom_mask.shape)
-                jax.debug.print("atom mask {x}", x=atom_mask)
-                jax.debug.print("batch mask {x}", x=batch_mask.shape)
-                jax.debug.print(
-                    "distances has 0 {c}", c=jnp.isnan(jnp.log(distances)).any()
-                )
-                jax.debug.print("distances {c}", c=distances)
-                jax.debug.print("batch_mask {x}", x=batch_mask)
-                jax.debug.print(
-                    "distances has 0 {c}", c=jnp.isnan(jnp.log(distances)).any()
-                )
-                jax.debug.print("distances {c}", c=distances)
-            # distances = jnp.nan_to_num(distances, nan=10000)
-            sqrt_sqr_distances_plus_1 = (distances**2 + 1) ** 0.5
-            switch_dist = e3x.nn.smooth_switch(2 * distances, 0, 10)
-            one_minus_switch_dist = 1 - switch_dist
-
-            q1 = jnp.take(atomic_charges, dst_idx, fill_value=0.0)
-            q2 = jnp.take(atomic_charges, src_idx, fill_value=0.0)
-            if self.debug and "batch" in self.debug:
-                jax.debug.print("batch segments {x}", x=batch_segments)
-            q1_batches = jnp.take(
-                batch_segments,
-                dst_idx,  # fill_value=batch_size * self.natoms + 1
+            return e3x.nn.change_max_degree_or_type(
+                x, max_degree=0, include_pseudotensors=False
             )
 
-            R1 = switch_dist / sqrt_sqr_distances_plus_1
-            R2 = one_minus_switch_dist / distances
-            R = R1 + R2
-            # R = jnp.nan_to_num(R, nan=0.0)
-            # jax.debug.print("batch_mask {x}", x=batch_mask)
-            # R = R * batch_mask
-            electrostatics = 7.199822675975274 * q1 * q2 * R
-            electrostatics = electrostatics * batch_mask
-            # electrostatics = jnp.nan_to_num(electrostatics, nan=0.0)
-            if self.debug and "ele" in self.debug:
-                jax.debug.print("q1 {x}", x=q1)
-                jax.debug.print("nan in q1? {x}", x=jnp.isnan(q1).any())
-                jax.debug.print("q2 {x}", x=q2)
-                jax.debug.print("nan in q2? {x}", x=jnp.isnan(q2).any())
-                jax.debug.print("ele1 {x}", x=electrostatics)
-                jax.debug.print("nan in ele1? {x}", x=jnp.isnan(electrostatics).any())
-                jax.debug.print("R {x}", x=R)
-                jax.debug.print("nan in R? {x}", x=jnp.isnan(R).any())
-                jax.debug.print("q1_batches {x}", x=q1_batches.shape)
-                jax.debug.print("nan in q1_batches? {x}", x=jnp.isnan(q1_batches).any())
-
-            # do the sum over all atoms
-            atomic_electrostatics = jax.ops.segment_sum(
-                electrostatics,
-                segment_ids=dst_idx,
-                num_segments=batch_size * self.natoms,
-            )
-            atomic_electrostatics = atomic_electrostatics * atom_mask
-            batch_electrostatics = jax.ops.segment_sum(
-                atomic_electrostatics,
-                segment_ids=batch_segments,
-                num_segments=batch_size,
-            )
-
-            # electrostatics = electrostatics  # * (atomic_numbers != 0)
-            if self.debug and "ele" in self.debug:
-                jax.debug.print("batch_electrostatics {x}", x=batch_electrostatics)
-                jax.debug.print("electrostatics! {x}", x=atomic_electrostatics)
-                # jax.debug.print("q {x}", x=atomic_charges)
-                jax.debug.print("nan in q? {x}", x=jnp.isnan(atomic_charges).any())
-
-                jax.debug.print("ele {x}", x=electrostatics)
-                jax.debug.print("nan in ele2? {x}", x=jnp.isnan(electrostatics).any())
-
-        element_bias = self.param(
-            "element_bias",
-            lambda rng, shape: jnp.zeros(shape),
-            (self.max_atomic_number + 1),
+        return e3x.nn.MessagePass(include_pseudotensors=False)(
+            x, basis, dst_idx=dst_idx, src_idx=src_idx
         )
-        atomic_energies = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
-        )(x)
-        atomic_energies = e3x.nn.silu(atomic_energies)
-        atomic_energies = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
-        )(atomic_energies)
-        atomic_energies = jnp.squeeze(atomic_energies, axis=(-1, -2, -3))
-        atomic_energies += element_bias[atomic_numbers]
-        atomic_energies = atomic_energies * atom_mask
-        # atomic_energies *= atomic_numbers != 0
-        if self.debug and "e" in self.debug:
-            jax.debug.print("atomic_energies {x}", x=atomic_energies.shape)
-            jax.debug.print("atomic_energies {x}", x=atomic_energies)
-        if self.charges:
-            energy = jax.ops.segment_sum(
-                atomic_energies + atomic_electrostatics,
-                segment_ids=batch_segments,
-                num_segments=batch_size,
-            )
-            return (
-                -1 * jnp.sum(energy),
-                (energy, atomic_charges, batch_electrostatics),
-            )  # Forces are the negative gradient, hence the minus sign.
 
-        return (
-            -jnp.sum(energy),
-            energy,
-        )  # Forces are the negative gradient, hence the minus sign.
+    def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
+        """Perform refinement iterations with residual connections."""
+        for _ in range(self.n_res):
+            y = e3x.nn.silu(x)
+            y = e3x.nn.Dense(self.features)(y)
+            y = e3x.nn.relu(y)
+            y = e3x.nn.Dense(self.features)(y)
+            x = e3x.nn.add(x, y)
+
+        y = e3x.nn.Dense(self.features)(y)
+        y = e3x.nn.silu(y)
+        return e3x.nn.add(x, y)
+
+    def _calculate_with_charges(
+        self,
+        x: jnp.ndarray,
+        atomic_numbers: jnp.ndarray,
+        positions: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        batch_size: int,
+        batch_mask: jnp.ndarray,
+        atom_mask: jnp.ndarray,
+    ) -> Tuple[float, Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]]:
+        """Calculate energies including charge interactions."""
+        atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
+        electrostatics = self._calculate_electrostatics(
+            atomic_charges,
+            positions,
+            dst_idx,
+            src_idx,
+            batch_segments,
+            batch_size,
+            batch_mask,
+            atom_mask,
+        )
+        atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
+
+        energy = jax.ops.segment_sum(
+            atomic_energies + electrostatics,
+            segment_ids=batch_segments,
+            num_segments=batch_size,
+        )
+
+        return -1 * jnp.sum(energy), (energy, atomic_charges, electrostatics)
+
+    def _calculate_without_charges(
+        self,
+        x: jnp.ndarray,
+        atomic_numbers: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        batch_size: int,
+        atom_mask: jnp.ndarray,
+    ) -> Tuple[float, jnp.ndarray]:
+        """Calculate energies without charge interactions."""
+        atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
+        energy = jax.ops.segment_sum(
+            atomic_energies,
+            segment_ids=batch_segments,
+            num_segments=batch_size,
+        )
+        return -1.0 * jnp.sum(energy), (energy, None, None)
 
     @nn.compact
     def __call__(
         self,
-        atomic_numbers,
-        positions,
-        dst_idx,
-        src_idx,
-        batch_segments=None,
-        batch_size=None,
-        batch_mask=None,
-        atom_mask=None,
-    ):
+        atomic_numbers: jnp.ndarray,
+        positions: jnp.ndarray,
+        dst_idx: jnp.ndarray,
+        src_idx: jnp.ndarray,
+        batch_segments: Optional[jnp.ndarray] = None,
+        batch_size: Optional[int] = None,
+        batch_mask: Optional[jnp.ndarray] = None,
+        atom_mask: Optional[jnp.ndarray] = None,
+    ) -> Dict[str, Union[jnp.ndarray, bool]]:
+        """Forward pass of the model.
+
+        Args:
+            atomic_numbers: Array of atomic numbers
+            positions: Array of atomic positions
+            dst_idx: Destination indices for message passing
+            src_idx: Source indices for message passing
+            batch_segments: Optional batch segment indices
+            batch_size: Optional batch size
+            batch_mask: Optional batch mask
+            atom_mask: Optional atom mask
+
+        Returns:
+            Dictionary containing:
+            - energy: Predicted energies
+            - forces: Predicted forces
+            - charges: Predicted charges (if enabled)
+            - electrostatics: Electrostatic energies (if charges enabled)
+        """
         if batch_segments is None:
             batch_segments = jnp.zeros_like(atomic_numbers)
             batch_size = 1
@@ -293,51 +277,28 @@ class EF(nn.Module):
             jax.debug.print("batch_mask {x}", x=batch_mask.shape)
             jax.debug.print("atom_mask {x}", x=atom_mask.shape)
 
-        if self.charges:
-            (_, (energy, charges, electrostatics)), forces = energy_and_forces(
-                atomic_numbers,
-                positions,
-                dst_idx,
-                src_idx,
-                batch_segments,
-                batch_size,
-                batch_mask,
-                atom_mask,
-            )
-            # charges = jnp.nan_to_num(charges, nan=0.0)
-            # forces = jnp.nan_to_num(forces, nan=0.0)
-            forces = forces * atom_mask[..., None]
+        (_, (energy, charges, electrostatics)), forces = energy_and_forces(
+            atomic_numbers,
+            positions,
+            dst_idx,
+            src_idx,
+            batch_segments,
+            batch_size,
+            batch_mask,
+            atom_mask,
+        )
 
-            output = {
-                "energy": energy,
-                "forces": forces,
-                "charges": charges,
-                "electrostatics": electrostatics,
-            }
-            if "forces" in self.debug:
-                for k in output.keys():
-                    hasnans = jnp.isnan(output[k]).any()
-                    jax.debug.print("{k} {nank} {blah}", k=k, nank=hasnans, blah="")
-                jax.debug.print("forces {x}", x=forces)
-            return output
-        else:
-            charges = False
-            electrostatics = False
-            (_, energy), forces = energy_and_forces(
-                atomic_numbers,
-                positions,
-                dst_idx,
-                src_idx,
-                batch_segments,
-                batch_size,
-                batch_mask,
-                atom_mask,
-            )
+        forces = forces * atom_mask[..., None]
 
-            output = {
-                "energy": energy,
-                "forces": forces,
-                "charges": charges,
-                "electrostatics": electrostatics,
-            }
-            return output
+        output = {
+            "energy": energy,
+            "forces": forces,
+            "charges": charges,
+            "electrostatics": electrostatics,
+        }
+        if "forces" in self.debug:
+            for k in output.keys():
+                hasnans = jnp.isnan(output[k]).any()
+                jax.debug.print("{k} {nank} {blah}", k=k, nank=hasnans, blah="")
+            jax.debug.print("forces {x}", x=forces)
+        return output
