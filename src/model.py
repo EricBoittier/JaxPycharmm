@@ -328,6 +328,7 @@ class EF(nn.Module):
             num_segments=batch_size * self.natoms,
         )
         atomic_electrostatics *= atom_mask
+        jax.debug.print("atomic_electrostatics {x}", x=atomic_electrostatics.shape)
 
         return atomic_electrostatics
 
