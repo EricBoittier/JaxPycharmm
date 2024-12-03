@@ -226,6 +226,9 @@ class EF(nn.Module):
                 jax.debug.print("Repulsion: {x}", x=repulsion)
             atomic_energies += repulsion
 
+        jax.debug.print("Atomic energies shape: {x}", x=atomic_energies.shape)
+        jax.debug.print("Electrostatics shape: {x}", x=electrostatics.shape)
+
         energy = jax.ops.segment_sum(
             atomic_energies + electrostatics,
             segment_ids=batch_segments,
