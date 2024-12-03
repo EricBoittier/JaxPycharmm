@@ -246,11 +246,14 @@ def prepare_datasets(
         tuple: A tuple containing train_data and valid_data dictionaries.
     """
     # Load the datasets
-    if isinstance(filename, str):
-        filename = [filename]
-    elif filename is None:
+    if isinstance(files, str):
+        filename = [files]
+    elif isinstance(files, list):
+        filename = files
+    elif files is None:
         # exit and Warning
         raise ValueError("No filename(s) provided")
+
     data, keys, num_train, num_valid = prepare_multiple_datasets(
         key,
         num_train,
