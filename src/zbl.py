@@ -44,7 +44,7 @@ class ZBLRepulsion(nn.Module):
         phi_exponents = [3.19980, 0.94229, 0.40290, 0.20162]
 
         # Setup cutoffs
-        self.cutoff_dist = jnp.array([self.cutoff], dtype=self.dtype)
+        self.cutoff_dist = self.cutoff
 
         if self.cuton is not None and self.cuton < self.cutoff:
             self.cuton_dist = jnp.array([self.cuton], dtype=self.dtype)
@@ -117,7 +117,7 @@ class ZBLRepulsion(nn.Module):
         distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
 
         # Compute switch-off function
-        switch_off = e3x.nn.smooth_switch(distances, self.cuton_dist, self.cutoff_dist)
+        switch_off = e3x.nn.smooth_switch(distances, 0.0, 10.0)
 
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values
