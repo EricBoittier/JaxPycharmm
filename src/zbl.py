@@ -111,6 +111,7 @@ class ZBLRepulsion(nn.Module):
             Array of repulsion energies per atom
         """
         # Compute distances with numerical stability
+        displacements = displacements + (1 - batch_mask[..., None])
         distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
 
         # Compute switch-off function
