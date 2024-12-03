@@ -281,8 +281,14 @@ class EF(nn.Module):
             cutoff=3.0,
             trainable=True,
         )
-        repulsion_energy = repulsion.energy(
-            atomic_numbers, positions, dst_idx, src_idx, batch_segments, batch_size
+        repulsion_energy = repulsion(
+            atomic_numbers,
+            positions,
+            dst_idx,
+            src_idx,
+            atom_mask,
+            batch_segments,
+            batch_size,
         )
         return repulsion_energy
 

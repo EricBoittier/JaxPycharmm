@@ -92,6 +92,9 @@ class ZBLRepulsion(nn.Module):
         distances: jnp.ndarray,
         idx_i: jnp.ndarray,
         idx_j: jnp.ndarray,
+        atom_mask: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        batch_size: int,
     ) -> jnp.ndarray:
         """Calculate ZBL nuclear repulsion energies.
 
@@ -140,9 +143,13 @@ class ZBLRepulsion(nn.Module):
             * switch_off
         )
 
+        repulsion *= batch_segments
+
         # Sum contributions for each atom
         Erep = jax.ops.segment_sum(
             repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
         )
+
+        Erep *= atom_mask
 
         return Erep
