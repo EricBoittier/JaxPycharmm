@@ -1,102 +1,61 @@
-import os
 import sys
 import uuid
 from pathlib import Path
-
-from flax.training import orbax_utils
-
-# Add custom path
-sys.path.append("/home/boittier/jaxeq/dcmnet")
-
-import functools
-from datetime import datetime
+from typing import Any, Dict, Mapping, Optional, Tuple
 
 import ase
-import dcmnet
 import e3x
-import flax.linen as nn
 import jax
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
-import numpy as np
-import optax
-import orbax
-from dcmnet.utils import apply_model, reshape_dipole, safe_mkdir
-from flax.training import checkpoints, train_state
-from jax.random import randint
-from optax import contrib
-from optax import tree_utils as otu
-from tqdm import tqdm
+import orbax.checkpoint
+from flax.training import orbax_utils, train_state
+from jax import random
 
-from data import prepare_batches, prepare_datasets
+from data import prepare_batches
 from evalstep import eval_step
 from model import EF
-from optimizer import optimizer, transform, schedule_fn
+from optimizer import optimizer, schedule_fn, transform
 from trainstep import train_step
+from utils import get_last, get_params_model
 
-DTYPE = jnp.float32
-
-orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
-
-
-def get_files(path):
-    dirs = list(Path(path).glob("*/"))
-    dirs.sort(key=lambda x: int(str(x).split("/")[-1].split("-")[-1]))
-    dirs = [_ for _ in dirs if "tmp" not in str(_)]
-    return dirs
-
-
-def get_last(path):
-    dirs = get_files(path)
-    if "tmp" in str(dirs[-1]):
-        dirs.pop()
-    return dirs[-1]
-
-
-def get_params_model(restart, natoms=None):
-    restored = orbax_checkpointer.restore(restart)
-    print("Restoring from", restart)
-    # Get the modification time of the file
-    modification_time = os.path.getmtime(restart)
-    # Convert the timestamp to a human-readable format
-    modification_date = datetime.fromtimestamp(modification_time)
-    print(f"The file was last modified on: {modification_date}")
-    print("Restored keys:", restored.keys())
-    params = restored["params"]
-    restored["ema_params"]
-    # transform_state = transform.init(restored["transform_state"])
-    # print("transform_state", transform_state)
-    restored["epoch"] + 1
-    restored["best_loss"]
-    print("scale:", restored["transform_state"]["scale"])
-    if "model_attributes" not in restored.keys():
-        return params, None
-    kwargs = restored["model_attributes"]
-    # print(kwargs)
-    # print(kwargs)
-    kwargs["features"] = int(kwargs["features"])
-    kwargs["max_degree"] = int(kwargs["max_degree"])
-    kwargs["num_iterations"] = int(kwargs["num_iterations"])
-    kwargs["num_basis_functions"] = int(kwargs["num_basis_functions"])
-    kwargs["cutoff"] = float(kwargs["cutoff"])
-    kwargs["natoms"] = int(kwargs["natoms"])
-    kwargs["total_charge"] = float(kwargs["total_charge"])
-    kwargs["n_res"] = int(kwargs["n_res"])
-    kwargs["max_atomic_number"] = int(kwargs["max_atomic_number"])
-    kwargs["charges"] = bool(kwargs["charges"])
-    kwargs["debug"] = []
-    if natoms is not None:
-        kwargs["natoms"] = natoms
-
-    model = EF(**kwargs)
-    print(model)
-    return params, model
-
-
-conversion = {
+# Energy/force unit conversions
+CONVERSION = {
     "energy": 1 / (ase.units.kcal / ase.units.mol),
     "forces": 1 / (ase.units.kcal / ase.units.mol),
 }
+
+# Initialize checkpointer
+orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
+
+
+def create_checkpoint_dir(name: str) -> Path:
+    """Create a unique checkpoint directory path.
+
+    Args:
+        name: Base name for the checkpoint directory
+
+    Returns:
+        Path object for the checkpoint directory
+    """
+    uuid_ = str(uuid.uuid4())
+    return Path(f"/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/{name}-{uuid_}/")
+
+
+def get_epoch_weights(epoch: int) -> Tuple[float, float]:
+    """Calculate energy and forces weights based on epoch number.
+
+    Args:
+        epoch: Current training epoch
+
+    Returns:
+        Tuple of (energy_weight, forces_weight)
+    """
+    if epoch < 500:
+        return 1.0, 1000.0
+    elif epoch < 1000:
+        return 1000.0, 1.0
+    else:
+        return 1.0, 50.0
 
 
 def train_model(
@@ -128,7 +87,7 @@ def train_model(
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = f"/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/{name}-{uuid_}/"
-    
+
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
     valid_batches = prepare_batches(
@@ -169,7 +128,6 @@ def train_model(
         ema_params = params
         best_loss = 10000
         step = 1
-
     if best:
         best_loss = best
 
@@ -183,21 +141,6 @@ def train_model(
     print("model", model)
     # Train for 'num_epochs' epochs.
     for epoch in range(step, num_epochs + 1):
-
-        # adjust weights for the loss function
-        # forces_weight = np.tanh(1.1**(0.05 * (epoch - 100))) * 100 + 1
-        # energy_weight = np.tanh(1.1**(0.05 * (-epoch + 500))) * 10 + 10
-        if epoch < 500:
-            energy_weight = 1
-            forces_weight = 1000
-        elif epoch < 1000:
-            energy_weight = 1000
-            forces_weight = 1
-        else:
-            forces_weight = 50
-            energy_weight = 1
-
-        print("Wf, We =", forces_weight, energy_weight)
 
         # Prepare batches.
         key, shuffle_key = jax.random.split(key)
