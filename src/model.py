@@ -212,9 +212,9 @@ class EF(nn.Module):
                 dst_idx,
                 src_idx,
                 batch_segments,
-                batch_size,
                 batch_mask,
                 atom_mask,
+                batch_size,
             )
             if isinstance(self.debug, list) and "repulsion" in self.debug:
                 jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
@@ -268,13 +268,13 @@ class EF(nn.Module):
     def _calculate_repulsion(
         self,
         atomic_numbers: jnp.ndarray,
-        positions: jnp.ndarray,
+        distances: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
         batch_segments: jnp.ndarray,
-        batch_size: int,
         batch_mask: jnp.ndarray,
         atom_mask: jnp.ndarray,
+        batch_size: int,
     ) -> jnp.ndarray:
         """Calculate repulsion energies between atoms."""
         repulsion = ZBLRepulsion(
@@ -283,11 +283,12 @@ class EF(nn.Module):
         )
         repulsion_energy = repulsion(
             atomic_numbers,
-            positions,
+            distances,
             dst_idx,
             src_idx,
             atom_mask,
             batch_segments,
+            batch_mask,
             batch_size,
         )
         return repulsion_energy
