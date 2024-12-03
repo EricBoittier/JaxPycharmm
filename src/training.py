@@ -80,6 +80,9 @@ def train_model(
     print_freq=1,
     name="test",
     best=False,
+    optimizer=optimizer,
+    transform=transform,
+    schedule_fn=schedule_fn,
     objective="valid_forces_mae",
     data_keys=["R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"],
 ):
