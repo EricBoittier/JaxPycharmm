@@ -44,9 +44,7 @@ train_data, valid_data = prepare_datasets(
     train_size=8000,
     valid_size=1000,
     files=DATA_FILES,
-    clip_esp=False,
     natoms=NATOMS,
-    clean=False,
 )
 
 # Split validation data into validation and test sets

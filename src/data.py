@@ -225,9 +225,9 @@ def prepare_multiple_datasets(
 
 def prepare_datasets(
     key,
-    num_train,
-    num_valid,
-    filename,
+    train_size=num_train,
+    valid_size=num_valid,
+    files=None,
     clean=False,
     esp_mask=False,
     clip_esp=False,
@@ -248,7 +248,9 @@ def prepare_datasets(
     # Load the datasets
     if isinstance(filename, str):
         filename = [filename]
-
+    elif filename is None:
+        # exit and Warning
+        raise ValueError("No filename(s) provided")
     data, keys, num_train, num_valid = prepare_multiple_datasets(
         key,
         num_train,
