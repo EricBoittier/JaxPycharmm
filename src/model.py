@@ -334,7 +334,7 @@ class EF(nn.Module):
             segment_ids=batch_segments,
             num_segments=batch_size,
         )
-        return batch_electrostatics
+        return batch_electrostatics[..., None, None, None]
 
     @nn.compact
     def __call__(
