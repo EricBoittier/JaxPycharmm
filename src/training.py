@@ -20,7 +20,7 @@ from utils import get_last, get_params_model
 
 schedule_fn = base_schedule_fn
 transform = base_transform
-optmizer = base_optimizer
+optimizer = base_optimizer
 
 # Energy/force unit conversions
 CONVERSION = {
