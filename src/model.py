@@ -329,8 +329,12 @@ class EF(nn.Module):
         )
         atomic_electrostatics *= atom_mask
         jax.debug.print("atomic_electrostatics {x}", x=atomic_electrostatics.shape)
-
-        return atomic_electrostatics
+        batch_electrostatics = jax.ops.segment_sum(
+            atomic_electrostatics,
+            segment_ids=batch_segments,
+            num_segments=batch_size,
+        )
+        return batch_electrostatics
 
     @nn.compact
     def __call__(
