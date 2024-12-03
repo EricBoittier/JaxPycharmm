@@ -231,7 +231,7 @@ class EF(nn.Module):
         self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
     ) -> jnp.ndarray:
         """Calculate atomic charges from atomic features."""
-        x = e3x.nn.Dense(1, bias=False)(x)
+        x = e3x.nn.Dense(1, use_bias=False)(x)
         charge_bias = self.param(
             "charge_bias",
             lambda rng, shape: jnp.zeros(shape),
@@ -244,6 +244,23 @@ class EF(nn.Module):
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
         return x
+
+    def calculate_atomic_energies(
+        self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
+    ) -> jnp.ndarray:
+        """Calculate atomic energies from atomic features."""
+        x = e3x.nn.Dense(1, use_bias=False)(x)
+        energy_bias = self.param(
+            "energy_bias",
+            lambda rng, shape: jnp.zeros(shape),
+            (self.max_atomic_number + 1),
+        )
+        atomic_energies = nn.Dense(
+            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
+        )(x)
+        atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
+        atomic_energies *= atom_mask[..., None, None, None]
+        return atomic_energies
 
     @nn.compact
     def __call__(
