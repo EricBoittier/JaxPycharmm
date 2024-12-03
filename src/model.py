@@ -240,7 +240,8 @@ class EF(nn.Module):
         atomic_charges = nn.Dense(
             1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
         )(x)
-        atomic_charges = e3x.nn.hard_tanh(atomic_charges) * 2.0
+        # Use softer bounds on charges (-2 to +2) with smooth clamping
+        atomic_charges = jnp.tanh(atomic_charges) * 2.0
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
 
@@ -261,7 +262,6 @@ class EF(nn.Module):
         )(x)
         atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
         atomic_energies *= atom_mask[..., None, None, None]
-        jax.debug.print("atomic_energies {x}", x=atomic_energies.shape)
 
         return atomic_energies
 
@@ -294,29 +294,37 @@ class EF(nn.Module):
         Returns:
             Array of electrostatic energies per atom
         """
+        # Numerical stability constants
+        EPS = 1e-6
+        MIN_DIST = 0.1  # Minimum distance in Angstroms
+        SWITCH_START = 2.0  # Start switching at 2 Angstroms
+        SWITCH_END = 10.0  # Complete switch by 10 Angstroms
+
         # Calculate distances between atom pairs
         positions_dst = e3x.ops.gather_dst(positions, dst_idx=dst_idx)
         positions_src = e3x.ops.gather_src(positions, src_idx=src_idx)
         displacements = positions_src - positions_dst
         displacements = displacements + (1 - batch_mask)[..., None]
-        distances = jnp.sqrt(jnp.sum(displacements**2, axis=1))
 
-        # Calculate smoothly switched interaction potential
-        sqrt_sqr_distances_plus_1 = jnp.sqrt(distances**2 + 1)
-        switch_dist = e3x.nn.smooth_switch(2 * distances, 0, 10)
+        # Safe distance calculation with minimum cutoff
+        squared_distances = jnp.sum(displacements**2, axis=1)
+        distances = jnp.sqrt(jnp.maximum(squared_distances, MIN_DIST**2))
+
+        # Improved switching function
+        switch_dist = e3x.nn.smooth_switch(distances, SWITCH_START, SWITCH_END)
         one_minus_switch_dist = 1 - switch_dist
 
-        # Get charges for interacting pairs
-        q1 = jnp.take(atomic_charges, dst_idx, fill_value=0.0)
-        q2 = jnp.take(atomic_charges, src_idx, fill_value=0.0)
+        # Get charges for interacting pairs with safe bounds
+        q1 = jnp.clip(jnp.take(atomic_charges, dst_idx, fill_value=0.0), -2.0, 2.0)
+        q2 = jnp.clip(jnp.take(atomic_charges, src_idx, fill_value=0.0), -2.0, 2.0)
 
-        # Calculate interaction potential
+        # Calculate interaction potential with improved stability
         # R1: Short-range regularized potential
-        # R2: Long-range Coulomb potential
-        R1 = switch_dist / sqrt_sqr_distances_plus_1
-        R2 = one_minus_switch_dist / distances
+        # R2: Long-range Coulomb potential with safe distance
+        safe_distances = distances + EPS
+        R1 = switch_dist / jnp.sqrt(squared_distances + 1.0)
+        R2 = one_minus_switch_dist / safe_distances
         R = R1 + R2
-
         # Calculate electrostatic energy (in Hartree)
         # Conversion factor 7.199822675975274 is 1/(4π*ε₀) in atomic units
         electrostatics = 7.199822675975274 * q1 * q2 * R * batch_mask
@@ -328,13 +336,14 @@ class EF(nn.Module):
             num_segments=batch_size * self.natoms,
         )
         atomic_electrostatics *= atom_mask
-        jax.debug.print("atomic_electrostatics {x}", x=atomic_electrostatics.shape)
         batch_electrostatics = jax.ops.segment_sum(
             atomic_electrostatics,
             segment_ids=batch_segments,
             num_segments=batch_size,
         )
-        return atomic_electrostatics[..., None, None, None], batch_electrostatics
+        atomic_electrostatics = atomic_electrostatics[..., None, None, None]
+
+        return atomic_electrostatics, batch_electrostatics
 
     @nn.compact
     def __call__(
