@@ -286,7 +286,7 @@ class EF(nn.Module):
     ) -> jnp.ndarray:
         """Calculate repulsion energies between atoms."""
         repulsion = ZBLRepulsion(
-            cutoff=3.0,
+            cutoff=self.cutoff,
             trainable=True,
         )
 
@@ -353,8 +353,8 @@ class EF(nn.Module):
         # Numerical stability constants
         EPS = 1e-6
         MIN_DIST = 0.1  # Minimum distance in Angstroms
-        SWITCH_START = 2.0  # Start switching at 2 Angstroms
-        SWITCH_END = 10.0  # Complete switch by 10 Angstroms
+        SWITCH_START = 0.5  # Start switching at 2 Angstroms
+        SWITCH_END = self.cutoff  # Complete switch by 10 Angstroms
 
         # Calculate distances between atom pairs
         displacements = displacements + (1 - batch_mask)[..., None]

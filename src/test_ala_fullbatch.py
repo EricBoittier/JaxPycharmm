@@ -39,7 +39,7 @@ restart = CHECKPOINT_DIR / "test-9392c2e7-af2a-4756-ae2a-35ffdf01951d"
 # restart = None
 
 # Initialize random keys
-data_key, train_key = jax.random.split(jax.random.PRNGKey(43), 2)
+data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 
 # Prepare datasets
 train_data, valid_data = prepare_datasets(
