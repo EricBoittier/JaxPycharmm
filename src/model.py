@@ -352,8 +352,8 @@ class EF(nn.Module):
         """
         # Numerical stability constants
         EPS = 1e-6
-        MIN_DIST = 0.1  # Minimum distance in Angstroms
-        SWITCH_START = 0.5  # Start switching at 2 Angstroms
+        MIN_DIST = 0.01  # Minimum distance in Angstroms
+        SWITCH_START = 0.05  # Start switching at 2 Angstroms
         SWITCH_END = self.cutoff  # Complete switch by 10 Angstroms
 
         # Calculate distances between atom pairs
