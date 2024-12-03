@@ -17,7 +17,8 @@ import orbax.checkpoint
 sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
 from data import prepare_datasets
 from model import EF
-from training import get_files, get_last, get_params_model, train_model
+from training import train_model
+from utils import get_files, get_last, get_params_model
 
 # Configure environment
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
