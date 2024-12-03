@@ -287,7 +287,9 @@ class EF(nn.Module):
             cutoff=3.0,
             trainable=True,
         )
-        repulsion_energy = repulsion(
+
+        # add the learnable parameters to the model
+        repulsion_energy = repulsion.apply(
             atomic_numbers,
             displacements,
             dst_idx,
