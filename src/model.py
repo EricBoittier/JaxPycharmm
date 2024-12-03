@@ -224,7 +224,6 @@ class EF(nn.Module):
             if isinstance(self.debug, list) and "repulsion" in self.debug:
                 jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
                 jax.debug.print("Repulsion: {x}", x=repulsion)
-            atomic_energies += repulsion
 
         jax.debug.print("Atomic energies shape: {x}", x=atomic_energies.shape)
         jax.debug.print("Electrostatics shape: {x}", x=electrostatics.shape)
