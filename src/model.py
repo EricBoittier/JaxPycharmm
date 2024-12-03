@@ -273,7 +273,7 @@ class EF(nn.Module):
     def _calculate_repulsion(
         self,
         atomic_numbers: jnp.ndarray,
-        distances: jnp.ndarray,
+        displacements: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
         batch_segments: jnp.ndarray,
@@ -288,7 +288,7 @@ class EF(nn.Module):
         )
         repulsion_energy = repulsion(
             atomic_numbers,
-            distances,
+            displacements,
             dst_idx,
             src_idx,
             atom_mask,
