@@ -1,11 +1,11 @@
 import optax
 import optax.contrib
 
-learning_rate = 0.01
+base_learning_rate = 0.01
 
 base_schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
-    init_value=learning_rate,
-    peak_value=learning_rate * 1.05,
+    init_value=base_learning_rate,
+    peak_value=base_learning_rate * 1.05,
     warmup_steps=10,
     transition_steps=10,
     decay_rate=0.999,
@@ -14,7 +14,7 @@ base_optimizer = optax.chain(
     # optax.adaptive_grad_clip(1.0),
     # optax.zero_nans(),
     optax.clip_by_global_norm(1000.0),
-    optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-6),
+    optax.amsgrad(learning_rate=base_schedule_fn, b1=0.9, b2=0.99, eps=1e-6),
     # optax.adam(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3, eps_root=1e-8),
     # optax.adamw(learning_rate=schedule_fn),
     # optax.ema(decay=0.999, debias=False),
@@ -38,7 +38,7 @@ def get_optimizer(
     **kwargs,
 ):
     if schedule_fn is None:
-        schedule_fn = optax.schedules.constant_schedule(learning_rate)
+        schedule_fn = optax.schedules.constant_schedule(base_learning_rate)
     if isinstance(schedule_fn, str):
         if schedule_fn == "warmup":
             schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
