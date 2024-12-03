@@ -25,7 +25,7 @@ def prepare_multiple_datasets(
     key,
     train_size=0,
     valid_size=0,
-    filename=None,
+    files=None,
     clean=False,
     verbose=False,
     esp_mask=False,
