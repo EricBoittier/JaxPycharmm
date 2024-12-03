@@ -155,7 +155,7 @@ class ZBLRepulsion(nn.Module):
         repulsion = jnp.exp(log_repulsion)
 
         # Apply batch segmentation
-        repulsion = jnp.multiply(repulsion, batch_segments)
+        repulsion = jnp.multiply(repulsion, batch_mask)
 
         # Sum contributions for each atom using safe operations
         Erep = jax.ops.segment_sum(
