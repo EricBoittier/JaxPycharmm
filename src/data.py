@@ -23,9 +23,9 @@ def cut_vdw(grid, xyz, elements, vdw_scale=1.4):
 
 def prepare_multiple_datasets(
     key,
-    num_train,
-    num_valid,
-    filename=["esp2000.npz"],
+    train_size=0,
+    valid_size=0,
+    filename=None,
     clean=False,
     verbose=False,
     esp_mask=False,
@@ -220,7 +220,12 @@ def prepare_multiple_datasets(
 
     assert_dataset_size(dataR.squeeze(), num_train, num_valid)
 
-    return data, keys, num_train, num_valid
+    return (
+        data,
+        keys,
+        train_size,
+        valid_size,
+    )
 
 
 def prepare_datasets(
@@ -256,9 +261,9 @@ def prepare_datasets(
 
     data, keys, num_train, num_valid = prepare_multiple_datasets(
         key,
-        num_train,
-        num_valid,
-        filename,
+        train_size=train_size,
+        valid_size=valid_size,
+        files=filename,
         clean=clean,
         natoms=natoms,
         clip_esp=clip_esp,
