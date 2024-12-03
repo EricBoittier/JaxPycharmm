@@ -1,4 +1,3 @@
-import os
 
 #os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
 #os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/homecharmm/build/cmake"

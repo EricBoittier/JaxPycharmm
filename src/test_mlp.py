@@ -4,8 +4,6 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 
-import sys
-import ctypes
 import pandas
 import numpy as np
 

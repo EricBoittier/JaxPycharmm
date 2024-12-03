@@ -2,7 +2,7 @@ import os
 
 # Set environment variables
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import jax
 
 # from jax import config
@@ -36,7 +36,9 @@ DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F"]
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", type=int, default=1)
-    parser.add_argument("--restart", type=str, default=False)
+    parser.add_argument(
+        "--restart", type=str, default=False, help="Restart training from a checkpoint"
+    )
     parser.add_argument("--data", type=str, default=None)
     parser.add_argument("--model", type=str, default=None)
     parser.add_argument("--train_key", type=str, default=None)
@@ -48,6 +50,8 @@ if __name__ == "__main__":
     parser.add_argument("--nvalid", type=int, default=500)
     parser.add_argument("--name", type=str, default="diox-q3.2")
     parser.add_argument("--natoms", type=int, default=8)
+    parser.add_argument("--charge_w", type=float, default=52.91772105638412)
+    parser.add_argument("--forces_w", type=float, default=27.211386024367243)
     # model parameters
     parser.add_argument("--features", type=int, default=32)
     parser.add_argument("--max_degree", type=int, default=3)
@@ -57,7 +61,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_atomic_number", type=int, default=9)
     parser.add_argument("--n_res", type=int, default=3)
     parser.add_argument("--debug", type=bool, default=False)
-
+    print("parsing arguments:")
     args = parser.parse_args()
     for arg in vars(args):
         print(arg, getattr(args, arg))
@@ -83,8 +87,10 @@ if __name__ == "__main__":
     params = False
     debug = args.debug
     NATOMS = args.natoms
+    forces_weight = args.forces_w
+    charges_weight = args.charge_w
     data_key, train_key = jax.random.split(jax.random.PRNGKey(43), 2)
-    NATOMS = 8
+    NATOMS = args.natoms
     # load data
     files = [data]
     train_data, valid_data = prepare_datasets(
@@ -111,15 +117,16 @@ if __name__ == "__main__":
         debug=debug,
     )
     print(model)
+    print("train_model:")
     params = train_model(
         train_key,
         model,
         train_data,
         valid_data,
-        num_epochs=10**6,
-        learning_rate=0.0001,
-        # forces_weight=100,
-        # charges_weight=10,
+        num_epochs=num_epochs,
+        learning_rate=learning_rate,
+        forces_weight=forces_weight,
+        charges_weight=charges_weight,
         batch_size=batch_size,
         num_atoms=NATOMS,
         data_keys=DEFAULT_DATA_KEYS,

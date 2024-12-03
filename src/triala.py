@@ -4,8 +4,6 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 
-import sys
-import ctypes
 import pandas
 import numpy as np
 
@@ -54,8 +52,6 @@ from helper_mlp import *
 with open("i_", "w") as f:
     print("...")
     
-import sys
-import ctypes
 import pandas
 import numpy as np
 

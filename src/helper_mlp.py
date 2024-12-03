@@ -1,4 +1,3 @@
-import io
 import jax
 devices = jax.local_devices()
 print(devices)

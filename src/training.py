@@ -1,12 +1,7 @@
-import ctypes
 import os
-import pickle
-import random
 import sys
-import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
 
 from flax.training import orbax_utils
 
@@ -14,6 +9,7 @@ from flax.training import orbax_utils
 sys.path.append("/home/boittier/jaxeq/dcmnet")
 
 import functools
+from datetime import datetime
 
 import ase
 import dcmnet
@@ -25,19 +21,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import optax
 import orbax
-from dcmnet.analysis import create_model_and_params
-from dcmnet.data import prepare_batches, prepare_datasets
-from dcmnet.electrostatics import batched_electrostatic_potential, calc_esp
-from dcmnet.modules import NATOMS, MessagePassingModel
-from dcmnet.plotting import evaluate_dc, plot_esp, plot_model
-from dcmnet.training import train_model
-from dcmnet.training_dipole import train_model_dipo
 from dcmnet.utils import apply_model, reshape_dipole, safe_mkdir
 from flax.training import checkpoints, train_state
 from jax.random import randint
 from optax import contrib
 from optax import tree_utils as otu
 from tqdm import tqdm
+
+from data import prepare_batches, prepare_datasets
 
 # from jax import config
 # config.update('jax_enable_x64', True)
@@ -48,6 +39,62 @@ from loss import (
     mean_squared_loss_D,
     mean_squared_loss_QD,
 )
+from model import EF
+
+
+def get_files(path):
+    dirs = list(Path(path).glob("*/"))
+    dirs.sort(key=lambda x: int(str(x).split("/")[-1].split("-")[-1]))
+    dirs = [_ for _ in dirs if "tmp" not in str(_)]
+    return dirs
+
+
+def get_last(path):
+    dirs = get_files(path)
+    if "tmp" in str(dirs[-1]):
+        dirs.pop()
+    return dirs[-1]
+
+
+def get_params_model(restart, natoms=None):
+    restored = orbax_checkpointer.restore(restart)
+    print("Restoring from", restart)
+    # Get the modification time of the file
+    modification_time = os.path.getmtime(restart)
+    # Convert the timestamp to a human-readable format
+    modification_date = datetime.fromtimestamp(modification_time)
+    print(f"The file was last modified on: {modification_date}")
+    print("Restored keys:", restored.keys())
+    params = restored["params"]
+    restored["ema_params"]
+    # transform_state = transform.init(restored["transform_state"])
+    # print("transform_state", transform_state)
+    restored["epoch"] + 1
+    restored["best_loss"]
+    print("scale:", restored["transform_state"]["scale"])
+    if "model_attributes" not in restored.keys():
+        return params, None
+    kwargs = restored["model_attributes"]
+    # print(kwargs)
+    # print(kwargs)
+    kwargs["features"] = int(kwargs["features"])
+    kwargs["max_degree"] = int(kwargs["max_degree"])
+    kwargs["num_iterations"] = int(kwargs["num_iterations"])
+    kwargs["num_basis_functions"] = int(kwargs["num_basis_functions"])
+    kwargs["cutoff"] = float(kwargs["cutoff"])
+    kwargs["natoms"] = int(kwargs["natoms"])
+    kwargs["total_charge"] = float(kwargs["total_charge"])
+    kwargs["n_res"] = int(kwargs["n_res"])
+    kwargs["max_atomic_number"] = int(kwargs["max_atomic_number"])
+    kwargs["charges"] = bool(kwargs["charges"])
+    kwargs["debug"] = []
+    if natoms is not None:
+        kwargs["natoms"] = natoms
+
+    model = EF(**kwargs)
+    print(model)
+    return params, model
+
 
 DTYPE = jnp.float32
 
@@ -56,7 +103,13 @@ orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 @functools.partial(
     jax.jit,
-    static_argnames=("model_apply", "optimizer_update", "batch_size", "doCharges"),
+    static_argnames=(
+        "model_apply",
+        "optimizer_update",
+        "batch_size",
+        "doCharges",
+        "debug",
+    ),
 )
 def train_step(
     model_apply,
@@ -65,11 +118,13 @@ def train_step(
     batch,
     batch_size,
     doCharges,
+    energy_weight,
     forces_weight,
     charges_weight,
     opt_state,
     params,
     ema_params,
+    debug=False,
 ):
     if doCharges:
 
@@ -82,9 +137,11 @@ def train_step(
                 src_idx=batch["src_idx"],
                 batch_segments=batch["batch_segments"],
                 batch_size=batch_size,
+                batch_mask=batch["batch_mask"],
+                atom_mask=batch["atom_mask"],
             )
-            # jax.debug.print("{x}", x=output)
-            # jax.debug.print("{x}", x=batch)
+            #
+            nonzero = jnp.sum(batch["Z"] != 0)
             dipole = dipole_calc(
                 batch["R"],
                 batch["Z"],
@@ -100,6 +157,7 @@ def train_step(
             loss = mean_squared_loss_QD(
                 energy_prediction=output["energy"],
                 energy_target=batch["E"],
+                energy_weight=energy_weight,
                 forces_prediction=output["forces"],
                 forces_target=batch["F"],
                 forces_weight=forces_weight,
@@ -109,6 +167,7 @@ def train_step(
                 total_charges_prediction=sum_charges,
                 total_charge_target=jnp.zeros_like(sum_charges),
                 total_charge_weight=14.399645351950548,
+                atomic_mask=batch["atom_mask"],
             )
             return loss, (output["energy"], output["forces"], output["charges"], dipole)
 
@@ -123,6 +182,7 @@ def train_step(
                 src_idx=batch["src_idx"],
                 batch_segments=batch["batch_segments"],
                 batch_size=batch_size,
+                batch_mask=batch["batch_mask"],
             )
             loss = mean_squared_loss(
                 energy_prediction=output["energy"],
@@ -145,19 +205,35 @@ def train_step(
     updates, opt_state = optimizer_update(grad, opt_state, params)
     # update the reduce on plateau
     updates = otu.tree_scalar_mul(transform_state.scale, updates)
+    # check for nans in the updates
+    if debug:
+        jax.debug.print("updates {updates}", updates=updates)
+    # jax.debug.print()
     params = optax.apply_updates(params, updates)
 
-    energy_mae = mean_absolute_error(energy, batch["E"])
-    forces_mae = mean_absolute_error(forces, batch["F"])
+    energy_mae = mean_absolute_error(
+        energy,
+        batch["E"],
+        batch_size,
+    )
+    forces_mae = mean_absolute_error(
+        forces * batch["atom_mask"][..., None],
+        batch["F"] * batch["atom_mask"][..., None],
+        batch["atom_mask"].sum() * 3,
+    )
     if doCharges:
-        dipole_mae = mean_absolute_error(dipole, batch["D"])
+        dipole_mae = mean_absolute_error(dipole, batch["D"], batch_size)
     else:
         dipole_mae = 0
 
     # Update EMA weights
     ema_decay = 0.999
+    # params = jnp.nan_to_num(params)
+
     ema_params = jax.tree_map(
-        lambda ema, new: ema_decay * ema + (1 - ema_decay) * new, ema_params, params
+        lambda ema, new: ema_decay * ema + (1 - ema_decay) * new,
+        ema_params,
+        params,
     )
 
     return (
@@ -174,7 +250,7 @@ def train_step(
 
 @functools.partial(jax.jit, static_argnames=("model_apply", "batch_size", "charges"))
 def eval_step(
-    model_apply, batch, batch_size, charges, forces_weight, charges_weight, params
+    model_apply, batch, batch_size, charges, energy_weight, forces_weight, charges_weight, params
 ):
     if charges:
         output = model_apply(
@@ -185,29 +261,45 @@ def eval_step(
             src_idx=batch["src_idx"],
             batch_segments=batch["batch_segments"],
             batch_size=batch_size,
+            batch_mask=batch["batch_mask"],
+            atom_mask=batch["atom_mask"],
         )
-
+        nonzero = jnp.sum(batch["Z"] != 0)
         dipole = dipole_calc(
             batch["R"],
             batch["Z"],
             output["charges"],
-            batch_segments=batch["batch_segments"],
-            batch_size=batch_size,
+            batch["batch_segments"],
+            batch_size,
         )
-
-        loss = mean_squared_loss_D(
+        sum_charges = jax.ops.segment_sum(
+            output["charges"],
+            segment_ids=batch["batch_segments"],
+            num_segments=batch_size,
+        )
+        loss = mean_squared_loss_QD(
             energy_prediction=output["energy"],
             energy_target=batch["E"],
+            energy_weight=energy_weight,
             forces_prediction=output["forces"],
             forces_target=batch["F"],
             forces_weight=forces_weight,
             dipole_prediction=dipole,
             dipole_target=batch["D"],
             dipole_weight=charges_weight,
+            total_charges_prediction=sum_charges,
+            total_charge_target=jnp.zeros_like(sum_charges),
+            total_charge_weight=14.399645351950548,
+            atomic_mask=batch["atom_mask"],
         )
-        energy_mae = mean_absolute_error(output["energy"], batch["E"])
-        forces_mae = mean_absolute_error(output["forces"], batch["F"])
-        dipole_mae = mean_absolute_error(dipole, batch["D"])
+
+        energy_mae = mean_absolute_error(output["energy"], batch["E"], batch_size)
+        forces_mae = mean_absolute_error(
+            output["forces"] * batch["atom_mask"][..., None],
+            batch["F"] * batch["atom_mask"][..., None],
+            batch["atom_mask"].sum() * 3,
+        )
+        dipole_mae = mean_absolute_error(dipole, batch["D"], batch_size)
         return loss, energy_mae, forces_mae, dipole_mae
     else:
         output = model_apply(
@@ -218,6 +310,8 @@ def eval_step(
             src_idx=batch["src_idx"],
             batch_segments=batch["batch_segments"],
             batch_size=batch_size,
+            batch_mask=batch["batch_mask"],
+            atom_mask=batch["atom_mask"],
         )
         loss = mean_squared_loss(
             energy_prediction=output["energy"],
@@ -226,8 +320,12 @@ def eval_step(
             forces_target=batch["F"],
             forces_weight=forces_weight,
         )
-        energy_mae = mean_absolute_error(output["energy"], batch["E"])
-        forces_mae = mean_absolute_error(output["forces"], batch["F"])
+        energy_mae = mean_absolute_error(output["energy"], batch["E"], batch_size)
+        forces_mae = mean_absolute_error(
+            output["forces"] * batch["atom_mask"][..., None],
+            batch["F"] * batch["atom_mask"][..., None],
+            batch["atom_mask"].sum() * 3,
+        )
         return loss, energy_mae, forces_mae, 0
 
 
@@ -252,7 +350,9 @@ def train_model(
     conversion=conversion,
     print_freq=1,
     name="test",
-    data_keys=["R", "Z", "F", "E", "dst_idx", "src_idx", "batch_segments"],
+    best=False,
+    objective="valid_forces_mae",
+    data_keys=["R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"],
 ):
     best_loss = 10000
     doCharges = model.charges
@@ -266,27 +366,28 @@ def train_model(
     CKPT_DIR = f"/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/{name}-{uuid_}/"
     schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
         init_value=learning_rate,
-        peak_value=learning_rate * 1.001,
-        warmup_steps=1000,
-        transition_steps=1000,
-        decay_rate=0.99999,
+        peak_value=learning_rate * 1.05,
+        warmup_steps=10,
+        transition_steps=10,
+        decay_rate=0.999,
     )
     optimizer = optax.chain(
         # optax.adaptive_grad_clip(1.0),
+        # optax.zero_nans(),
         optax.clip_by_global_norm(1000.0),
-        optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3),
+        optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-6),
         # optax.adam(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3, eps_root=1e-8),
-        # optax.adam(learning_rate=learning_rate),
+        # optax.adamw(learning_rate=schedule_fn),
         # optax.ema(decay=0.999, debias=False),
     )
-    # optimizer = optax.adam(learning_rate=learning_rate)
+    # optimizer = optax.adamw(learning_rate=learning_rate)
     transform = optax.contrib.reduce_on_plateau(
-        patience=10,
-        cooldown=100,
-        factor=0.95,
+        patience=5,
+        cooldown=5,
+        factor=0.99,
         rtol=1e-4,
         accumulation_size=5,
-        min_scale=0.1,
+        min_scale=0.01,
     )
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
@@ -306,19 +407,58 @@ def train_model(
         dst_idx=dst_idx,
         src_idx=src_idx,
     )
+    # load from restart
     if restart:
-        opt_state = optimizer.init(restart)
-        params = restart
+        restart = get_last(restart)
+        _, _model = get_params_model(restart, num_atoms)
+        print(_, _model)
+        if _model is not None:
+            model = _model
+        restored = orbax_checkpointer.restore(restart)
+        print("Restoring from", restart)
+        print("Restored keys:", restored.keys())
+        params = restored["params"]
+        ema_params = restored["ema_params"]
+        # transform_state = transform.init(restored["transform_state"])
+        # print("transform_state", transform_state)
+        step = restored["epoch"] + 1
+        best_loss = restored["best_loss"]
+        CKPT_DIR = Path(restart).parent  # optimizer = restored["optimizer"]
+    # initialize
     else:
-        opt_state = optimizer.init(params)
+        ema_params = params
+        best_loss = 10000
+        # Creates initial state for `contrib.reduce_on_plateau` transformation.
+        step = 1
 
-    ema_params = params
-
-    # Creates initial state for `contrib.reduce_on_plateau` transformation.
+    if best:
+        best_loss = best
+    opt_state = optimizer.init(params)
     transform_state = transform.init(params)
 
+    state = train_state.TrainState.create(
+        apply_fn=model.apply, params=params, tx=optimizer
+    )
+    # print("Trainable params:", state.num_params)
+    print("model", model)
     # Train for 'num_epochs' epochs.
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(step, num_epochs + 1):
+        
+        # adjust weights for the loss function
+        # forces_weight = np.tanh(1.1**(0.05 * (epoch - 100))) * 100 + 1
+        # energy_weight = np.tanh(1.1**(0.05 * (-epoch + 500))) * 10 + 10
+        if epoch < 500:
+            energy_weight = 1
+            forces_weight = 1000
+        elif epoch < 1000:
+            energy_weight = 1000
+            forces_weight = 1
+        else:
+            forces_weight = 50
+            energy_weight = 1
+            
+        print("Wf, We =", forces_weight, energy_weight)
+        
         # Prepare batches.
         key, shuffle_key = jax.random.split(key)
         train_batches = prepare_batches(
@@ -349,12 +489,14 @@ def train_model(
                 transform_state=transform_state,
                 batch=batch,
                 batch_size=batch_size,
+                energy_weight=energy_weight,
                 forces_weight=forces_weight,
                 charges_weight=charges_weight,
                 opt_state=opt_state,
                 doCharges=doCharges,
                 params=params,
                 ema_params=ema_params,
+                debug=bool("grad" in model.debug),
             )
             train_loss += (loss - train_loss) / (i + 1)
             train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
@@ -371,6 +513,7 @@ def train_model(
                 model_apply=model.apply,
                 batch=batch,
                 batch_size=batch_size,
+                energy_weight=energy_weight,
                 forces_weight=forces_weight,
                 charges_weight=charges_weight,
                 charges=doCharges,
@@ -390,26 +533,44 @@ def train_model(
         valid_forces_mae *= conversion["forces"]
         train_energy_mae *= conversion["energy"]
         train_forces_mae *= conversion["forces"]
+
+        obj_res = {"valid_energy_mae" : valid_energy_mae, 
+        "valid_forces_mae" : valid_forces_mae, 
+        "train_energy_mae" : train_energy_mae, 
+        "train_forces_mae" : train_forces_mae, 
+        "train_loss": train_loss,
+        "valid_loss": valid_loss}
+        
         lr_eff = transform_state.scale * schedule_fn(epoch)
         best_ = False
-        if valid_forces_mae < best_loss:
-            state = train_state.TrainState.create(
-                apply_fn=model.apply, params=params, tx=optimizer
-            )
+        if obj_res[objective] < best_loss:
+
+            model_attributes = {
+                _.split(" = ")[0].strip(): _.split(" = ")[-1]
+                for _ in str(model).split("\n")[2:-1]
+            }
+
             # checkpoints.save_checkpoint(ckpt_dir=CKPT_DIR, target=state, step=epoch)
             ckpt = {
                 "model": state,
+                "model_attributes": model_attributes,
                 "transform_state": transform_state,
+                "ema_params": ema_params,
+                "params": params,
                 "epoch": epoch,
+                "opt_state": opt_state,
                 "best_loss": best_loss,
+                "lr_eff": lr_eff,
+                "objectives": obj_res,
             }
 
             save_args = orbax_utils.save_args_from_target(ckpt)
             orbax_checkpointer.save(
                 Path(CKPT_DIR) / f"epoch-{epoch}", ckpt, save_args=save_args
             )
+            print(Path(CKPT_DIR) / f"epoch-{epoch}")
             # update best loss
-            best_loss = valid_forces_mae
+            best_loss = obj_res[objective]
             print("best!")
             best_ = True
 
