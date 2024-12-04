@@ -10,11 +10,11 @@ import orbax.checkpoint
 from flax.training import orbax_utils, train_state
 from jax import random
 
-from data import prepare_batches
-from evalstep import eval_step
-from optimizer import base_optimizer, base_schedule_fn, base_transform, get_optimizer
-from trainstep import train_step
-from utils import get_last, get_params_model, pretty_print
+from physnetjax.data import prepare_batches
+from physnetjax.evalstep import eval_step
+from physnetjax.optimizer import base_optimizer, base_schedule_fn, base_transform, get_optimizer
+from physnetjax.trainstep import train_step
+from physnetjax.utils import get_last, get_params_model, pretty_print
 
 schedule_fn = base_schedule_fn
 transform = base_transform

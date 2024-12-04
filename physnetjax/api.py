@@ -1,16 +1,14 @@
 import argparse
 import os
+# Set environment variables
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 
 import jax
 import numpy as np
 import optax
 
-from model import EF
-from training import train_model
-
-# Set environment variables
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-import jax
+from physnetjax.model import EF
+from physnetjax.training import train_model
 
 
 # Check JAX configuration

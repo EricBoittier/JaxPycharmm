@@ -20,7 +20,7 @@ from optax import contrib
 from optax import tree_utils as otu
 from tqdm import tqdm
 
-from data import prepare_batches, prepare_datasets
+from physnetjax.data import prepare_batches, prepare_datasets
 
 # from jax import config
 # config.update('jax_enable_x64', True)

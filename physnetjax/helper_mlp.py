@@ -20,9 +20,9 @@ import matplotlib.pyplot as plt
 import py3Dmol
 
 # import numpy as np
-from pycharmm_calculator import PyCharmm_Calculator
-from model import *
-from model import EF, train_model
+from physnetjax.pycharmm_calculator import PyCharmm_Calculator
+# from physnetjax.model import *
+# from physnetjax.model import EF, train_model
 import pandas as pd
 import e3x
 import numpy as np

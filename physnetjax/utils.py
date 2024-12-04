@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 import jax.numpy as jnp
 import orbax
 
-from model import EF
+from physnetjax.model import EF
 
 DTYPE = jnp.float32
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()

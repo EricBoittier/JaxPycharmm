@@ -14,7 +14,7 @@ import jax
 import jax.numpy as jnp
 import numpy.typing as npt
 
-from zbl import ZBLRepulsion
+from physnetjax.zbl import ZBLRepulsion
 
 # Constants
 DTYPE = jnp.float32
