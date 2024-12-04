@@ -81,6 +81,7 @@ def get_optimizer(
 
         else:
             pass
+        optimizer = optax.chain(*_chain)
 
     if transform is None:
         transform = optax.contrib.reduce_on_plateau(
