@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="physnet_jax_pycharmm",
+    name="physnetjax",
     version="0.1.0",
     author="Eric Boittier",
     author_email="my.email@example.com",
@@ -9,8 +9,8 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/yourusername/physnet_jax_pycharmm",
-    package_dir={"": "src"},
-    packages=find_packages(where="src"),
+    package_dir={"physnetjax": "physnetjax"},
+    packages=["physnetjax"],
     install_requires=[
         # "jax",
         # "pycharmm",
