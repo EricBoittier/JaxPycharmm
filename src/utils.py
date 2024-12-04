@@ -31,7 +31,6 @@ def get_params_model(restart: str, natoms: int = None):
     """Load parameters and model from checkpoint."""
     restored = orbax_checkpointer.restore(restart)
     print(f"Restoring from {restart}")
-
     modification_time = os.path.getmtime(restart)
     modification_date = datetime.fromtimestamp(modification_time)
     print(f"The file was last modified on: {modification_date}")
