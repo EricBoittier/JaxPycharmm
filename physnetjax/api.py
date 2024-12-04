@@ -38,7 +38,7 @@ Usage example:
 python api.py --data <path_to_data> --ntrain 5000 --nvalid 500 --features 32 --max_degree 3 --num_iterations 2 --num_basis_functions 16 --cutoff 6.0 --max_atomic_number 118 --n_res 3
 """
 
-DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F"]
+DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "N", "F"]
 
 
 def parse_arguments():
@@ -135,7 +135,7 @@ if __name__ == "__main__":
             num_epochs=args.nepochs,
             learning_rate=args.lr,
             forces_weight=args.forces_w,
-            charges_weight=args.charge_w,
+            charges_weight=args.charges_w,
             dipole_weight=args.dipole_w,
             batch_size=args.batch_size,
             num_atoms=args.natoms,

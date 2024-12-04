@@ -13,7 +13,7 @@
 hostname
 
 # Environment Variables with Defaults
-PY=${PY:-/pchem-data/meuwly/boittier/home/miniforge3/envs/myenv/bin/python}
+PY=${PY:-/pchem-data/meuwly/boittier/home/miniforge3/envs/jaxphyscharmm/bin/python}
 DATA=${data:-/pchem-data/meuwly/boittier/home/ini.to.dioxi.npz}
 NAME=${name:-test1}
 NTRAIN=${ntrain:-6500}
@@ -69,7 +69,7 @@ echo "Number of Residuals: $N_RES"
 echo "Debug Mode: $DEBUG"
 echo "N atoms: $natoms"
 # Construct and run the command
-COMMAND="$PY ../src/api.py \
+COMMAND="$PY ../physnetjax/api.py \
     --data $DATA \
     --name $NAME \
     --ntrain $NTRAIN \
@@ -79,7 +79,7 @@ COMMAND="$PY ../src/api.py \
     --nepochs $NEPOCHS \
     --natoms $natoms \
     --forces_w $FORCES_W \
-    --charge_w $CHARGE_W \
+    --charges_w $CHARGE_W \
     $ADDITIONAL_ARGS"
 
 echo "Running Command: $COMMAND"
