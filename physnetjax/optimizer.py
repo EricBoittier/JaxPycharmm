@@ -1,5 +1,6 @@
 import optax
 import optax.contrib
+import jax.numpy as jnp
 
 base_learning_rate = 0.001
 
@@ -96,7 +97,7 @@ def get_optimizer(
         transform = optax.contrib.reduce_on_plateau(
             patience=5,
             cooldown=5,
-            factor=0.99,
+            factor=0.9,
             rtol=1e-4,
             accumulation_size=5,
             min_scale=0.01,
@@ -105,40 +106,31 @@ def get_optimizer(
     return optimizer, transform, schedule_fn
 
 
-def cycled_cosine_annealing_schedule(
-    init_lr, min_lr, cycle_length, num_cycles, start_step=0
-):
+def cycled_cosine_annealing_schedule(init_lr, period=100):
     """
     Creates a cosine annealing learning rate schedule with repeated cycles.
 
     Args:
         init_lr (float): Initial learning rate at the start of each cycle.
-        min_lr (float): Minimum learning rate after annealing within a cycle.
-        cycle_length (int): Number of steps per cycle.
-        num_cycles (int): Total number of cycles.
-        start_step (int): Step at which the schedule starts (default is 0).
-
+        period (int): The number of steps in each cycle.
     Returns:
         optax.Schedule: A cycled cosine annealing learning rate schedule.
     """
 
-    def schedule_fn(step):
-        # Adjust step to account for the starting step
-        adjusted_step = step - start_step
-        if adjusted_step < 0:
-            return (
-                init_lr  # Return the initial learning rate until start_step is reached
+    # Adjust step to account for the starting step
+    num_cycles = 10
+    print(period, num_cycles)
+    lr_schedule = optax.join_schedules(
+        schedules=[
+            optax.cosine_onecycle_schedule(
+                transition_steps=period // 2,
+                peak_value=init_lr * (0.9**i),
+                div_factor=1.5,
+                final_div_factor=2,
             )
+            for i in range(num_cycles)
+        ],
+        boundaries=jnp.cumsum(jnp.array([period] * num_cycles)),
+    )
 
-        # Determine the current cycle
-        cycle_idx = adjusted_step // cycle_length
-        if cycle_idx >= num_cycles:
-            return min_lr  # Return min_lr after all cycles are complete
-
-        # Calculate progress within the current cycle
-        cycle_progress = (adjusted_step % cycle_length) / cycle_length
-        cosine_decay = 0.5 * (1 + jnp.cos(jnp.pi * cycle_progress))
-        lr = min_lr + (init_lr - min_lr) * cosine_decay
-        return lr
-
-    return schedule_fn
+    return lr_schedule

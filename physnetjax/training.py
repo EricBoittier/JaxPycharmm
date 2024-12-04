@@ -12,7 +12,12 @@ from jax import random
 import physnetjax
 from physnetjax.data import prepare_batches
 from physnetjax.evalstep import eval_step
-from physnetjax.optimizer import base_optimizer, base_schedule_fn, base_transform, get_optimizer
+from physnetjax.optimizer import (
+    base_optimizer,
+    base_schedule_fn,
+    base_transform,
+    get_optimizer,
+)
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
 
