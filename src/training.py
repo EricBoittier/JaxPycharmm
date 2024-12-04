@@ -175,6 +175,9 @@ def train_model(
     )
     # print("Trainable params:", state.num_params)
     print("model", model)
+
+    runInDebug = True if model.debug else False
+
     # Train for 'num_epochs' epochs.
     for epoch in range(step, num_epochs + 1):
 
@@ -216,7 +219,7 @@ def train_model(
                 doCharges=doCharges,
                 params=params,
                 ema_params=ema_params,
-                debug=model.debug,
+                debug=runInDebug,
             )
             train_loss += (loss - train_loss) / (i + 1)
             train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
