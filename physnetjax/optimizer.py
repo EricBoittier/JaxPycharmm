@@ -46,7 +46,7 @@ def get_optimizer(
                 transition_steps=10,
                 decay_rate=0.999,
             )
-        if schedule_fn == "cosine_annealing":
+        elif schedule_fn == "cosine_annealing":
             schedule_fn = cycled_cosine_annealing_schedule(
                 init_lr=learning_rate,
                 min_lr=learning_rate * 0.1,
