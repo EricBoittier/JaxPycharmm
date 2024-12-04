@@ -31,6 +31,7 @@ def get_optimizer(
     schedule_fn: optax.Schedule | str | None = None,
     optimizer: optax.GradientTransformation | str | None = None,
     transform: optax.GradientTransformation | str | None = None,
+    clip_global: bool | float = True,
     **kwargs,
 ):
     if schedule_fn is None:
@@ -67,6 +68,20 @@ def get_optimizer(
             optax.clip_by_global_norm(1000.0),
             optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-6),
         )
+    elif isinstance(optimizer, str):
+        _chain = []
+        if isinstance(clip_global, float):
+            _chain.append(optax.clip_by_global_norm(clip_global))
+        if optimizer == "adam":
+            _chain.append(optax.adam(learning_rate=schedule_fn))
+        elif optimizer == "adamw":
+            _chain.append(optax.adamw(learning_rate=schedule_fn))
+        elif optimizer == "amsgrad":
+            _chain.append(optax.amsgrad(learning_rate=schedule_fn))
+
+        else:
+            pass
+
     if transform is None:
         transform = optax.contrib.reduce_on_plateau(
             patience=5,

@@ -80,16 +80,43 @@ def train_model(
     print_freq=1,
     name="test",
     best=False,
-    optimizer=optimizer,
-    transform=transform,
-    schedule_fn=schedule_fn,
+    optimizer=None,
+    transform=None,
+    schedule_fn=None,
     objective="valid_forces_mae",
     data_keys=["R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"],
 ):
+    """Train a model."""
+
+    print("Training Routine")
+
     best_loss = 10000
     doCharges = model.charges
     # Initialize model parameters and optimizer state.
     key, init_key = jax.random.split(key)
+    schedule_fn, optimizer, transform = get_optimizer(
+        learning_rate=learning_rate,
+        schedule_fn=schedule_fn,
+        optimizer=optimizer,
+        transform=transform,
+    )
+    print("Optimizer:", optimizer)
+    print("Transform:", transform)
+    print("Schedule_fn:", schedule_fn)
+    print("learning_rate:", learning_rate)
+    print("energy_weight:", energy_weight)
+    print("forces_weight:", forces_weight)
+    print("dipole_weight:", dipole_weight)
+    print("charges_weight:", charges_weight)
+    print("batch_size:", batch_size)
+    print("num_atoms:", num_atoms)
+    print("restart:", restart)
+    print("conversion:", conversion)
+    print("print_freq:", print_freq)
+    print("name:", name)
+    print("best:", best)
+    print("objective:", objective)
+    print("data_keys:", data_keys)
 
     print("Train data keys:", train_data.keys())
     print("Valid data keys:", valid_data.keys())
