@@ -1,5 +1,8 @@
 import argparse
 import os
+
+from physnetjax.data import prepare_datasets
+
 # Set environment variables
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 
