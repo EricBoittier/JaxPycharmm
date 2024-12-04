@@ -23,14 +23,14 @@ from physnetjax.data import prepare_batches, prepare_datasets
 
 # from jax import config
 # config.update('jax_enable_x64', True)
-from loss import (
+from physnetjax.loss import (
     dipole_calc,
     mean_absolute_error,
     mean_squared_loss,
     mean_squared_loss_D,
     mean_squared_loss_QD,
 )
-from model import EF
+from physnetjax.model import EF
 
 DTYPE = jnp.float32
 
