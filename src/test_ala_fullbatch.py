@@ -30,7 +30,7 @@ print("JAX backend:", jax.default_backend())
 
 # Configuration
 NATOMS = 37
-BATCH_SIZE = 1
+BATCH_SIZE = 8
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 DATA_FILES = ["/pchem-data/meuwly/boittier/home/jaxeq/notebooks/ala-esp-dip-0.npz"]
 CHECKPOINT_DIR = Path("/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/")
@@ -77,7 +77,7 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=20000,
-    learning_rate=0.001,
+    learning_rate=0.05,
     forces_weight=100,
     batch_size=BATCH_SIZE,
     num_atoms=NATOMS,

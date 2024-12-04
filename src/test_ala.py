@@ -59,7 +59,7 @@ model = EF(
     natoms=NATOMS,
     total_charge=0,
     n_res=3,
-    debug=["ele", "dist", "batch"],
+    debug=["repulsion", "ele", "energy", "charges"],
 )
 
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
@@ -68,7 +68,7 @@ params = train_model(
     model,
     train_data,
     valid_data,
-    num_epochs=3,
+    num_epochs=1,
     learning_rate=0.001,
     # forces_weight=1,
     # charges_weight=1,
