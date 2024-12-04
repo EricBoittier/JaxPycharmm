@@ -6,7 +6,7 @@ os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 import jax
 import numpy as np
 import optax
-
+import physnetjax
 from physnetjax.model import EF
 from physnetjax.training import train_model
 

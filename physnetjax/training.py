@@ -9,7 +9,7 @@ import orbax
 import orbax.checkpoint
 from flax.training import orbax_utils, train_state
 from jax import random
-
+import physnetjax
 from physnetjax.data import prepare_batches
 from physnetjax.evalstep import eval_step
 from physnetjax.optimizer import base_optimizer, base_schedule_fn, base_transform, get_optimizer

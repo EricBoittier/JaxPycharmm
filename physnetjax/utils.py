@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 import jax.numpy as jnp
 import orbax
-
+import physnetjax
 from physnetjax.model import EF
 
 DTYPE = jnp.float32

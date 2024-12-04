@@ -19,7 +19,7 @@ from jax.random import randint
 from optax import contrib
 from optax import tree_utils as otu
 from tqdm import tqdm
-
+import physnetjax
 from physnetjax.data import prepare_batches, prepare_datasets
 
 # from jax import config
