@@ -15,10 +15,10 @@ import orbax.checkpoint
 
 # Custom imports
 sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
-from data import prepare_datasets
-from model import EF
-from training import train_model
-from utils import get_files, get_last, get_params_model
+from physnetjax.data import prepare_datasets
+from physnetjax.model import EF
+from physnetjax.training import train_model
+from physnetjax.utils import get_files, get_last, get_params_model
 
 # Configure environment
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"

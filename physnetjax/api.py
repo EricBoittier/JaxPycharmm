@@ -4,8 +4,6 @@ import os
 import jax
 import numpy as np
 import optax
-from dcmnet.analysis import create_model_and_params
-from dcmnet.data import prepare_batches, prepare_datasets
 
 from model import EF
 from training import train_model
@@ -30,8 +28,6 @@ import e3x
 import jax
 import numpy as np
 import optax
-from dcmnet.analysis import create_model_and_params
-from dcmnet.data import prepare_batches, prepare_datasets
 
 from model import EF
 from training import train_model

@@ -46,8 +46,8 @@ print(devices)
 print(jax.default_backend())
 print(jax.devices())
 
-from helper_mlp import *
-from helper_mlp import Model
+from physnetjax.helper_mlp import *
+# from physnetjax.helper_mlp import Model
 
 # os.sleep(1)
 with open("i_", "w") as f:

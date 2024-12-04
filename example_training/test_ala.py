@@ -25,10 +25,9 @@ import numpy as np
 import optax
 import orbax
 
-from data import prepare_batches, prepare_datasets
-from loss import dipole_calc
-from model import EF
-from training import train_model  # from model import dipole_calc
+from physnetjax.data import prepare_batches, prepare_datasets
+from physnetjax.model import EF
+from physnetjax.training import train_model  # from model import dipole_calc
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
