@@ -75,7 +75,7 @@ def parse_arguments():
     parser.add_argument("--max_atomic_number", type=int, default=9)
     parser.add_argument("--n_res", type=int, default=3)
     parser.add_argument("--debug", type=bool, default=False)
-    parser.add_argument("--total_charge", type=int, default=0)
+    parser.add_argument("--total_charge", default=0)
 
     return parser.parse_args()
 

@@ -64,7 +64,7 @@ def get_optimizer(
             )
         elif schedule_fn == "cosine":
             schedule_fn = optax.schedules.cosine_decay_schedule(
-                init_value=learning_rate, decay_steps=100
+                init_value=learning_rate, decay_steps=5000, alpha=0.3
             )
         elif schedule_fn == "constant":
             schedule_fn = optax.schedules.constant_schedule(learning_rate)

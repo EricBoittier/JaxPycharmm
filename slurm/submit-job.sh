@@ -23,6 +23,7 @@ BATCH_SIZE=${batch_size:-50}
 NEPOCHS=${nepochs:-1000000}
 FORCES_W=${forces_w:-52.91}
 CHARGE_W=${charge_w:-27.21}
+TOTAL_CHARGE=${total_chg:-0.0}
 
 # Additional arguments with defaults
 FEATURES=${features:-128}
@@ -68,6 +69,7 @@ echo "Max Atomic Number: $MAX_ATOMIC_NUMBER"
 echo "Number of Residuals: $N_RES"
 echo "Debug Mode: $DEBUG"
 echo "N atoms: $natoms"
+echo "Total charge: $TOTAL_CHARGE"
 # Construct and run the command
 COMMAND="$PY ../physnetjax/api.py \
     --data $DATA \
@@ -78,6 +80,7 @@ COMMAND="$PY ../physnetjax/api.py \
     --batch_size $BATCH_SIZE \
     --nepochs $NEPOCHS \
     --natoms $natoms \
+    --total_charge $TOTAL_CHARGE \
     --forces_w $FORCES_W \
     --charges_w $CHARGE_W \
     $ADDITIONAL_ARGS"

@@ -66,7 +66,7 @@ model = EF(
 
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 
-restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-a3932e32-4923-4b30-b0db-9cb8a3d55bd1/"
+restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-4fd66a4e-1c54-484e-a7b6-52fca8cb23d3/"
 
 
 params = train_model(
@@ -75,9 +75,10 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.001,
-    forces_weight=100,
-    optimizer="adamw",
+    learning_rate=0.005,
+    #forces_weight=100,
+    schedule_fn="cosine",
+    #optimizer="amsgrad",
     batch_size=1,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
