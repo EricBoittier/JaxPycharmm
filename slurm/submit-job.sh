@@ -36,6 +36,8 @@ N_RES=${n_res:-1}
 DEBUG=${debug:-False}
 natoms=${natoms:-8}
 
+SCHEDULE=${schedule:-warmup}
+
 # Construct conditional arguments
 RESTART_ARG=""
 if [ -n "$RESTART" ]; then
@@ -83,6 +85,7 @@ COMMAND="$PY ../physnetjax/api.py \
     --total_charge $TOTAL_CHARGE \
     --forces_w $FORCES_W \
     --charges_w $CHARGE_W \
+    --schedule $SCHEDULE \
     $ADDITIONAL_ARGS"
 
 echo "Running Command: $COMMAND"

@@ -1,0 +1,1 @@
+sbatch --export=ALL,max_degree=1,nres=5,num_iterations=5,features=40,data=/pchem-data/meuwly/boittier/home/all.npz,name=cf3all,natoms=8,totalchg=0.0,ntrain=27030,nvalid=2000,nepochs=50000,batch_size=8,schedule="cosine_annealing" ./submit-job.sh

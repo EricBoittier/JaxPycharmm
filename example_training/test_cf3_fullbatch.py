@@ -32,7 +32,7 @@ from physnetjax.training import train_model  # from model import dipole_calc
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
-data_key, train_key = jax.random.split(jax.random.PRNGKey(43), 2)
+data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 
 # files = ["/pchem-data/meuwly/boittier/home/ini.to.dioxi.npz"]
 files = ["/pchem-data/meuwly/boittier/home/all.npz"]
@@ -75,11 +75,11 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.005,
-    #forces_weight=100,
-    schedule_fn="cosine",
+    learning_rate=0.01,
+    forces_weight=1000,
+    schedule_fn="cosine_annealing",
     #optimizer="amsgrad",
-    batch_size=1,
+    batch_size=50,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     restart=restart,

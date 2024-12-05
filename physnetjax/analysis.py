@@ -2,7 +2,7 @@ import ase
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde, linregress
 from tqdm import tqdm
-from loss import dipole_calc
+from physnetjax.loss import dipole_calc
 import numpy as np
 
 

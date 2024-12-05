@@ -50,10 +50,6 @@ def get_optimizer(
         elif schedule_fn == "cosine_annealing":
             schedule_fn = cycled_cosine_annealing_schedule(
                 init_lr=learning_rate,
-                min_lr=learning_rate * 0.1,
-                cycle_length=100,
-                num_cycles=10,
-                start_step=start_step,
             )
         elif schedule_fn == "exponential":
             schedule_fn = optax.schedules.exponential_decay_schedule(
