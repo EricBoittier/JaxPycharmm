@@ -9,6 +9,8 @@ import orbax
 import orbax.checkpoint
 from flax.training import orbax_utils, train_state
 from jax import random
+from physnet.tensorboard_logging import write_tb_log
+
 import physnetjax
 from physnetjax.data import prepare_batches
 from physnetjax.evalstep import eval_step
@@ -129,6 +131,8 @@ def train_model(
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
+
+    writer = tf.summary.create_file_writer(CKPT_DIR)
 
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
@@ -274,6 +278,8 @@ def train_model(
         }
 
         lr_eff = transform_state.scale * schedule_fn(epoch)
+        write_tb_log(writer, obj_res)
+
         best_ = False
         if obj_res[objective] < best_loss:
 
