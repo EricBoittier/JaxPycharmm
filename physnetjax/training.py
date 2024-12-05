@@ -9,7 +9,7 @@ import orbax
 import orbax.checkpoint
 from flax.training import orbax_utils, train_state
 from jax import random
-from physnet.tensorboard_logging import write_tb_log
+from physnetjax.tensorboard_logging import write_tb_log
 
 import physnetjax
 from physnetjax.data import prepare_batches
