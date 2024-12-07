@@ -23,8 +23,17 @@ class MolecularData(Enum):
     ESP = "esp"
     ESP_GRID = "esp_grid"
     CENTER_OF_MASS = "com"
+    NUMBER_OF_ATOMS= "N"
 
 
+KEY_TRANSLATION = {
+        MolecularData.COORDINATES : "R",
+        MolecularData.ATOMIC_NUMBERS: "Z",
+        MolecularData.ENERGY : "E",
+        MolecularData.FORCES: "F",
+        MolecularData.DIPOLE: "D",
+        MolecularData.NUMBER_OF_ATOMS: "N",
+        }
 # Constants
 HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM = Hartree / Bohr
 MAX_N_ATOMS = 37
@@ -132,7 +141,7 @@ def pad_atomic_numbers(atomic_numbers: NDArray, max_atoms: int) -> NDArray:
     Returns:
         Padded atomic numbers array
     """
-    return pad_array(atomic_numbers, max_atoms, pad_value=0)
+    return pad_array(atomic_numbers, max_atoms, axis=1,pad_value=0)
 
 
 def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
@@ -293,10 +302,12 @@ def process_dataset(
     return processed_data
 
 
-def process_in_memory(data: List[Dict]):
+def process_in_memory(data: List[Dict], max_atoms = None):
     """
     Process a list of dictionaries containing data.
     """
+    if max_atoms is not None:
+        MAX_N_ATOMS = max_atoms
     output = {}
 
     # rename the dataset keys to match the enum:
@@ -313,51 +324,57 @@ def process_in_memory(data: List[Dict]):
     def check_keys(keys, data):
         for key in keys:
             if key in data:
-                return data[key]
+                return key
         return None
 
     _ = check_keys(Z_KEYS, data[0])
     if _ is not None:
-        Z = [d for d in _]
-        output[MolecularData.ATOMIC_NUMBERS] = np.array(
-            [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))]
-        )
+        Z = [np.array([z[_]]) for z in data]
+        print([_.shape for _ in Z])
+        output[MolecularData.ATOMIC_NUMBERS] = np.array( [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))])
+        print([_.shape for _ in output[MolecularData.ATOMIC_NUMBERS]])
+        output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z ]) 
     _ = check_keys(R_KEYS, data[0])
     if _ is not None:
+        #print(_.shape)
+        print(_)
         output[MolecularData.COORDINATES] = np.array(
-            [pad_coordinates(d, MAX_N_ATOMS) for d in _]
+            [pad_coordinates(d[_], MAX_N_ATOMS) for d in data]
         )
+        print(output[MolecularData.COORDINATES].shape)
+
     _ = check_keys(F_KEYS, data[0])
     if _ is not None:
         output[MolecularData.FORCES] = np.array(
             [
                 pad_forces(
-                    d,
-                    len(d),
+                    d[_],
+                    len(d[_]),
                     MAX_N_ATOMS,
                 )
-                for d in _
+                for d in data
             ]
         )
+    
     _ = check_keys(E_KEYS, data[0])
     if _ is not None:
-        output[MolecularData.ENERGY] = np.array([d for d in _])
+        output[MolecularData.ENERGY] = np.array([d[_] for d in data])
 
     _ = check_keys(D_KEYS, data[0])
     if _ is not None:
-        output[MolecularData.DIPOLE] = np.array([d for d in _])
+        output[MolecularData.DIPOLE] = np.array([d[_] for d in data])
 
     _ = check_keys(Q_KEYS, data[0])
     if _ is not None:
-        output[MolecularData.QUADRUPOLE] = np.array([d for d in _])
+        output[MolecularData.QUADRUPOLE] = np.array([d[_] for d in data])
 
     _ = check_keys(ESP_KEYS, data[0])
     if _ is not None:
-        output[MolecularData.ESP] = np.array([d for d in _])
+        output[MolecularData.ESP] = np.array([d[_] for d in data])
 
     _ = check_keys(ESP_GRID_KEYS, data[0])
     if _ is not None:
-        output[MolecularData.ESP_GRID] = np.array([d for d in _])
+        output[MolecularData.ESP_GRID] = np.array([d[_] for d in data])
 
     _ = check_keys(COM_KEYS, data[0])
     if _ is not None:
