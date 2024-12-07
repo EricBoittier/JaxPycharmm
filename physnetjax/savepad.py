@@ -1,14 +1,53 @@
+from enum import Enum, auto
 from pathlib import Path
-import numpy as np
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+
 import ase
 import matplotlib.pyplot as plt
+import numpy as np
+from ase.atoms import Atoms
+from ase.units import Bohr, Debye, Hartree, kcal, mol
+from numpy.typing import NDArray
 from tqdm import tqdm
 
-files = list(Path("/pchem-data/meuwly/boittier/home/testala/").glob("*opt*npz"))[:]
+
+class MolecularData(Enum):
+    """Types of data that can be present in molecular datasets"""
+
+    COORDINATES = "coordinates"
+    ATOMIC_NUMBERS = "atomic_numbers"
+    FORCES = "forces"
+    ENERGY = "energy"
+    DIPOLE = "dipole"
+    QUADRUPOLE = "quadrupole"
+    ESP = "esp"
+    ESP_GRID = "esp_grid"
+    CENTER_OF_MASS = "com"
 
 
-def sort_func(x):
-    x = str(x)
+# Constants
+HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM = Hartree / Bohr
+MAX_N_ATOMS = 37
+MAX_GRID_POINTS = 10000
+BOHR_TO_ANGSTROM = 0.529177
+
+# Atomic energies in Hartree
+ATOM_ENERGIES_HARTREE = np.array(
+    [0, -0.500273, 0, 0, 0, 0, -37.846772, -54.583861, -75.064579]
+)
+
+
+def sort_func(filepath: Path) -> int:
+    """
+    Extract and return sorting number from filepath.
+
+    Args:
+        filepath: Path object containing the file path
+
+    Returns:
+        Integer for sorting the file paths
+    """
+    x = str(filepath)
     spl = x.split("/")
     x = spl[-1]
     spl = x.split("xyz")
@@ -17,156 +56,306 @@ def sort_func(x):
     return abs(int(spl[0]))
 
 
-from ase.units import Hartree, Bohr
+def get_input_files(data_path: str) -> List[Path]:
+    """
+    Get list of NPZ files from the given path.
 
-# Force in Hartree/Bohr
-hartree_per_bohr_to_ev_per_angstrom = Hartree / Bohr
+    Args:
+        data_path: Path to directory containing NPZ files
 
-files.sort(key=sort_func)
-print(files[:5])
-outdata = files
+    Returns:
+        Sorted list of Path objects
+    """
+    files = list(Path(data_path).glob("*opt*npz"))
+    files.sort(key=sort_func)
+    return files
 
-atom_energies_hartree = np.array(
-    [0, -0.500273, 0, 0, 0, 0, -37.846772, -54.583861, -75.064579]
-)
 
-Ndata = len(outdata)
-print(len(outdata))
+def pad_array(
+    arr: NDArray, max_size: int, axis: int = 0, pad_value: float = 0.0
+) -> NDArray:
+    """
+    Pad a numpy array along specified axis to a maximum size.
 
-for i_ in range(1):
-    elements = []
-    coordinates = []
-    # monopoles = []
-    quads = []
-    esp = []
-    vdw_surface = []
-    ids = []
-    molecular_dipoles = []
-    coms = []
-    read_data = []
-    Fs = []
-    Es = []
-    dipole_components = []
-    for _ in tqdm(outdata[i_ * Ndata : (i_ + 1) * Ndata]):
-        with np.load(_) as load:
-            if load is not None:
+    Args:
+        arr: Input array to pad
+        max_size: Maximum size to pad to
+        axis: Axis along which to pad (default: 0)
+        pad_value: Value to use for padding (default: 0.0)
 
-                # read_data.append(load)
-                R = load["R"]
-                # print(R.sum(axis=1))
-                n_atoms = len(np.nonzero(R.sum(axis=1))[0])
-                if int(len(R)) != n_atoms:
-                    print(load["R"])
-                    break
+    Returns:
+        Padded array
+    """
+    pad_width = [(0, 0)] * arr.ndim
+    pad_width[axis] = (0, max_size - arr.shape[axis])
+    return np.pad(arr, pad_width, mode="constant", constant_values=pad_value)
 
-                fn = np.linalg.norm(
-                    np.linalg.norm(
-                        load["F"]
-                        * (-627.509474 / 0.529177)
-                        * (ase.units.kcal / ase.units.mol),
-                        axis=(1),
-                    )
+
+def pad_coordinates(coords: NDArray, max_atoms: int) -> NDArray:
+    """
+    Pad coordinates array to maximum number of atoms.
+
+    Args:
+        coords: Array of atomic coordinates with shape (n_atoms, 3)
+        max_atoms: Maximum number of atoms to pad to
+
+    Returns:
+        Padded coordinates array with shape (max_atoms, 3)
+    """
+    return pad_array(coords, max_atoms)
+
+
+def pad_forces(forces: NDArray, n_atoms: int, max_atoms: int) -> NDArray:
+    """
+    Pad and convert forces array from Hartree/Bohr to eV/Angstrom.
+
+    Args:
+        forces: Array of forces in Hartree/Bohr with shape (n_atoms, 3)
+        n_atoms: Number of atoms
+        max_atoms: Maximum number of atoms to pad to
+
+    Returns:
+        Padded and converted forces array with shape (max_atoms, 3)
+    """
+    converted_forces = forces * (-HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM)
+    return pad_array(converted_forces, max_atoms)
+
+
+def pad_atomic_numbers(atomic_numbers: NDArray, max_atoms: int) -> NDArray:
+    """
+    Pad atomic numbers array to maximum number of atoms.
+
+    Args:
+        atomic_numbers: Array of atomic numbers
+        max_atoms: Maximum number of atoms to pad to
+
+    Returns:
+        Padded atomic numbers array
+    """
+    return pad_array(atomic_numbers, max_atoms, pad_value=0)
+
+
+def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
+    """
+    Process a single NPZ file and extract relevant data.
+
+    Args:
+        filepath: Path to NPZ file
+
+    Returns:
+        Tuple of (processed data dict or None, number of atoms)
+    """
+    with np.load(filepath) as load:
+        if load is None:
+            return None, 0
+
+        keys = load.keys()
+        if "R" not in keys or "Z" not in keys:
+            raise ValueError("Invalid NPZ file, missing required keys R and Z")
+
+        R = load["R"]
+        n_atoms = len(np.nonzero(R.sum(axis=1))[0])
+
+        if int(len(R)) != n_atoms:
+            return None, n_atoms
+
+        fn = np.linalg.norm(
+            np.linalg.norm(
+                load["F"] * (-627.509474 / 0.529177) * (kcal / mol),
+                axis=(1),
+            )
+        )
+
+        if not (3 < n_atoms < 1000):
+            return None, n_atoms
+
+        R = R[np.nonzero(R.sum(axis=1))]
+        Z = load["Z"][np.nonzero(R.sum(axis=1))]
+        atom_energies = np.take(ATOM_ENERGIES_HARTREE, Z)
+        mol = ase.Atoms(Z, R)
+
+        output = {
+            MolecularData.COORDINATES.value: R,
+            MolecularData.ATOMIC_NUMBERS.value: Z,
+        }
+        if MolecularData.FORCES.value in load:
+            output[MolecularData.FORCES.value] = load["F"]
+        if MolecularData.ENERGY.value in load:
+            output[MolecularData.ENERGY.value] = load["E"] - np.sum(atom_energies)
+        if MolecularData.DIPOLE.value in load:
+            output[MolecularData.DIPOLE.value] = load["dipole"]
+        if MolecularData.QUADRUPOLE.value in load:
+            output[MolecularData.QUADRUPOLE.value] = load["quadrupole"]
+        if MolecularData.ESP.value in load:
+            output[MolecularData.ESP.value] = load["esp"]
+        if MolecularData.ESP_GRID.value in load:
+            output[MolecularData.ESP_GRID.value] = load["esp_grid"]
+        if MolecularData.CENTER_OF_MASS.value in load:
+            output[MolecularData.CENTER_OF_MASS.value] = mol.get_center_of_mass()
+        return output, n_atoms
+
+
+def process_dataset(
+    files: List[Path], batch_index: int = 0
+) -> Dict[MolecularData, NDArray]:
+    """
+    Process a batch of NPZ files and combine their data.
+
+    Args:
+        files: List of NPZ files to process
+        batch_index: Index of the batch being processed
+
+    Returns:
+        Dictionary containing combined and processed data, keyed by MolecularData enum
+    """
+    # Initialize data collectors
+    collected_data = {
+        MolecularData.ATOMIC_NUMBERS: [],
+        MolecularData.COORDINATES: [],
+        MolecularData.QUADRUPOLE: [],
+        MolecularData.ESP: [],
+        MolecularData.ESP_GRID: [],
+        MolecularData.CENTER_OF_MASS: [],
+        MolecularData.FORCES: [],
+        MolecularData.ENERGY: [],
+        MolecularData.DIPOLE: [],
+    }
+
+    molecule_ids = []  # Keep track of molecule IDs separately
+
+    for filepath in tqdm(files):
+        result, n_atoms = process_npz_file(filepath)
+        if result is not None and 3 < n_atoms < MAX_N_ATOMS:
+            # Store molecule ID
+            molecule_ids.append(str(filepath).split("/")[-2])
+
+            # Add data to collectors
+            for data_type in MolecularData:
+                if data_type.value in result:
+                    collected_data[data_type].append(result[data_type.value])
+
+    # Pad all collected arrays to uniform size
+    N = len(collected_data[MolecularData.ATOMIC_NUMBERS])
+
+    # Process ESP grid sizes if present
+    if collected_data[MolecularData.ESP]:
+        N_grid = [_.shape[0] for _ in collected_data[MolecularData.ESP]]
+
+    # Pad arrays
+    processed_data = {}
+
+    # Pad atomic numbers
+    Z = [
+        np.array([int(_) for _ in collected_data[MolecularData.ATOMIC_NUMBERS][i]])
+        for i in range(N)
+    ]
+    processed_data[MolecularData.ATOMIC_NUMBERS] = np.array(
+        [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(N)]
+    )
+
+    # Pad coordinates
+    processed_data[MolecularData.COORDINATES] = np.array(
+        [
+            pad_coordinates(collected_data[MolecularData.COORDINATES][i], MAX_N_ATOMS)
+            for i in range(N)
+        ]
+    )
+
+    # Pad forces
+    if collected_data[MolecularData.FORCES]:
+        processed_data[MolecularData.FORCES] = np.array(
+            [
+                pad_forces(
+                    collected_data[MolecularData.FORCES][i], len(Z[i]), MAX_N_ATOMS
                 )
-                # if fn > 7.5:
-                # print(fn)
-                # print(n_atoms)
-                if 3 < n_atoms < 1000:  # and (0.005 < fn < 5.5):
-                    # mag, Dxyz = read_output(_.parent / "output.dat")
-                    dipole_components.append(load["dipole"])
-                    # molecular_dipoles.append(mag)
-                    quads.append(load["quadrupole"])
-                    ids.append(str(_).split("/")[-2])
-                    # print(elements[-1])
-                    # print(elements[-1], atom_energies)
-                    R = load["R"]
-                    coordinates.append(R[np.nonzero(R.sum(axis=1))])
-                    _r = coordinates[-1]
-                    _z = load["Z"][np.nonzero(R.sum(axis=1))]  # [-_r.shape[0]:]
-                    elements.append(_z)
-                    # _nonz = np.nonzero(R.sum(axis=1))
-                    # zz = np.take(_z, )
-                    atom_energies = np.take(atom_energies_hartree, _z)
-                    if n_atoms == 3:
-                        print(_z, atom_energies)
-                    # monopoles.append(load["monopoles"])
-                    esp.append(load["esp"])
-                    vdw_surface.append(load["esp_grid"])
-                    Fs.append(load["F"][np.nonzero(R.sum(axis=1))])
-                    Es.append(load["E"] - np.sum(atom_energies))
-                    mol = ase.Atoms(_z, coordinates[-1])
-                    coms.append(mol.get_center_of_mass())
-                else:
-                    pass
-                    # print(n_atoms, load["Z"])
+                for i in range(N)
+            ]
+        )
 
-    N_grid = [_.shape[0] for _ in esp]
-    max_N_atoms = 37
-    max_grid_points = 10000  # max(N_grid)
-    N = len(elements)
-    print("max Z", max([len(_) for _ in elements]))
-    Z = [np.array([int(_) for _ in elements[i]]) for i in range(N)]
-    pad_Z = np.array([np.pad(Z[i], ((0, max_N_atoms - len(Z[i])))) for i in range(N)])
-    padE = np.array([[Es[i] * Hartree] for i in range(N)])
-    pad_coords = np.array(
-        [
-            np.pad(coordinates[i], ((0, max_N_atoms - len(coordinates[i])), (0, 0)))
-            for i in range(N)
-        ]
-    )
-    # pad_mono = [np.pad(monopoles[i],((0,max_N_atoms - len(monopoles[i])),(0,0))) for i in range(N)]
-    pad_esp = [np.pad(esp[i], ((0, max_grid_points - len(esp[i])))) for i in range(N)]
-    pad_esp = np.array(pad_esp)
-    bohbb = 0.529177
-    padF = np.array(
-        [
-            np.pad(
-                Fs[i] * (-hartree_per_bohr_to_ev_per_angstrom),
-                ((0, max_N_atoms - len(Z[i])), (0, 0)),
-                "constant",
-                constant_values=(0, 0),
-            )
-            for i in range(N)
-        ]
-    )
+    # Process energy
+    if collected_data[MolecularData.ENERGY]:
+        processed_data[MolecularData.ENERGY] = np.array(
+            [[collected_data[MolecularData.ENERGY][i] * Hartree] for i in range(N)]
+        )
 
-    pad_vdw_surface = []
-    for i in range(N):
-        try:
-            _ = np.pad(
-                vdw_surface[i],
-                ((0, max_grid_points - len(vdw_surface[i])), (0, 0)),
-                "constant",
-                constant_values=(0, 10000),
-            )
-            pad_vdw_surface.append(_)
-        except ValueError:
-            print(i, vdw_surface[i])
-            pad_vdw_surface.append(10000 * jnp.ones((max_grid_points, 3)))
+    # Process other data types that don't need special handling
+    for data_type in [MolecularData.DIPOLE, MolecularData.CENTER_OF_MASS]:
+        if collected_data[data_type]:
+            processed_data[data_type] = np.array(collected_data[data_type])
 
-    pad_vdw_surface = np.array(pad_vdw_surface)
-    pad_vdw_surface.shape
-    N_elements = [len(_) for _ in Z]
+    # Save processed data
+    save_dict = {key.value: processed_data[key] for key in processed_data}
+    save_dict["molecule_ids"] = np.array(molecule_ids)
 
-    print("R", pad_coords.shape)
-    print("Z", pad_Z.shape)
-    print("E", padE.shape)
-    print("F", padF.shape)
-    print(len(Z))
-    print(f"ala-esp-dip-{i_}.npz")
-    # np.savez(f'ala-esp-dip-{N}-{i_}.npz',
-    np.savez(
-        f"ala-esp-dip-{i_}.npz",
-        R=pad_coords,
-        Z=pad_Z,
-        F=padF,
-        E=padE,
-        N=N_elements,
-        # D=molecular_dipoles,
-        com=coms,
-        D=np.array(dipole_components) * ase.units.Debye,
-        # mono=pad_mono,
-        # esp=pad_esp,
-        # id=np.array(ids),
-        # n_grid=np.array(N_grid),
-        # vdw_surface=pad_vdw_surface
-    )
+    output_path = f"processed_data_batch_{batch_index}.npz"
+    np.savez(output_path, **save_dict)
+
+    return processed_data
+
+
+def process_in_memory(data: List[Dict]):
+    """
+    Process a list of dictionaries containing data.
+    """
+    output = {}
+
+    # rename the dataset keys to match the enum:
+    Z_KEYS = ["atomic_numbers", "Z"]
+    R_KEYS = ["coordinates", "positions", "R"]
+    F_KEYS = ["forces", "F"]
+    E_KEYS = ["energy", "E"]
+    D_KEYS = ["dipole", "d"]
+    Q_KEYS = ["quadrupole", "q"]
+    ESP_KEYS = ["esp", "ESP"]
+    ESP_GRID_KEYS = ["esp_grid", "ESP_GRID"]
+    COM_KEYS = ["com", "center_of_mass"]
+
+    def check_keys(keys, data):
+        for key in keys:
+            if key in data:
+                return data[key]
+        return None
+
+    if check_keys(Z_KEYS, data[0]) is not None:
+        Z = [d[check_keys(Z_KEYS, d)] for d in data]
+        output[MolecularData.ATOMIC_NUMBERS] = np.array(
+            [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))]
+        )
+    if check_keys(R_KEYS, data[0]) is not None:
+        output[MolecularData.COORDINATES] = np.array(
+            [pad_coordinates(check_keys(R_KEYS, d), MAX_N_ATOMS) for d in data]
+        )
+    if check_keys(F_KEYS, data[0]) is not None:
+        output[MolecularData.FORCES] = np.array(
+            [
+                pad_forces(
+                    check_keys(F_KEYS, d),
+                    len(check_keys(Z_KEYS, d)),
+                    MAX_N_ATOMS,
+                )
+                for d in data
+            ]
+        )
+    if check_keys(E_KEYS, data[0]) is not None:
+        output[MolecularData.ENERGY] = np.array([[check_keys(E_KEYS, d)] for d in data])
+
+    if check_keys(D_KEYS, data[0]) is not None:
+        output[MolecularData.DIPOLE] = np.array([check_keys(D_KEYS, d) for d in data])
+
+    if check_keys(Q_KEYS, data[0]) is not None:
+        output[MolecularData.QUADRUPOLE] = np.array(
+            [check_keys(Q_KEYS, d) for d in data]
+        )
+
+    if check_keys(ESP_KEYS, data[0]) is not None:
+        output[MolecularData.ESP] = np.array([check_keys(ESP_KEYS, d) for d in data])
+
+    if check_keys(ESP_GRID_KEYS, data[0]) is not None:
+        output[MolecularData.ESP_GRID] = np.array(
+            [check_keys(ESP_GRID_KEYS, d) for d in data]
+        )
+
+    if check_keys(COM_KEYS, data[0]) is not None:
+        output[MolecularData.CENTER_OF_MASS] = np.array
+
+    return output
