@@ -316,16 +316,19 @@ def process_in_memory(data: List[Dict]):
                 return data[key]
         return None
 
-    if check_keys(Z_KEYS, data[0]) is not None:
-        Z = [d  for d in data]
+    _ = check_keys(Z_KEYS, data[0])
+    if _ is not None:
+        Z = [d for d in _]
         output[MolecularData.ATOMIC_NUMBERS] = np.array(
             [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))]
         )
-    if check_keys(R_KEYS, data[0]) is not None:
+    _ = check_keys(R_KEYS, data[0])
+    if _ is not None:
         output[MolecularData.COORDINATES] = np.array(
-            [pad_coordinates(d, MAX_N_ATOMS) for d in data]
+            [pad_coordinates(d, MAX_N_ATOMS) for d in _]
         )
-    if check_keys(F_KEYS, data[0]) is not None:
+    _ = check_keys(F_KEYS, data[0])
+    if _ is not None:
         output[MolecularData.FORCES] = np.array(
             [
                 pad_forces(
@@ -333,29 +336,31 @@ def process_in_memory(data: List[Dict]):
                     len(d),
                     MAX_N_ATOMS,
                 )
-                for d in data
+                for d in _
             ]
         )
-    if check_keys(E_KEYS, data[0]) is not None:
-        output[MolecularData.ENERGY] = np.array([d for d in data])
+    _ = check_keys(E_KEYS, data[0])
+    if _ is not None:
+        output[MolecularData.ENERGY] = np.array([d for d in _])
 
-    if check_keys(D_KEYS, data[0]) is not None:
-        output[MolecularData.DIPOLE] = np.array([d for d in data])
+    _ = check_keys(D_KEYS, data[0])
+    if _ is not None:
+        output[MolecularData.DIPOLE] = np.array([d for d in _])
 
-    if check_keys(Q_KEYS, data[0]) is not None:
-        output[MolecularData.QUADRUPOLE] = np.array(
-            [d for d in data]
-        )
+    _ = check_keys(Q_KEYS, data[0])
+    if _ is not None:
+        output[MolecularData.QUADRUPOLE] = np.array([d for d in _])
 
-    if check_keys(ESP_KEYS, data[0]) is not None:
-        output[MolecularData.ESP] = np.array([d for d in data])
+    _ = check_keys(ESP_KEYS, data[0])
+    if _ is not None:
+        output[MolecularData.ESP] = np.array([d for d in _])
 
-    if check_keys(ESP_GRID_KEYS, data[0]) is not None:
-        output[MolecularData.ESP_GRID] = np.array(
-            [d for d in data]
-        )
+    _ = check_keys(ESP_GRID_KEYS, data[0])
+    if _ is not None:
+        output[MolecularData.ESP_GRID] = np.array([d for d in _])
 
-    if check_keys(COM_KEYS, data[0]) is not None:
+    _ = check_keys(COM_KEYS, data[0])
+    if _ is not None:
         output[MolecularData.CENTER_OF_MASS] = np.array
 
     return output
