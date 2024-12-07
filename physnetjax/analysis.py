@@ -29,12 +29,13 @@ def plot(x, y, ax, units="kcal/mol", _property="", kde=True, s=1, diag=True):
         fontsize=10,
     )
     if kde:
+        NSTEP = min(y.shape[0], 300) 
         if kde == "y":
             xy = np.vstack([y])
         else:
             # Calculate the point density
             xy = np.vstack([x, y])
-        z = gaussian_kde(xy[:, ::10])(xy)
+        z = gaussian_kde(xy[:, ::NSTEP])(xy)
         # Sort the points by density (optional, for better visualization)
         idx = z.argsort()
         x, y, z = x[idx], y[idx], z[idx]
@@ -96,17 +97,17 @@ def eval(batches, model, params, batch_size=500):
         predDs.append(D)
         Es.append(batch["E"])
         predEs.append(output["energy"])
-        _f = np.take(batch["F"], batch["atom_mask"], axis=0)
-        _predf = np.take(np.array(output["forces"]), batch["atom_mask"], axis=0)
+        _f = batch["F"].flatten()
+        _predf = output["forces"].flatten()
         Fs.append(_f)
         predFs.append(_predf)
         charges.append(output["charges"])
         Eeles.append(output["electrostatics"])
+        print("predF.shape", _predf.shape)
     Es = np.array(Es).flatten()
     Eeles = np.array(Eeles).flatten()
     predEs = np.array(predEs).flatten()
     Fs = np.concatenate(Fs).flatten()
-
     predFs = np.concatenate(predFs).flatten()
     Ds = np.array(Ds)  # .flatten()
     predDs = np.array(predDs)  # .flatten()
@@ -169,106 +170,164 @@ def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500):
     return output
 
 
-# import matplotlib.pyplot as plt
-# import numpy as np
-# from ase import Atoms
-# from dscribe.descriptors import SOAP
-# from sklearn.decomposition import PCA
-# from sklearn.manifold import TSNE
-# from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import numpy as np
+from ase import Atoms
+from dscribe.descriptors import SOAP
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
 
 
-# # Function to compute SOAP descriptors
-# def compute_soap_descriptors(
-#     positions, atomic_numbers, species, r_cut=5.0, n_max=8, l_max=6, sigma=0.5
-# ):
-#     """Compute SOAP descriptors for a list of structures."""
-#     soap = SOAP(
-#         species=species,
-#         r_cut=r_cut,
-#         n_max=n_max,
-#         l_max=l_max,
-#         sigma=sigma,
-#         periodic=False,
-#         sparse=False,
-#         average="inner",
-#     )
-#     descriptors = []
-#     ase_atoms = []
-#     for i, (pos, nums) in tqdm(enumerate(zip(positions, atomic_numbers))):
-#         atoms = Atoms(
-#             numbers=nums[: Nele[i]],
-#             positions=pos[: Nele[i]] - pos[: Nele[i]].mean(axis=0),
-#         )
-#         ase_atoms.append(atoms)
-#         desc = soap.create(atoms)
-#         descriptors.append(desc)
-#     # Convert list of arrays to a single numpy array
-#     return np.array(descriptors), ase_atoms
+# Function to compute SOAP descriptors
+def compute_soap_descriptors(
+    positions, atomic_numbers, species, r_cut=5.0, n_max=8, l_max=6, sigma=0.5
+):
+    """Compute SOAP descriptors for a list of structures."""
+    soap = SOAP(
+        species=species,
+        r_cut=r_cut,
+        n_max=n_max,
+        l_max=l_max,
+        sigma=sigma,
+        periodic=False,
+        sparse=False,
+        average="inner",
+    )
+    descriptors = []
+    ase_atoms = []
+    for i, (pos, nums) in tqdm(enumerate(zip(positions, atomic_numbers))):
+        atoms = Atoms(
+            numbers=nums,
+            positions=pos - pos.mean(axis=0),
+        )
+        ase_atoms.append(atoms)
+        desc = soap.create(atoms)
+        descriptors.append(desc)
+    # Convert list of arrays to a single numpy array
+    return np.array(descriptors), ase_atoms
 
 
-# # Function to flatten 3D descriptors to 2D
-# def flatten_descriptors(descriptors):
-#     """Flatten 3D descriptors (structures x centers x features) to 2D."""
-#     return descriptors.reshape(descriptors.shape[0], -1)
+# Function to flatten 3D descriptors to 2D
+def flatten_descriptors(descriptors):
+    """Flatten 3D descriptors (structures x centers x features) to 2D."""
+    return descriptors.reshape(descriptors.shape[0], -1)
 
 
-# # Function to apply PCA
-# def apply_pca(data, n_components=2):
-#     """Apply PCA to the data."""
-#     pca = PCA(n_components=n_components)
-#     reduced_data = pca.fit_transform(data)
-#     return reduced_data, pca
+# Function to apply PCA
+def apply_pca(data, n_components=2):
+    """Apply PCA to the data."""
+    pca = PCA(n_components=n_components)
+    reduced_data = pca.fit_transform(data)
+    return reduced_data, pca
 
 
-# # Function to apply t-SNE
-# def apply_tsne(data, n_components=2, perplexity=30, random_state=42):
-#     """Apply t-SNE to the data."""
-#     tsne = TSNE(
-#         n_components=n_components, perplexity=perplexity, random_state=random_state
-#     )
-#     reduced_data = tsne.fit_transform(data)
-#     return reduced_data, tsne
+# Function to apply t-SNE
+def apply_tsne(data, n_components=2, perplexity=30, random_state=42):
+    """Apply t-SNE to the data."""
+    tsne = TSNE(
+        n_components=n_components, perplexity=perplexity, random_state=random_state
+    )
+    reduced_data = tsne.fit_transform(data)
+    return reduced_data, tsne
 
 
-# # Function to visualize the projection
-# def visualize_projection(data, labels=None, title="Projection", c=None):
-#     """Visualize 2D projection of the data."""
-#     plt.figure(figsize=(8, 6))
-#     scatter = plt.scatter(data[:, 0], data[:, 1], c=c, cmap="jet", s=15)
-#     if labels is not None:
-#         plt.legend(*scatter.legend_elements(), title="Classes")
-#     plt.colorbar(scatter)
-#     plt.title(title)
-#     plt.xlabel("Component 1")
-#     plt.ylabel("Component 2")
-#     # plt.show()
+# Function to visualize the projection
+def visualize_projection(data, labels=None, title="Projection", c=None):
+    """Visualize 2D projection of the data."""
+    plt.figure(figsize=(8, 6))
+    scatter = plt.scatter(data[:, 0], data[:, 1], c=c, cmap="jet", s=15)
+    if labels is not None:
+        plt.legend(*scatter.legend_elements(), title="Classes")
+    plt.colorbar(scatter)
+    plt.title(title)
+    plt.xlabel("Component 1")
+    plt.ylabel("Component 2")
+    # plt.show()
 
 
-# def get_desc(
-#     positions,
-#     atomic_numbers,
-#     species,
-# ):
-#     """Process data through SOAP and the chosen dimensionality reduction method."""
-#     print("Computing SOAP descriptors...")
-#     descriptors, ase_atoms = compute_soap_descriptors(
-#         positions, atomic_numbers, species
-#     )
-#     return descriptors, ase_atoms
+def get_desc(
+    positions,
+    atomic_numbers,
+    species,
+):
+    """Process data through SOAP and the chosen dimensionality reduction method."""
+    print("Computing SOAP descriptors...")
+    descriptors, ase_atoms = compute_soap_descriptors(
+        positions, atomic_numbers, species
+    )
+    return descriptors, ase_atoms
 
 
-# # Main processing function
-# def process_data(descriptors, method, **kwargs):
+# Main processing function
+def process_data(descriptors, method, **kwargs):
 
-#     print("Flattening descriptors...")
-#     flattened_descriptors = flatten_descriptors(descriptors)
-#     print("Scaling data...")
-#     scaler = StandardScaler()
-#     scaled_data = scaler.fit_transform(flattened_descriptors)
-#     print(f"Applying {method.__name__}...")
-#     reduced_data, model = method(scaled_data, **kwargs)
-#     return (
-#         reduced_data,
-#         model,
-#     )
+    print("Flattening descriptors...")
+    flattened_descriptors = flatten_descriptors(descriptors)
+    print("Scaling data...")
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(flattened_descriptors)
+    print(f"Applying {method.__name__}...")
+    reduced_data, model = method(scaled_data, **kwargs)
+    return (
+        reduced_data,
+        model,
+    )
+
+
+
+import re
+
+def clean_and_cast_to_float(s):
+    # Use regex to keep only digits, periods, and minus signs
+    cleaned_str = re.sub(r'[^0-9.-]', '', s)
+    return float(cleaned_str[:7]) if cleaned_str else None
+
+import matplotlib.pyplot as plt
+
+from MDAnalysis.analysis import dihedrals
+
+import numpy as np
+
+#def make_bonds_ase():
+## Create a NeighborList object
+#cutoffs = [r + 0.5 for r in atomic_radii]  # Slightly increase radii for bonding cutoff
+#nl = NeighborList(cutoffs=cutoffs, self_interaction=False, bothways=True)
+#nl.update(molecule)
+#
+## Get bonds automatically
+#bonds = []
+#for atom in range(len(molecule)):
+#    indices, offsets = nl.get_neighbors(atom)
+#    for i in indices:
+#        if (atom, i) not in bonds and (i, atom) not in bonds:
+#            bonds.append((atom, i))
+#
+#
+
+def kabsch_alignment(P, Q):
+    """
+    Calculate the optimal rotation matrix using the Kabsch algorithm.
+    Aligns points P to points Q.
+    
+    Parameters:
+    - P: Coordinates of the moving frame (Nx3 numpy array).
+    - Q: Coordinates of the reference frame (Nx3 numpy array).
+    
+    Returns:
+    - R: Optimal rotation matrix (3x3 numpy array).
+    """
+    # Compute the covariance matrix
+    C = np.dot(P.T, Q)
+    
+    # Singular value decomposition
+    V, S, W = np.linalg.svd(C)
+    
+    # Calculate the optimal rotation matrix
+    d = (np.linalg.det(V) * np.linalg.det(W)) < 0.0
+    if d:
+        S[-1] = -S[-1]
+        V[:, -1] = -V[:, -1]
+        
+    R = np.dot(V, W)
+    return R

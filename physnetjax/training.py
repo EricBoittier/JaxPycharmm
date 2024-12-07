@@ -10,7 +10,7 @@ import orbax.checkpoint
 from flax.training import orbax_utils, train_state
 from jax import random
 from physnetjax.tensorboard_logging import write_tb_log
-
+import tensorflow as tf
 import physnetjax
 from physnetjax.data import prepare_batches
 from physnetjax.evalstep import eval_step
@@ -131,8 +131,7 @@ def train_model(
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
-
-    writer = tf.summary.create_file_writer(CKPT_DIR)
+    writer = None
 
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
@@ -267,6 +266,7 @@ def train_model(
         valid_forces_mae *= conversion["forces"]
         train_energy_mae *= conversion["energy"]
         train_forces_mae *= conversion["forces"]
+        lr_eff = transform_state.scale * schedule_fn(epoch)
 
         obj_res = {
             "valid_energy_mae": valid_energy_mae,
@@ -275,11 +275,21 @@ def train_model(
             "train_forces_mae": train_forces_mae,
             "train_loss": train_loss,
             "valid_loss": valid_loss,
-        }
+            "lr": lr_eff,
+            "batch_size": batch_size,
+            "energy_w": energy_weight,
+            "charges_w": charges_weight,
+            "dipole_w": dipole_weight,
+            "forces_w": forces_weight,
+            }
 
-        lr_eff = transform_state.scale * schedule_fn(epoch)
-        write_tb_log(writer, obj_res)
-
+        writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
+        # Correct usage within the context manager
+        # Use the writer for logging
+        writer.set_as_default()
+        # Log to TensorBoard
+        write_tb_log(writer, obj_res, epoch)  # Call your logging function here
+        
         best_ = False
         if obj_res[objective] < best_loss:
 

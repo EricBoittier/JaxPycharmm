@@ -35,13 +35,14 @@ orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 
 # files = ["/pchem-data/meuwly/boittier/home/ini.to.dioxi.npz"]
-files = ["/pchem-data/meuwly/boittier/home/all.npz"]
+files = ["/pchem-data/meuwly/boittier/home/cf3criegee_27887.npz"]
 
 NATOMS = 8
 
 
 train_data, valid_data = prepare_datasets(
-    data_key, 27030, 2000, files, clip_esp=False, natoms=NATOMS, clean=False
+    data_key, 23887, 4000, files, clip_esp=False, natoms=NATOMS, clean=False
+#    data_key, 27, 20, files, clip_esp=False, natoms=NATOMS, clean=False
 )
 
 ntest = len(valid_data["E"]) // 2
@@ -50,23 +51,23 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 model = EF(
     # attributes
-    features=128,
-    max_degree=0,
-    num_iterations=5,
-    num_basis_functions=64,
+    features=84,
+    max_degree=3,
+    num_iterations=3,
+    num_basis_functions=32,
     cutoff=10.0,
     max_atomic_number=11,
     charges=True,
     natoms=NATOMS,
     total_charge=0,
-    n_res=3,
+    n_res=1,
     zbl=True,
     debug=False,
 )
 
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 
-restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-4fd66a4e-1c54-484e-a7b6-52fca8cb23d3/"
+restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-ddf43ffc-b8f8-42cd-9d97-1a0251ff8241/"
 
 
 params = train_model(
@@ -75,15 +76,17 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.01,
-    forces_weight=1000,
-    schedule_fn="cosine_annealing",
-    #optimizer="amsgrad",
-    batch_size=50,
+    learning_rate=0.001,
+    energy_weight=NATOMS,
+    #charges_weight=1,
+    #forces_weight=100,
+    schedule_fn="constant",
+    optimizer="amsgrad",
+    batch_size=1000,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-    restart=restart,
+#    restart=restart,
     print_freq=1,
     objective="valid_loss",
     best=1e6,
-)
+    )

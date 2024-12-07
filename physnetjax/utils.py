@@ -15,6 +15,7 @@ orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 def get_files(path: str) -> List[Path]:
     """Get sorted directory paths excluding tmp directories."""
     dirs = list(Path(path).glob("*/"))
+    dirs = [_ for _ in dirs if "tfevent" not in str(_)]
     dirs.sort(key=lambda x: int(str(x).split("/")[-1].split("-")[-1]))
     return [_ for _ in dirs if "tmp" not in str(_)]
 

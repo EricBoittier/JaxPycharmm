@@ -42,10 +42,10 @@ def get_optimizer(
         if schedule_fn == "warmup":
             schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
                 init_value=learning_rate,
-                peak_value=learning_rate * 1.05,
-                warmup_steps=10,
+                peak_value=learning_rate * 3,
+                warmup_steps=100,
                 transition_steps=10,
-                decay_rate=0.999,
+                decay_rate=0.9999,
             )
         elif schedule_fn == "cosine_annealing":
             schedule_fn = cycled_cosine_annealing_schedule(
@@ -71,12 +71,14 @@ def get_optimizer(
     if optimizer is None:
         optimizer = optax.chain(
             # optax.adaptive_grad_clip(1.0),
-            optax.clip_by_global_norm(1000.0),
-            optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-6),
+            optax.clip_by_global_norm(10.0),
+            optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-9),
         )
     elif isinstance(optimizer, str):
         _chain = []
-        if isinstance(clip_global, float):
+        if clip_global:
+            if not isinstance(clip_global, float):
+                clip_global = 1.0
             _chain.append(optax.clip_by_global_norm(clip_global))
         if optimizer == "adam":
             _chain.append(optax.adam(learning_rate=schedule_fn))

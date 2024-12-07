@@ -352,7 +352,7 @@ class EF(nn.Module):
         # Numerical stability constants
         EPS = 1e-6
         MIN_DIST = 0.01  # Minimum distance in Angstroms
-        SWITCH_START = 0.05  # Start switching at 2 Angstroms
+        SWITCH_START = 1.0  # Start switching at 2 Angstroms
         SWITCH_END = self.cutoff  # Complete switch by 10 Angstroms
 
         # Calculate distances between atom pairs
@@ -364,6 +364,7 @@ class EF(nn.Module):
 
         # Improved switching function
         switch_dist = e3x.nn.smooth_switch(distances, SWITCH_START, SWITCH_END)
+        off_dist = 1.0 - e3x.nn.smooth_switch(distances, 8.0, 10.0)
         one_minus_switch_dist = 1 - switch_dist
 
         # Get charges for interacting pairs with safe bounds
@@ -377,10 +378,13 @@ class EF(nn.Module):
         R1 = switch_dist / jnp.sqrt(squared_distances + 1.0)
         R2 = one_minus_switch_dist / safe_distances
         R = R1 + R2
+        E_shift = safe_distances/(SWITCH_END**2) - 2.0/SWITCH_END
         # Calculate electrostatic energy (in Hartree)
         # Conversion factor 7.199822675975274 is 1/(4π*ε₀) in atomic units
         electrostatics = 7.199822675975274 * q1 * q2 * R * batch_mask
-
+        # apply shifted force truncation scheme
+        electrostatics += E_shift * batch_mask
+        electrostatics *= off_dist
         # Sum contributions for each atom
         atomic_electrostatics = jax.ops.segment_sum(
             electrostatics,
@@ -395,7 +399,8 @@ class EF(nn.Module):
         )
         # atomic_electrostatics = e3x.nn.smooth_damping(atomic_electrostatics)
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
-
+        if isinstance(self.debug, list) and "ele" in self.debug:
+            jax.debug.print(f"{x}",x=atomic_electrostatics)
         return atomic_electrostatics, batch_electrostatics
 
     @nn.compact
