@@ -317,42 +317,42 @@ def process_in_memory(data: List[Dict]):
         return None
 
     if check_keys(Z_KEYS, data[0]) is not None:
-        Z = [d[check_keys(Z_KEYS, d)] for d in data]
+        Z = [d  for d in data]
         output[MolecularData.ATOMIC_NUMBERS] = np.array(
             [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))]
         )
     if check_keys(R_KEYS, data[0]) is not None:
         output[MolecularData.COORDINATES] = np.array(
-            [pad_coordinates(check_keys(R_KEYS, d), MAX_N_ATOMS) for d in data]
+            [pad_coordinates(d, MAX_N_ATOMS) for d in data]
         )
     if check_keys(F_KEYS, data[0]) is not None:
         output[MolecularData.FORCES] = np.array(
             [
                 pad_forces(
-                    check_keys(F_KEYS, d),
-                    len(check_keys(Z_KEYS, d)),
+                    d,
+                    len(d),
                     MAX_N_ATOMS,
                 )
                 for d in data
             ]
         )
     if check_keys(E_KEYS, data[0]) is not None:
-        output[MolecularData.ENERGY] = np.array([[check_keys(E_KEYS, d)] for d in data])
+        output[MolecularData.ENERGY] = np.array([d for d in data])
 
     if check_keys(D_KEYS, data[0]) is not None:
-        output[MolecularData.DIPOLE] = np.array([check_keys(D_KEYS, d) for d in data])
+        output[MolecularData.DIPOLE] = np.array([d for d in data])
 
     if check_keys(Q_KEYS, data[0]) is not None:
         output[MolecularData.QUADRUPOLE] = np.array(
-            [check_keys(Q_KEYS, d) for d in data]
+            [d for d in data]
         )
 
     if check_keys(ESP_KEYS, data[0]) is not None:
-        output[MolecularData.ESP] = np.array([check_keys(ESP_KEYS, d) for d in data])
+        output[MolecularData.ESP] = np.array([d for d in data])
 
     if check_keys(ESP_GRID_KEYS, data[0]) is not None:
         output[MolecularData.ESP_GRID] = np.array(
-            [check_keys(ESP_GRID_KEYS, d) for d in data]
+            [d for d in data]
         )
 
     if check_keys(COM_KEYS, data[0]) is not None:
