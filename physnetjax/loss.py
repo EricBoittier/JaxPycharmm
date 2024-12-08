@@ -45,8 +45,12 @@ def mean_squared_loss(
     Returns:
         float: Combined mean squared loss for energy and forces.
     """
-    energy_loss = jnp.mean(optax.l2_loss(energy_prediction, energy_target.reshape(-1)))
-    forces_loss = jnp.mean(optax.l2_loss(forces_prediction, forces_target.squeeze()))
+    energy_loss = jnp.mean(
+        optax.l2_loss(energy_prediction.squeeze(), energy_target.squeeze())
+    )
+    forces_loss = jnp.mean(
+        optax.l2_loss(forces_prediction.squeeze(), forces_target.squeeze())
+    )
     return energy_loss + forces_weight * forces_loss
 
 

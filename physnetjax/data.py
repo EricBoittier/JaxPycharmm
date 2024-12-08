@@ -476,7 +476,7 @@ def prepare_batches(
             # print("good_indices[perm].flatten()", np.sum(good_indices[perm].flatten()))
             dict_["batch_segments"] = batch_segments.reshape(-1)
             dict_["atom_mask"] = jnp.where(dict_["Z"] > 0, 1, 0).reshape(-1)
-            # print("atom_mask", dict_["atom_mask"], dict_["N"])
+            #print("atom_mask", dict_["atom_mask"], dict_["N"])
             output.append(dict_)
             # print(
             #    len(dict_["dst_idx"]), len(dict_["src_idx"]), len(dict_["batch_mask"])

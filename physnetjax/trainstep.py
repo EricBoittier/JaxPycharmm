@@ -1,8 +1,5 @@
-import sys
-
-from flax.training import orbax_utils
-
 import functools
+import sys
 
 import ase
 import e3x
@@ -13,12 +10,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import optax
 import orbax
-
-from flax.training import checkpoints, train_state
+from flax.training import checkpoints, orbax_utils, train_state
 from jax.random import randint
 from optax import contrib
 from optax import tree_utils as otu
 from tqdm import tqdm
+
 import physnetjax
 from physnetjax.data import prepare_batches, prepare_datasets
 
@@ -108,6 +105,7 @@ def train_step(
             return loss, (output["energy"], output["forces"], output["charges"], dipole)
 
     else:
+        print(batch["atom_mask"])
 
         def loss_fn(params):
             output = model_apply(
@@ -119,6 +117,7 @@ def train_step(
                 batch_segments=batch["batch_segments"],
                 batch_size=batch_size,
                 batch_mask=batch["batch_mask"],
+                atom_mask=batch["atom_mask"],
             )
             loss = mean_squared_loss(
                 energy_prediction=output["energy"],
@@ -127,7 +126,7 @@ def train_step(
                 forces_target=batch["F"],
                 forces_weight=forces_weight,
             )
-            return loss, (energy, forces)
+            return loss, (output["energy"], output["forces"])
 
     if doCharges:
         (loss, (energy, forces, charges, dipole)), grad = jax.value_and_grad(

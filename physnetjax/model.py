@@ -13,6 +13,7 @@ import flax.linen as nn
 import jax
 import jax.numpy as jnp
 import numpy.typing as npt
+
 import physnetjax
 from physnetjax.zbl import ZBLRepulsion
 
@@ -378,7 +379,7 @@ class EF(nn.Module):
         R1 = switch_dist / jnp.sqrt(squared_distances + 1.0)
         R2 = one_minus_switch_dist / safe_distances
         R = R1 + R2
-        E_shift = safe_distances/(SWITCH_END**2) - 2.0/SWITCH_END
+        E_shift = safe_distances / (SWITCH_END**2) - 2.0 / SWITCH_END
         # Calculate electrostatic energy (in Hartree)
         # Conversion factor 7.199822675975274 is 1/(4π*ε₀) in atomic units
         electrostatics = 7.199822675975274 * q1 * q2 * R * batch_mask
@@ -400,7 +401,7 @@ class EF(nn.Module):
         # atomic_electrostatics = e3x.nn.smooth_damping(atomic_electrostatics)
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
         if isinstance(self.debug, list) and "ele" in self.debug:
-            jax.debug.print(f"{x}",x=atomic_electrostatics)
+            jax.debug.print(f"{x}", x=atomic_electrostatics)
         return atomic_electrostatics, batch_electrostatics
 
     @nn.compact

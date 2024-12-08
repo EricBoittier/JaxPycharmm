@@ -7,10 +7,10 @@ import e3x
 import jax
 import orbax
 import orbax.checkpoint
+import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from jax import random
-from physnetjax.tensorboard_logging import write_tb_log
-import tensorflow as tf
+
 import physnetjax
 from physnetjax.data import prepare_batches
 from physnetjax.evalstep import eval_step
@@ -20,6 +20,7 @@ from physnetjax.optimizer import (
     base_transform,
     get_optimizer,
 )
+from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
 
@@ -199,6 +200,7 @@ def train_model(
             num_atoms=num_atoms,
             data_keys=data_keys,
         )
+        print(train_batches[0].keys())
         # Loop over train batches.
         train_loss = 0.0
         train_energy_mae = 0.0
@@ -281,7 +283,7 @@ def train_model(
             "charges_w": charges_weight,
             "dipole_w": dipole_weight,
             "forces_w": forces_weight,
-            }
+        }
 
         writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
         # Correct usage within the context manager
@@ -289,7 +291,7 @@ def train_model(
         writer.set_as_default()
         # Log to TensorBoard
         write_tb_log(writer, obj_res, epoch)  # Call your logging function here
-        
+
         best_ = False
         if obj_res[objective] < best_loss:
 
