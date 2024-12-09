@@ -13,6 +13,7 @@ from jax import random
 
 import physnetjax
 from physnetjax.data import prepare_batches
+from physnetjax.epoch_printer import epoch_printer
 from physnetjax.evalstep import eval_step
 from physnetjax.optimizer import (
     base_optimizer,
@@ -93,6 +94,7 @@ def train_model(
     schedule_fn=None,
     objective="valid_forces_mae",
     ckpt_dir=BASE_CKPT_DIR,
+    log_tb=False,
     data_keys=["R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"],
 ):
     """Train a model."""
@@ -164,8 +166,8 @@ def train_model(
         print("Restored keys:", restored.keys())
         params = restored["params"]
         ema_params = restored["ema_params"]
-        # transform_state = transform.init(restored["transform_state"])
-        # print("transform_state", transform_state)
+        transform_state = transform.init(restored["transform_state"])
+        print("transform_state", transform_state)
         step = restored["epoch"] + 1
         best_loss = restored["best_loss"]
         CKPT_DIR = Path(restart).parent  # optimizer = restored["optimizer"]
@@ -174,11 +176,11 @@ def train_model(
         ema_params = params
         best_loss = 10000
         step = 1
+        opt_state = optimizer.init(params)
+        transform_state = transform.init(params)
+
     if best:
         best_loss = best
-
-    opt_state = optimizer.init(params)
-    transform_state = transform.init(params)
 
     state = train_state.TrainState.create(
         apply_fn=model.apply, params=params, tx=optimizer
@@ -200,7 +202,6 @@ def train_model(
             num_atoms=num_atoms,
             data_keys=data_keys,
         )
-        print(train_batches[0].keys())
         # Loop over train batches.
         train_loss = 0.0
         train_energy_mae = 0.0
@@ -285,20 +286,18 @@ def train_model(
             "forces_w": forces_weight,
         }
 
-        writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
-        # Correct usage within the context manager
-        # Use the writer for logging
-        writer.set_as_default()
-        # Log to TensorBoard
-        write_tb_log(writer, obj_res, epoch)  # Call your logging function here
+        if log_tb:
+            writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
+            # Correct usage within the context manager
+            # Use the writer for logging
+            writer.set_as_default()
+            # Log to TensorBoard
+            write_tb_log(writer, obj_res, epoch)  # Call your logging function here
 
         best_ = False
         if obj_res[objective] < best_loss:
 
-            model_attributes = {
-                _.split(" = ")[0].strip(): _.split(" = ")[-1]
-                for _ in str(model).split("\n")[2:-1]
-            }
+            model_attributes = model.return_attributes()
 
             # checkpoints.save_checkpoint(ckpt_dir=CKPT_DIR, target=state, step=epoch)
             ckpt = {
@@ -324,26 +323,10 @@ def train_model(
             print("best!")
             best_ = True
 
-        if best_ or (epoch % print_freq == 0):
-            # Print progress.
-            print(f"epoch: {epoch: 3d}\t\t\t\t train:   valid:")
-            print(
-                f"    loss\t\t[a.u.]     \t{train_loss : 8.3f} {valid_loss : 8.3f} {best_loss:8.3f}"
-            )
-            print(
-                f"    energy mae\t\t[kcal/mol]\t{train_energy_mae: 8.3f} {valid_energy_mae: 8.3f}"
-            )
-            print(
-                f"    forces mae\t\t[kcal/mol/Å]\t{train_forces_mae: 8.3f} {valid_forces_mae: 8.3f}"
-            )
-            if doCharges:
-                print(
-                    f"    dipoles mae\t\t[e Å]     \t{train_dipoles_mae: 8.3f} {valid_dipoles_mae: 8.3f}"
-                )
-            print(
-                "scale:",
-                f"{transform_state.scale:.6f} {schedule_fn(epoch):.6f} LR={lr_eff:.9f}",
-            )
+    if best_ or (epoch % print_freq == 0):
+        epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
+                  train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
+                  transform_state, schedule_fn, lr_eff)
 
     # Return final model parameters.
     return ema_params

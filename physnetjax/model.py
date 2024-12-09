@@ -55,6 +55,21 @@ class EF(nn.Module):
     zbl: bool = True
     debug: bool | List[str] = False
 
+    def return_attributes(self) -> Dict[str, Any]:
+        """Return model attributes for checkpointing."""
+        return {
+            "features": self.features,
+            "max_degree": self.max_degree,
+            "num_iterations": self.num_iterations,
+            "num_basis_functions": self.num_basis_functions,
+            "cutoff": self.cutoff,
+            "max_atomic_number": self.max_atomic_number,
+            "charges": self.charges,
+            "natoms": self.natoms,
+            "total_charge": self.total_charge,
+            "n_res": self.n_res,
+        }
+
     def energy(
         self,
         atomic_numbers: jnp.ndarray,
