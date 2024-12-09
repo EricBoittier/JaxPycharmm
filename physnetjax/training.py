@@ -11,6 +11,7 @@ import orbax.checkpoint
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from jax import random
+from rich.live import Live
 
 import physnetjax
 from physnetjax.data import prepare_batches
@@ -160,155 +161,158 @@ def train_model(
 
     trainTime1 = time.time()
     print("Train Time: ", trainTime1 - startTime)
+    table = init_table(doCharges)
 
-    # Train for 'num_epochs' epochs.
-    for epoch in range(step, num_epochs + 1):
-        trainTime = time.time()
-        print("Train Time: ", trainTime - startTime)
-        print("Time since last epoch: ", trainTime - trainTime1)
-        trainTime1 = time.time()
+    with Live(table, refresh_per_second=4) as live:
 
-        # Prepare batches.
-        key, shuffle_key = jax.random.split(key)
-        train_batches = prepare_batches(
-            shuffle_key,
-            train_data,
-            batch_size,
-            num_atoms=num_atoms,
-            data_keys=data_keys,
-        )
-        # Loop over train batches.
-        train_loss = 0.0
-        train_energy_mae = 0.0
-        train_forces_mae = 0.0
-        train_dipoles_mae = 0.0
-        for i, batch in enumerate(train_batches):
-            (
-                params,
-                ema_params,
-                opt_state,
-                transform_state,
-                loss,
-                energy_mae,
-                forces_mae,
-                dipole_mae,
-            ) = train_step(
-                model_apply=model.apply,
-                optimizer_update=optimizer.update,
-                transform_state=transform_state,
-                batch=batch,
-                batch_size=batch_size,
-                energy_weight=energy_weight,
-                forces_weight=forces_weight,
-                dipole_weight=dipole_weight,
-                charges_weight=charges_weight,
-                opt_state=opt_state,
-                doCharges=doCharges,
-                params=params,
-                ema_params=ema_params,
-                debug=runInDebug,
+        # Train for 'num_epochs' epochs.
+        for epoch in range(step, num_epochs + 1):
+            trainTime = time.time()
+            print("Train Time: ", trainTime - startTime)
+            print("Time since last epoch: ", trainTime - trainTime1)
+            trainTime1 = time.time()
+
+            # Prepare batches.
+            key, shuffle_key = jax.random.split(key)
+            train_batches = prepare_batches(
+                shuffle_key,
+                train_data,
+                batch_size,
+                num_atoms=num_atoms,
+                data_keys=data_keys,
             )
-            train_loss += (loss - train_loss) / (i + 1)
-            train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
-            train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
-            train_dipoles_mae += (dipole_mae - train_dipoles_mae) / (i + 1)
+            # Loop over train batches.
+            train_loss = 0.0
+            train_energy_mae = 0.0
+            train_forces_mae = 0.0
+            train_dipoles_mae = 0.0
+            for i, batch in enumerate(train_batches):
+                (
+                    params,
+                    ema_params,
+                    opt_state,
+                    transform_state,
+                    loss,
+                    energy_mae,
+                    forces_mae,
+                    dipole_mae,
+                ) = train_step(
+                    model_apply=model.apply,
+                    optimizer_update=optimizer.update,
+                    transform_state=transform_state,
+                    batch=batch,
+                    batch_size=batch_size,
+                    energy_weight=energy_weight,
+                    forces_weight=forces_weight,
+                    dipole_weight=dipole_weight,
+                    charges_weight=charges_weight,
+                    opt_state=opt_state,
+                    doCharges=doCharges,
+                    params=params,
+                    ema_params=ema_params,
+                    debug=runInDebug,
+                )
+                train_loss += (loss - train_loss) / (i + 1)
+                train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
+                train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
+                train_dipoles_mae += (dipole_mae - train_dipoles_mae) / (i + 1)
 
-        # Evaluate on validation set.
-        valid_loss = 0.0
-        valid_energy_mae = 0.0
-        valid_forces_mae = 0.0
-        valid_dipoles_mae = 0.0
-        for i, batch in enumerate(valid_batches):
-            loss, energy_mae, forces_mae, dipole_mae = eval_step(
-                model_apply=model.apply,
-                batch=batch,
-                batch_size=batch_size,
-                energy_weight=energy_weight,
-                forces_weight=forces_weight,
-                dipole_weight=dipole_weight,
-                charges_weight=charges_weight,
-                charges=doCharges,
-                params=ema_params,
+            # Evaluate on validation set.
+            valid_loss = 0.0
+            valid_energy_mae = 0.0
+            valid_forces_mae = 0.0
+            valid_dipoles_mae = 0.0
+            for i, batch in enumerate(valid_batches):
+                loss, energy_mae, forces_mae, dipole_mae = eval_step(
+                    model_apply=model.apply,
+                    batch=batch,
+                    batch_size=batch_size,
+                    energy_weight=energy_weight,
+                    forces_weight=forces_weight,
+                    dipole_weight=dipole_weight,
+                    charges_weight=charges_weight,
+                    charges=doCharges,
+                    params=ema_params,
+                )
+                valid_loss += (loss - valid_loss) / (i + 1)
+                valid_energy_mae += (energy_mae - valid_energy_mae) / (i + 1)
+                valid_forces_mae += (forces_mae - valid_forces_mae) / (i + 1)
+                valid_dipoles_mae += (dipole_mae - valid_dipoles_mae) / (i + 1)
+
+            _, transform_state = transform.update(
+                updates=params, state=transform_state, value=valid_loss
             )
-            valid_loss += (loss - valid_loss) / (i + 1)
-            valid_energy_mae += (energy_mae - valid_energy_mae) / (i + 1)
-            valid_forces_mae += (forces_mae - valid_forces_mae) / (i + 1)
-            valid_dipoles_mae += (dipole_mae - valid_dipoles_mae) / (i + 1)
 
-        _, transform_state = transform.update(
-            updates=params, state=transform_state, value=valid_loss
-        )
+            # convert statistics to kcal/mol for printing
+            valid_energy_mae *= conversion["energy"]
+            valid_forces_mae *= conversion["forces"]
+            train_energy_mae *= conversion["energy"]
+            train_forces_mae *= conversion["forces"]
+            scale = transform_state.scale
+            slr = schedule_fn(epoch)
+            lr_eff = scale * slr
 
-        # convert statistics to kcal/mol for printing
-        valid_energy_mae *= conversion["energy"]
-        valid_forces_mae *= conversion["forces"]
-        train_energy_mae *= conversion["energy"]
-        train_forces_mae *= conversion["forces"]
-        scale = transform_state.scale
-        slr = schedule_fn(epoch)
-        lr_eff = scale * slr
-
-        obj_res = {
-            "valid_energy_mae": valid_energy_mae,
-            "valid_forces_mae": valid_forces_mae,
-            "train_energy_mae": train_energy_mae,
-            "train_forces_mae": train_forces_mae,
-            "train_loss": train_loss,
-            "valid_loss": valid_loss,
-            "lr": lr_eff,
-            "batch_size": batch_size,
-            "energy_w": energy_weight,
-            "charges_w": charges_weight,
-            "dipole_w": dipole_weight,
-            "forces_w": forces_weight,
-        }
-
-        if log_tb:
-
-            writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
-            # Correct usage within the context manager
-            # Use the writer for logging
-            writer.set_as_default()
-            # Log to TensorBoard
-            write_tb_log(writer, obj_res, epoch)  # Call your logging function here
-
-        best_ = False
-        if obj_res[objective] < best_loss:
-
-            model_attributes = model.return_attributes()
-
-            # checkpoints.save_checkpoint(ckpt_dir=CKPT_DIR, target=state, step=epoch)
-            ckpt = {
-                "model": state,
-                "model_attributes": model_attributes,
-                "transform_state": transform_state,
-                "ema_params": ema_params,
-                "params": params,
-                "epoch": epoch,
-                "opt_state": opt_state,
-                "best_loss": best_loss,
-                "lr_eff": lr_eff,
-                "objectives": obj_res,
+            obj_res = {
+                "valid_energy_mae": valid_energy_mae,
+                "valid_forces_mae": valid_forces_mae,
+                "train_energy_mae": train_energy_mae,
+                "train_forces_mae": train_forces_mae,
+                "train_loss": train_loss,
+                "valid_loss": valid_loss,
+                "lr": lr_eff,
+                "batch_size": batch_size,
+                "energy_w": energy_weight,
+                "charges_w": charges_weight,
+                "dipole_w": dipole_weight,
+                "forces_w": forces_weight,
             }
 
-            save_args = orbax_utils.save_args_from_target(ckpt)
-            print(CKPT_DIR / f"epoch-{epoch}")
-            orbax_checkpointer.save(
-                CKPT_DIR / f"epoch-{epoch}", ckpt, save_args=save_args
-            )
-            # update best loss
-            best_loss = obj_res[objective]
-            print("best!")
-            best_ = True
+            if log_tb:
 
-    print(transform_state)
+                writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
+                # Correct usage within the context manager
+                # Use the writer for logging
+                writer.set_as_default()
+                # Log to TensorBoard
+                write_tb_log(writer, obj_res, epoch)  # Call your logging function here
 
-    if best_ or (epoch % print_freq == 0):
-        console = Console()
-        table = epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
-                      train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
-                      scale, slr, lr_eff)
-        console.print(table)
+            best_ = False
+            if obj_res[objective] < best_loss:
+
+                model_attributes = model.return_attributes()
+
+                # checkpoints.save_checkpoint(ckpt_dir=CKPT_DIR, target=state, step=epoch)
+                ckpt = {
+                    "model": state,
+                    "model_attributes": model_attributes,
+                    "transform_state": transform_state,
+                    "ema_params": ema_params,
+                    "params": params,
+                    "epoch": epoch,
+                    "opt_state": opt_state,
+                    "best_loss": best_loss,
+                    "lr_eff": lr_eff,
+                    "objectives": obj_res,
+                }
+
+                save_args = orbax_utils.save_args_from_target(ckpt)
+                print(CKPT_DIR / f"epoch-{epoch}")
+                orbax_checkpointer.save(
+                    CKPT_DIR / f"epoch-{epoch}", ckpt, save_args=save_args
+                )
+                # update best loss
+                best_loss = obj_res[objective]
+                print("best!")
+                best_ = True
+
+        print(transform_state)
+
+        if best_ or (epoch % print_freq == 0):
+            table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
+                          train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
+                          scale, slr, lr_eff)
+            # console.print(table)
+            live.update(table)
 
     # Return final model parameters.
     return ema_params

@@ -17,10 +17,9 @@ def init_table(doCharges=False):
         table.add_column("Train Dipoles MAE", style="magenta")
     return table
 
-def epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
+def epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                   train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
                   transform_state, slr, lr_eff):
-    table = init_table(doCharges)
     rows = [f"{epoch: 3d}",
     f"{train_loss : 8.3f}",
     f"{valid_loss : 8.3f}",
