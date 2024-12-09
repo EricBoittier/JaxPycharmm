@@ -24,6 +24,7 @@ from physnetjax.optimizer import (
 from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
+from physnetjax.epoch_printer import init_table, epoch_printer
 
 schedule_fn = base_schedule_fn
 transform = base_transform
@@ -71,6 +72,9 @@ def get_epoch_weights(epoch: int) -> Tuple[float, float]:
         return 1.0, 50.0
 
 
+
+
+
 def train_model(
     key,
     model,
@@ -100,7 +104,7 @@ def train_model(
     """Train a model."""
 
     print("Training Routine")
-
+    table = init_table()
     best_loss = 10000
     doCharges = model.charges
     # Initialize model parameters and optimizer state.
@@ -324,9 +328,10 @@ def train_model(
             best_ = True
 
     if best_ or (epoch % print_freq == 0):
-        epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
-                  train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
-                  transform_state, schedule_fn, lr_eff)
+        with Live(table, refresh_per_second=4):
+            epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
+                      train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
+                      transform_state, schedule_fn, lr_eff)
 
     # Return final model parameters.
     return ema_params

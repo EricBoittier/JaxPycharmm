@@ -1,24 +1,35 @@
-def epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
+from rich.live import Live
+from rich.table import Table
+import time
+
+
+def init_table(doCharges=False):
+    table = Table(title="PhysNetJax Training Progress")
+    table.add_column("Epoch", style="cyan", no_wrap=True)
+    table.add_column("Train Loss", style="magenta")
+    table.add_column("Valid Loss", style="green")
+    table.add_column("Best Loss", style="red")
+    table.add_column("Train Energy MAE", style="magenta")
+    table.add_column("Valid Energy MAE", style="green")
+    table.add_column("Train Forces MAE", style="magenta")
+    table.add_column("Valid Forces MAE", style="green")
+    if doCharges:
+        table.add_column("Train Dipoles MAE", style="magenta")
+    return table
+
+def epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                   train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
-                  transform_state, schedule_fn, lr_eff):
-
-
-        # Print progress.
-        print(f"epoch: {epoch: 3d}\t\t\t\t train:   valid:")
-        print(
-            f"    loss\t\t[a.u.]     \t{train_loss : 8.3f} {valid_loss : 8.3f} {best_loss:8.3f}"
-        )
-        print(
-            f"    energy mae\t\t[kcal/mol]\t{train_energy_mae: 8.3f} {valid_energy_mae: 8.3f}"
-        )
-        print(
-            f"    forces mae\t\t[kcal/mol/Å]\t{train_forces_mae: 8.3f} {valid_forces_mae: 8.3f}"
-        )
+                  transform_state, slr, lr_eff):
+        rows = [f"{epoch: 3d}",
+        f"{train_loss : 8.3f}",
+        f"{valid_loss : 8.3f}",
+        f"{best_loss:8.3f}",
+        f"{train_energy_mae: 8.3f}",
+        f"{valid_energy_mae: 8.3f}",
+        f"{train_forces_mae: 8.3f}",
+        f"{valid_forces_mae: 8.3f}",]
         if doCharges:
-            print(
-                f"    dipoles mae\t\t[e Å]     \t{train_dipoles_mae: 8.3f} {valid_dipoles_mae: 8.3f}"
-            )
-        print(
-            "scale:",
-            f"{transform_state.scale:.6f} {schedule_fn(epoch):.6f} LR={lr_eff:.9f}",
+            rows.append(f"{train_dipoles_mae: 8.3f}")
+        table.add_row(
+            *rows
         )
