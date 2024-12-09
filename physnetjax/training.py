@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
 from typing import Tuple
+import time
 
 import ase
 import e3x
@@ -28,7 +29,6 @@ from physnetjax.pretty_printer import init_table, epoch_printer, training_printe
 from physnetjax.utils import create_checkpoint_dir
 
 from rich.console import Console
-console = Console()
 
 schedule_fn = base_schedule_fn
 transform = base_transform
@@ -78,6 +78,8 @@ def train_model(
     """Train a model."""
 
     print("Training Routine")
+    startTime = time.time()
+    print("Start Time: ", startTime)
 
     best_loss = 10000
     doCharges = model.charges
@@ -90,14 +92,13 @@ def train_model(
         transform=transform,
     )
     pretty_print(optimizer, transform, schedule_fn)
+    console = Console()
 
     table, table2 = training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
                          restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
                          valid_data)
     console.print(table)
     console.print(table2)
-
-
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
@@ -157,8 +158,15 @@ def train_model(
 
     runInDebug = True if model.debug else False
 
+    trainTime1 = time.time()
+    print("Train Time: ", trainTime1 - startTime)
+
     # Train for 'num_epochs' epochs.
     for epoch in range(step, num_epochs + 1):
+        trainTime = time.time()
+        print("Train Time: ", trainTime - startTime)
+        print("Time since last epoch: ", trainTime - trainTime1)
+        trainTime1 = time.time()
 
         # Prepare batches.
         key, shuffle_key = jax.random.split(key)
@@ -256,7 +264,7 @@ def train_model(
         }
 
         if log_tb:
-            
+
             writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
             # Correct usage within the context manager
             # Use the writer for logging
