@@ -311,9 +311,6 @@ def train_model(
                               scale, slr, lr_eff)
                 # console.print(table)
                 live.update(table)
-                print(table)
 
-        # Simulate time for batch processing (replace with training step)
-        time.sleep(0.1)
     # Return final model parameters.
     return ema_params
