@@ -304,6 +304,7 @@ def train_model(
     print(transform_state)
 
     if best_ or (epoch % print_freq == 0):
+        console = Console()
         table = epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                       train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
                       scale, slr, lr_eff)
