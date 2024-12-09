@@ -139,11 +139,13 @@ def train_model(
         opt_state_initial = optimizer.init(params)
         print("Restored dictionary keys:", restored.keys())
         print("Type of opt_state:", type(restored["opt_state"]))
+        for _ in restored["opt_state"]:
+            print("Opt state keys:", type(_))
         print("Type of transform_state:", type(restored["transform_state"]))
         # print("Initial opt_state:", opt_state_initial)
         # print("Restored opt_state:", opt_state)
         transform_state = transform.init(restored["transform_state"])
-        print("transform_state", transform_state)
+        # print("transform_state", transform_state)
         step = restored["epoch"] + 1
         best_loss = restored["best_loss"]
         CKPT_DIR = Path(restart).parent  # optimizer = restored["optimizer"]
