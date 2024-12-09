@@ -1,28 +1,11 @@
 import os
 # Set environment variables
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import jax
 # from jax import config
 # config.update('jax_enable_x64', True)
 # Check JAX configuration
-devices = jax.local_devices()
-print(devices)
-print(jax.default_backend())
-print(jax.devices())
-import sys
-# Add custom path
-sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
-
-import orbax
-from orbax.checkpoint import PyTreeCheckpointer
-orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
-
-import os
-# Set environment variables
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-import jax
 devices = jax.local_devices()
 print(devices)
 print(jax.default_backend())
