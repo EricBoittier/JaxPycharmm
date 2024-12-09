@@ -48,7 +48,7 @@ params = train_model(
     model,
     output1,
     output2,
-    num_epochs=int(1e6)*0 + 3,
+    num_epochs=int(1e6)*0 + 30,
     learning_rate=0.001,
     energy_weight=NATOMS,
     #charges_weight=1,

@@ -163,7 +163,7 @@ def train_model(
     print("Train Time: ", trainTime1 - startTime)
     table = init_table(doCharges)
 
-    with Live(table, refresh_per_second=4) as live:
+    with Live(table, refresh_per_second=10) as live:
 
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
