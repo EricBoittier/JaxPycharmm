@@ -33,6 +33,7 @@ def epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_
         table.add_row(
             *rows
         )
+        return table
 
 
 
@@ -100,6 +101,4 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
         f"{objective}",
         f"Saving a restart file each time the {objective} improves."
     )
-    # show the table
-    print(table)
-    
+    return table

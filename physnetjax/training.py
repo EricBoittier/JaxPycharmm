@@ -104,7 +104,7 @@ def train_model(
     """Train a model."""
 
     print("Training Routine")
-    table = init_table()
+
     best_loss = 10000
     doCharges = model.charges
     # Initialize model parameters and optimizer state.
@@ -116,9 +116,13 @@ def train_model(
         transform=transform,
     )
     pretty_print(optimizer, transform, schedule_fn)
-    training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
-                     restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
-                     valid_data)
+
+    table = training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
+                         restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
+                         valid_data)
+    print(table)
+
+    table = init_table()
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
