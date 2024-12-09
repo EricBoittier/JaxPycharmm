@@ -266,6 +266,7 @@ def train_model(
                 "dipole_w": dipole_weight,
                 "forces_w": forces_weight,
             }
+            print(obj_res)
 
             if log_tb:
 
