@@ -125,7 +125,7 @@ def train_model(
     console.print(table)
     console.print(table2)
 
-    table = init_table()
+
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
@@ -319,7 +319,7 @@ def train_model(
             best_ = True
 
     if best_ or (epoch % print_freq == 0):
-
+        table = init_table()
         table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                       train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
                       transform_state.state, schedule_fn(epoch), lr_eff)
