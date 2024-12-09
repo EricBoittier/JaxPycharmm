@@ -321,7 +321,7 @@ def train_model(
 
         table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                       train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
-                      transform_state, schedule_fn, lr_eff)
+                      transform_state.state, schedule_fn(epoch), lr_eff)
         console.print(table)
 
     # Return final model parameters.
