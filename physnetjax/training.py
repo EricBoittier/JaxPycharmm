@@ -25,6 +25,8 @@ from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
 from physnetjax.pretty_printer import init_table, epoch_printer, training_printer
+from rich.console import Console
+console = Console()
 
 schedule_fn = base_schedule_fn
 transform = base_transform
@@ -120,7 +122,7 @@ def train_model(
     table = training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
                          restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
                          valid_data)
-    print(table)
+    console.print(table)
 
     table = init_table()
 
