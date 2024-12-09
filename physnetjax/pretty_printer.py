@@ -23,8 +23,8 @@ def epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_
                   train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
                   transform_state, slr, lr_eff, epoch_length):
     rows = [f"{epoch: 3d}",
-    f"{lr_eff: 8.3e}",
     f"{time.strftime('%H:%M:%S', time.gmtime(epoch_length))}",
+    f"{lr_eff: 8.3e}",
     f"{train_loss : 8.3f}",
     f"{valid_loss : 8.3f}",
     f"{best_loss:8.3f}",
