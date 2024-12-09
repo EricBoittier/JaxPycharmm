@@ -100,3 +100,6 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
         f"{objective}",
         f"Saving a restart file each time the {objective} improves."
     )
+    # show the table
+    print(table)
+    

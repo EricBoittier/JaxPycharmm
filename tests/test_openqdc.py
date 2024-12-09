@@ -56,7 +56,9 @@ from physnetjax.model import EF
 from physnetjax.training import train_model
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 
-model = EF(natoms=NATOMS, charges=False, zbl=False)
+model = EF(natoms=NATOMS, charges=False, zbl=False, features=8,
+           max_degree=0, num_basis_functions=8, num_iterations=1, n_res=1,
+           total_charge=0.0, max_atomic_number=18, cutoff=5.0,)
 
 params = train_model(
     train_key,
