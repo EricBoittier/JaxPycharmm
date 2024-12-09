@@ -150,7 +150,8 @@ def train_model(
         best_loss = restored["best_loss"]
 
         print(f"Training resumed from step {step}, best_loss {best_loss}")
-        CKPT_DIR = Path(restart).parent  # optimizer = restored["optimizer"]
+        CKPT_DIR = Path(restart).parent
+
     # initialize
     else:
         ema_params = params

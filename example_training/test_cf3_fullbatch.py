@@ -75,7 +75,7 @@ params = train_model(
     model,
     train_data,
     valid_data,
-    num_epochs=int(1e6),
+    num_epochs=2133+5,
     learning_rate=0.005,
     energy_weight=NATOMS,
     #charges_weight=1,
