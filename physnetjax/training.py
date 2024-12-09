@@ -140,8 +140,8 @@ def train_model(
         print("Restored dictionary keys:", restored.keys())
         print("Type of opt_state:", type(restored["opt_state"]))
         print("Type of transform_state:", type(restored["transform_state"]))
-        print("Initial opt_state:", opt_state_initial)
-        print("Restored opt_state:", opt_state)
+        # print("Initial opt_state:", opt_state_initial)
+        # print("Restored opt_state:", opt_state)
         transform_state = transform.init(restored["transform_state"])
         print("transform_state", transform_state)
         step = restored["epoch"] + 1
