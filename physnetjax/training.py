@@ -318,10 +318,11 @@ def train_model(
             best_ = True
 
     if best_ or (epoch % print_freq == 0):
-        with Live(table, refresh_per_second=4):
-            epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
+
+        table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                       train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
                       transform_state, schedule_fn, lr_eff)
+        console.print(table)
 
     # Return final model parameters.
     return ema_params
