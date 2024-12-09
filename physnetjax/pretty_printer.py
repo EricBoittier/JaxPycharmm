@@ -58,8 +58,6 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
     table2.add_column("Objective", style="green")
     table2.add_column("Data Keys", style="red")
     table2.add_column("Ckpt Dir", style="blue")
-    table2.add_column("Train Data Keys", style="cyan")
-    table2.add_column("Valid Data Keys", style="magenta")
     table2.add_column("Objective", style="green")
     table2.add_column("Saving", style="red")
     table.add_row(
@@ -80,8 +78,6 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
         f"{objective}",
         f"{data_keys}",
         f"{ckpt_dir}",
-        f"{train_data.keys()}",
-        f"{valid_data.keys()}",
         f"{objective}",
         f"Saving a restart file each time the {objective} improves."
     )

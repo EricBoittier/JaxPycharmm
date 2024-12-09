@@ -12,6 +12,36 @@ DTYPE = jnp.float32
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 
+def create_checkpoint_dir(name: str, base: Path) -> Path:
+    """Create a unique checkpoint directory path.
+
+    Args:
+        name: Base name for the checkpoint directory
+
+    Returns:
+        Path object for the checkpoint directory
+    """
+    uuid_ = str(uuid.uuid4())
+    return base / f"/{name}-{uuid_}/"
+
+
+def get_epoch_weights(epoch: int) -> Tuple[float, float]:
+    """Calculate energy and forces weights based on epoch number.
+
+    Args:
+        epoch: Current training epoch
+
+    Returns:
+        Tuple of (energy_weight, forces_weight)
+    """
+    if epoch < 500:
+        return 1.0, 1000.0
+    elif epoch < 1000:
+        return 1000.0, 1.0
+    else:
+        return 1.0, 50.0
+
+
 def get_files(path: str) -> List[Path]:
     """Get sorted directory paths excluding tmp directories."""
     dirs = list(Path(path).glob("*/"))

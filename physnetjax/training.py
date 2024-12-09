@@ -25,6 +25,8 @@ from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
 from physnetjax.pretty_printer import init_table, epoch_printer, training_printer
+from physnetjax.utils import create_checkpoint_dir
+
 from rich.console import Console
 console = Console()
 
@@ -42,36 +44,6 @@ CONVERSION = {
 
 # Initialize checkpointer
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
-
-
-def create_checkpoint_dir(name: str, base: Path) -> Path:
-    """Create a unique checkpoint directory path.
-
-    Args:
-        name: Base name for the checkpoint directory
-
-    Returns:
-        Path object for the checkpoint directory
-    """
-    uuid_ = str(uuid.uuid4())
-    return base / f"/{name}-{uuid_}/"
-
-
-def get_epoch_weights(epoch: int) -> Tuple[float, float]:
-    """Calculate energy and forces weights based on epoch number.
-
-    Args:
-        epoch: Current training epoch
-
-    Returns:
-        Tuple of (energy_weight, forces_weight)
-    """
-    if epoch < 500:
-        return 1.0, 1000.0
-    elif epoch < 1000:
-        return 1000.0, 1.0
-    else:
-        return 1.0, 50.0
 
 
 
@@ -319,7 +291,9 @@ def train_model(
             best_loss = obj_res[objective]
             print("best!")
             best_ = True
+
     print(transform_state)
+
     if best_ or (epoch % print_freq == 0):
         table = epoch_printer(epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                       train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
