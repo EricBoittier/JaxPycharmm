@@ -305,13 +305,13 @@ def train_model(
                 print("best!")
                 best_ = True
 
-        if best_ or (epoch % print_freq == 0):
-            table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
-                          train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
-                          scale, slr, lr_eff)
-            # console.print(table)
-            live.update(table)
-            print(table)
+            if best_ or (epoch % print_freq == 0):
+                table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
+                              train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
+                              scale, slr, lr_eff)
+                # console.print(table)
+                live.update(table)
+                print(table)
 
         # Simulate time for batch processing (replace with training step)
         time.sleep(0.1)
