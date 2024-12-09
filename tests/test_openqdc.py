@@ -41,7 +41,7 @@ NATOMS = 96
 ds = Spice(
     energy_unit="ev",
     distance_unit="ang",
-    # array_format = "jax"
+    array_format = "jax"
 )
 ds.read_preprocess()
 datadicts = [dict(ds[_]) for _ in ds.subsample(50)]

@@ -317,12 +317,12 @@ def train_model(
             best_loss = obj_res[objective]
             print("best!")
             best_ = True
-
+    print(transform_state)
     if best_ or (epoch % print_freq == 0):
         table = init_table()
         table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                       train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
-                      transform_state.state, schedule_fn(epoch), lr_eff)
+                      0, schedule_fn(epoch), lr_eff)
         console.print(table)
 
     # Return final model parameters.
