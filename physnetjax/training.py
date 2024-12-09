@@ -119,10 +119,11 @@ def train_model(
     )
     pretty_print(optimizer, transform, schedule_fn)
 
-    table = training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
+    table, table2 = training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
                          restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
                          valid_data)
     console.print(table)
+    console.print(table2)
 
     table = init_table()
 

@@ -47,18 +47,20 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
     table.add_column("Charges Weight", style="blue")
     table.add_column("Batch Size", style="cyan")
     table.add_column("Num Atoms", style="magenta")
-    table.add_column("Restart", style="green")
-    table.add_column("Conversion", style="red")
-    table.add_column("Print Freq", style="blue")
-    table.add_column("Name", style="cyan")
-    table.add_column("Best", style="magenta")
-    table.add_column("Objective", style="green")
-    table.add_column("Data Keys", style="red")
-    table.add_column("Ckpt Dir", style="blue")
-    table.add_column("Train Data Keys", style="cyan")
-    table.add_column("Valid Data Keys", style="magenta")
-    table.add_column("Objective", style="green")
-    table.add_column("Saving", style="red")
+
+    table2 = Table(title="PhysNetJax Training Initialization")
+    table2.add_column("Restart", style="green")
+    table2.add_column("Conversion", style="red")
+    table2.add_column("Print Freq", style="blue")
+    table2.add_column("Name", style="cyan")
+    table2.add_column("Best", style="magenta")
+    table2.add_column("Objective", style="green")
+    table2.add_column("Data Keys", style="red")
+    table2.add_column("Ckpt Dir", style="blue")
+    table2.add_column("Train Data Keys", style="cyan")
+    table2.add_column("Valid Data Keys", style="magenta")
+    table2.add_column("Objective", style="green")
+    table2.add_column("Saving", style="red")
     table.add_row(
         f"{learning_rate}",
         f"{energy_weight}",
@@ -67,6 +69,8 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
         f"{charges_weight}",
         f"{batch_size}",
         f"{num_atoms}",
+    )
+    table2.add_row(
         f"{restart}",
         f"{conversion}",
         f"{print_freq}",
@@ -80,4 +84,4 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
         f"{objective}",
         f"Saving a restart file each time the {objective} improves."
     )
-    return table
+    return table, table2
