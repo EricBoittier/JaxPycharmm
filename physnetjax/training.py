@@ -174,11 +174,6 @@ def train_model(
 
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
-            trainTime = time.time()
-            print("Train Time: ", trainTime - startTime)
-            print("Time since last epoch: ", trainTime - trainTime1)
-            trainTime1 = time.time()
-
             # Prepare batches.
             key, shuffle_key = jax.random.split(key)
             train_batches = prepare_batches(
@@ -259,6 +254,12 @@ def train_model(
             slr = schedule_fn(epoch)
             lr_eff = scale * slr
 
+            trainTime = time.time()
+            print("Train Time: ", trainTime - startTime)
+            print("Time since last epoch: ", trainTime - trainTime1)
+            trainTime1 = time.time()
+            epoch_length = trainTime - startTime
+
             obj_res = {
                 "valid_energy_mae": valid_energy_mae,
                 "valid_forces_mae": valid_forces_mae,
@@ -273,7 +274,6 @@ def train_model(
                 "dipole_w": dipole_weight,
                 "forces_w": forces_weight,
             }
-            print(obj_res)
 
             if log_tb:
                 writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
@@ -311,10 +311,12 @@ def train_model(
                 best_loss = obj_res[objective]
                 best_ = True
 
+
+
             if best_ or (epoch % print_freq == 0):
                 table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                               train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
-                              scale, slr, lr_eff)
+                              scale, slr, lr_eff, epoch_length)
                 # console.print(table)
                 live.update(table)
 

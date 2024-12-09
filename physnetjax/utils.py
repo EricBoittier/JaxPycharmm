@@ -73,8 +73,10 @@ def get_params_model(restart: str, natoms: int = None):
     if "model_attributes" not in restored.keys():
         return params, None
 
-    kwargs = _process_model_attributes(restored["model_attributes"], natoms)
+    # kwargs = _process_model_attributes(restored["model_attributes"], natoms)
+    kwargs = restored["model_attributes"]
     model = EF(**kwargs)
+    model.natoms = natoms
     print(model)
     return params, model
 
