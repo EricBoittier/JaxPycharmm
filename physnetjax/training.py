@@ -13,7 +13,7 @@ from jax import random
 
 import physnetjax
 from physnetjax.data import prepare_batches
-from physnetjax.epoch_printer import epoch_printer
+from physnetjax.pretty_printer import epoch_printer
 from physnetjax.evalstep import eval_step
 from physnetjax.optimizer import (
     base_optimizer,
@@ -24,7 +24,7 @@ from physnetjax.optimizer import (
 from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
-from physnetjax.epoch_printer import init_table, epoch_printer
+from physnetjax.pretty_printer import init_table, epoch_printer, training_printer
 
 schedule_fn = base_schedule_fn
 transform = base_transform
@@ -116,25 +116,9 @@ def train_model(
         transform=transform,
     )
     pretty_print(optimizer, transform, schedule_fn)
-    print("learning_rate:", learning_rate)
-    print("energy_weight:", energy_weight)
-    print("forces_weight:", forces_weight)
-    print("dipole_weight:", dipole_weight)
-    print("charges_weight:", charges_weight)
-    print("batch_size:", batch_size)
-    print("num_atoms:", num_atoms)
-    print("restart:", restart)
-    print("conversion:", conversion)
-    print("print_freq:", print_freq)
-    print("name:", name)
-    print("best:", best)
-    print("objective:", objective)
-    print("data_keys:", data_keys)
-    print("ckpt_dir:", ckpt_dir)
-    print("Train data keys:", train_data.keys())
-    print("Valid data keys:", valid_data.keys())
-    print("Objective:", objective)
-    print(f"Saving a restart file each time the {objective} improves.")
+    training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
+                     restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
+                     valid_data)
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
