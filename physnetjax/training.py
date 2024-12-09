@@ -135,6 +135,7 @@ def train_model(
         print("Restored keys:", restored.keys())
         params = restored["params"]
         ema_params = restored["ema_params"]
+        opt_state = restored["opt_state"]
         transform_state = transform.init(restored["transform_state"])
         print("transform_state", transform_state)
         step = restored["epoch"] + 1
