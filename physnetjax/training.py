@@ -133,21 +133,23 @@ def train_model(
         restored = orbax_checkpointer.restore(restart)
         print("Restoring from", restart)
         print("Restored keys:", restored.keys())
+
         params = restored["params"]
         ema_params = restored["ema_params"]
         opt_state = restored["opt_state"]
+        transform_state = transform.init(params)
+
+        # Validate and reinitialize states if necessary
         opt_state_initial = optimizer.init(params)
-        print("Restored dictionary keys:", restored.keys())
-        print("Type of opt_state:", type(restored["opt_state"]))
-        for _ in restored["opt_state"]:
-            print("Opt state keys:", type(_))
-        print("Type of transform_state:", type(restored["transform_state"]))
-        # print("Initial opt_state:", opt_state_initial)
-        # print("Restored opt_state:", opt_state)
-        transform_state = transform.init(restored["transform_state"])
-        # print("transform_state", transform_state)
+        if not isinstance(opt_state, type(opt_state_initial)):
+            print("Mismatch in opt_state types, reinitializing.")
+            opt_state = opt_state_initial
+
+        # Set training variables
         step = restored["epoch"] + 1
         best_loss = restored["best_loss"]
+
+        print(f"Training resumed from step {step}, best_loss {best_loss}")
         CKPT_DIR = Path(restart).parent  # optimizer = restored["optimizer"]
     # initialize
     else:
