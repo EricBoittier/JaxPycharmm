@@ -55,7 +55,7 @@ class EF(nn.Module):
     zbl: bool = True
     debug: bool | List[str] = False
 
-    def return_attributes(self) -> Dict[str, Any]:
+    def return_attributes(self) -> Dict:
         """Return model attributes for checkpointing."""
         return {
             "features": self.features,
