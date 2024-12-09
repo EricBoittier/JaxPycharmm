@@ -166,13 +166,8 @@ def train_model(
     state = train_state.TrainState.create(
         apply_fn=model.apply, params=params, tx=optimizer
     )
-    # print("Trainable params:", state.num_params)
-    print("model", model)
-
     runInDebug = True if model.debug else False
-
     trainTime1 = time.time()
-    print("Train Time: ", trainTime1 - startTime)
     table = init_table(doCharges)
 
     with Live(table, refresh_per_second=10) as live:
@@ -281,7 +276,6 @@ def train_model(
             print(obj_res)
 
             if log_tb:
-
                 writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
                 # Correct usage within the context manager
                 # Use the writer for logging
@@ -315,11 +309,9 @@ def train_model(
                 )
                 # update best loss
                 best_loss = obj_res[objective]
-                print("best!")
                 best_ = True
 
             if best_ or (epoch % print_freq == 0):
-                jax.debug.print("Epoch {x}", x=epoch)
                 table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
                               train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
                               scale, slr, lr_eff)
