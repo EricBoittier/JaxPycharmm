@@ -41,8 +41,14 @@ NATOMS = 8
 
 
 train_data, valid_data = prepare_datasets(
-    data_key, 23887, 4000, files, clip_esp=False, natoms=NATOMS, clean=False
-#    data_key, 27, 20, files, clip_esp=False, natoms=NATOMS, clean=False
+    data_key,
+    23887,
+    4000,
+    files,
+    clip_esp=False,
+    natoms=NATOMS,
+    clean=False,
+    #    data_key, 27, 20, files, clip_esp=False, natoms=NATOMS, clean=False
 )
 
 ntest = len(valid_data["E"]) // 2
@@ -76,17 +82,17 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.005,
+    learning_rate=0.0015,
     energy_weight=NATOMS,
-    #charges_weight=1,
-    #forces_weight=100,
+    # charges_weight=1,
+    # forces_weight=100,
     schedule_fn="constant",
     optimizer="amsgrad",
-    batch_size=1000,
+    batch_size=10,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     restart=restart,
     print_freq=1,
     objective="valid_loss",
     best=1e6,
-    )
+)

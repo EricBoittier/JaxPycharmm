@@ -170,19 +170,21 @@ def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500):
     return output
 
 
-import matplotlib.pyplot as plt
-import numpy as np
-from ase import Atoms
-from dscribe.descriptors import SOAP
+
+
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
-
 
 # Function to compute SOAP descriptors
 def compute_soap_descriptors(
     positions, atomic_numbers, species, r_cut=5.0, n_max=8, l_max=6, sigma=0.5
 ):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from ase import Atoms
+    from dscribe.descriptors import SOAP
+
     """Compute SOAP descriptors for a list of structures."""
     soap = SOAP(
         species=species,
@@ -285,7 +287,7 @@ def clean_and_cast_to_float(s):
 
 import matplotlib.pyplot as plt
 
-from MDAnalysis.analysis import dihedrals
+# from MDAnalysis.analysis import dihedrals
 
 import numpy as np
 
@@ -319,10 +321,8 @@ def kabsch_alignment(P, Q):
     """
     # Compute the covariance matrix
     C = np.dot(P.T, Q)
-    
     # Singular value decomposition
     V, S, W = np.linalg.svd(C)
-    
     # Calculate the optimal rotation matrix
     d = (np.linalg.det(V) * np.linalg.det(W)) < 0.0
     if d:

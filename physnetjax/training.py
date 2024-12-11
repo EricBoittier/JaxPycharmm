@@ -26,7 +26,7 @@ from physnetjax.optimizer import (
 from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
-from physnetjax.pretty_printer import init_table, epoch_printer, training_printer
+from physnetjax.pretty_printer import init_table, epoch_printer, training_printer, Printer
 from physnetjax.utils import create_checkpoint_dir
 
 from rich.console import Console
@@ -80,7 +80,7 @@ def train_model(
 
     print("Training Routine")
     startTime = time.time()
-    print("Start Time: ", startTime)
+    print("Start Time: ", time.strftime('%H:%M:%S', time.gmtime(startTime)))
 
     best_loss = 10000
     doCharges = model.charges
@@ -127,28 +127,30 @@ def train_model(
     if restart:
         restart = get_last(restart)
         _, _model = get_params_model(restart, num_atoms)
-        # print(_, _model)
         if _model is not None:
             model = _model
         restored = orbax_checkpointer.restore(restart)
         print("Restoring from", restart)
         print("Restored keys:", restored.keys())
-
         params = restored["params"]
         ema_params = restored["ema_params"]
         opt_state = restored["opt_state"]
+        # print("Opt state", opt_state)
         transform_state = transform.init(params)
-
         # Validate and reinitialize states if necessary
         opt_state_initial = optimizer.init(params)
-        if not isinstance(opt_state, type(opt_state_initial)):
-            print("Mismatch in opt_state types, reinitializing.")
-            opt_state = opt_state_initial
+        # update mu
+        o_a, o_b = opt_state_initial
+        from optax import ScaleByAmsgradState
+        _ = ScaleByAmsgradState(mu=opt_state[1][0]["mu"],
+                                nu=opt_state[1][0]["nu"],
+                                nu_max=opt_state[1][0]["nu_max"],
+                                count=opt_state[1][0]["count"])
+        opt_state = (o_a, (_, o_b[1]))
 
         # Set training variables
         step = restored["epoch"] + 1
         best_loss = restored["best_loss"]
-
         print(f"Training resumed from step {step}, best_loss {best_loss}")
         CKPT_DIR = Path(restart).parent
 
@@ -168,9 +170,9 @@ def train_model(
     )
     runInDebug = True if model.debug else False
     trainTime1 = time.time()
-    table = init_table(doCharges)
+    epoch_printer = Printer()
 
-    with Live(table, refresh_per_second=10) as live:
+    with Live(refresh_per_second=10) as live:
 
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
@@ -255,10 +257,9 @@ def train_model(
             lr_eff = scale * slr
 
             trainTime = time.time()
-            print("Train Time: ", trainTime - startTime)
-            print("Time since last epoch: ", trainTime - trainTime1)
-            trainTime1 = time.time()
-            epoch_length = trainTime - startTime
+            epoch_length = trainTime - trainTime1
+            epoch_length = f"{epoch_length:.2f} s"
+            trainTime1 = trainTime
 
             obj_res = {
                 "valid_energy_mae": valid_energy_mae,
@@ -285,9 +286,7 @@ def train_model(
 
             best_ = False
             if obj_res[objective] < best_loss:
-
                 model_attributes = model.return_attributes()
-
                 # checkpoints.save_checkpoint(ckpt_dir=CKPT_DIR, target=state, step=epoch)
                 ckpt = {
                     "model": state,
@@ -301,7 +300,6 @@ def train_model(
                     "lr_eff": lr_eff,
                     "objectives": obj_res,
                 }
-
                 save_args = orbax_utils.save_args_from_target(ckpt)
                 print(CKPT_DIR / f"epoch-{epoch}")
                 orbax_checkpointer.save(
@@ -311,14 +309,13 @@ def train_model(
                 best_loss = obj_res[objective]
                 best_ = True
 
-
-
             if best_ or (epoch % print_freq == 0):
-                table = epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae, valid_energy_mae,
-                              train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae, valid_dipoles_mae,
+                combined = epoch_printer.update(epoch, train_loss, valid_loss, best_loss,
+                                      train_energy_mae, valid_energy_mae,
+                              train_forces_mae, valid_forces_mae, doCharges,
+                                      train_dipoles_mae, valid_dipoles_mae,
                               scale, slr, lr_eff, epoch_length)
-                # console.print(table)
-                live.update(table)
+                live.update(combined)
 
     # Return final model parameters.
     return ema_params
