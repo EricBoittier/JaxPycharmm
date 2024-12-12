@@ -73,7 +73,7 @@ def train_model(
     schedule_fn=None,
     objective="valid_forces_mae",
     ckpt_dir=BASE_CKPT_DIR,
-    log_tb=False,
+    log_tb=True,
     data_keys=["R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"],
 ):
     """Train a model."""
