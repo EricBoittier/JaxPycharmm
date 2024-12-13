@@ -177,7 +177,7 @@ class EF(nn.Module):
         if iteration == self.num_iterations - 1:
             x = e3x.nn.MessagePass(max_degree=0, include_pseudotensors=False,
                                    dense_kernel_init=jax.nn.initializers.he_normal(),
-                                   # dense_bias_init=jax.nn.initializers.he_normal
+                                   dense_bias_init=jax.nn.initializers.he_normal()
                                    )(
                 x, basis, dst_idx=dst_idx, src_idx=src_idx
             )
@@ -186,8 +186,8 @@ class EF(nn.Module):
             )
 
         return e3x.nn.MessagePass(include_pseudotensors=False,
-                                  # dense_kernel_init=jax.nn.initializers.he_normal,
-                                  #  dense_bias_init=jax.nn.initializers.he_normal
+                                  dense_kernel_init=jax.nn.initializers.he_normal(),
+                                   dense_bias_init=jax.nn.initializers.he_normal()
                                   )(
             x, basis, dst_idx=dst_idx, src_idx=src_idx
         )
