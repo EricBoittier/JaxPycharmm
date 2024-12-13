@@ -168,7 +168,6 @@ class EF(nn.Module):
             num_heads=self.features,
             include_pseudotensors=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
-        x = e3x.nn.silu(x)
 
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
@@ -211,12 +210,12 @@ class EF(nn.Module):
                 # kernel_init=jax.nn.initializers.he_normal(),
                 # bias_init=jax.nn.initializers.he_normal(),
             )(y)
-            y = e3x.nn.silu(y)
-            y = e3x.nn.Dense(
-                self.features,
-                # kernel_init=jax.nn.initializers.he_normal(),
-                # bias_init=jax.nn.initializers.he_normal(),
-            )(y)
+            # y = e3x.nn.silu(y)
+            # y = e3x.nn.Dense(
+            #     self.features,
+            #     # kernel_init=jax.nn.initializers.he_normal(),
+            #     # bias_init=jax.nn.initializers.he_normal(),
+            # )(y)
             x = e3x.nn.add(x, y)
 
         y = e3x.nn.Dense(
@@ -225,7 +224,7 @@ class EF(nn.Module):
             # bias_init=jax.nn.initializers.he_normal(),
         )(y)
         y = e3x.nn.silu(y)
-        return e3x.nn.add(x, y)
+        return y
 
     def _calculate_with_charges(
         self,
