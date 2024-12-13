@@ -156,6 +156,7 @@ class ZBLRepulsion(nn.Module):
         )
         # Apply atom mask and final safety checks
         erep = jnp.multiply(erep, atom_mask)
+        erep = jnp.nan_to_num(erep, nan=0.0, posinf=0.0, neginf=0.0)
 
         if self.debug:  # print everything for temporary debugging
             jax.debug.print("za_sum {x} {y}", x=za_sum, y=za_sum.shape)
