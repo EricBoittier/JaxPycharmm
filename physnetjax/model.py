@@ -300,7 +300,7 @@ class EF(nn.Module):
             (self.max_atomic_number + 1),
         )
         atomic_charges = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
+            1, use_bias=True, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
         )(x)
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
