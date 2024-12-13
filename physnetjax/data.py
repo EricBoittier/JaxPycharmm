@@ -474,7 +474,7 @@ import e3x.ops
 #     return output
 
 
-def prepare_batches_old(
+def prepare_batches(
     key,
     data,
     batch_size,
