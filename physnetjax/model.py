@@ -501,7 +501,7 @@ class EF(nn.Module):
             atom_mask,
         )
         # Apply atom mask to forces
-        forces = forces * atom_mask[..., None]
+        # forces = forces * atom_mask[..., None]
 
         # Prepare output dictionary
         output = {
