@@ -93,7 +93,7 @@ def train_model(
         transform=transform,
     )
     pretty_print(optimizer, transform, schedule_fn)
-    console = Console()
+    console = Console(width=200)
 
     table, table2 = training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
                          restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
@@ -172,7 +172,7 @@ def train_model(
     trainTime1 = time.time()
     epoch_printer = Printer()
 
-    with Live(auto_refresh=False) as live:
+    with Live(auto_refresh=False, console=console) as live:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
