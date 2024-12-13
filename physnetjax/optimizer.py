@@ -36,8 +36,12 @@ def get_optimizer(
     start_step: int = 0,
     **kwargs,
 ):
+    if isinstance(clip_global, bool):
+        clip_global = 10.0 if clip_global else None
+
     if schedule_fn is None:
         schedule_fn = optax.schedules.constant_schedule(learning_rate)
+
     if isinstance(schedule_fn, str):
         if schedule_fn == "warmup":
             schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
@@ -71,7 +75,7 @@ def get_optimizer(
     if optimizer is None:
         optimizer = optax.chain(
             # optax.adaptive_grad_clip(1.0),
-            optax.clip_by_global_norm(1.0),
+            optax.clip_by_global_norm(clip_global),
             optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3),
         )
     elif isinstance(optimizer, str):
