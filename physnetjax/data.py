@@ -373,112 +373,175 @@ def print_shapes(train_data, valid_data):
     return train_data, valid_data
 
 
+import jax
+import jax.numpy as jnp
+import e3x.ops
+
+
 def prepare_batches(
-    key,
-    data,
-    batch_size,
-    include_id=False,
-    data_keys=None,
-    num_atoms=60,
-    dst_idx=None,
-    src_idx=None,
+        key,
+        data,
+        batch_size,
+        include_id=False,
+        data_keys=None,
+        num_atoms=60,
+        dst_idx=None,
+        src_idx=None,
 ) -> list:
     """
-    Prepare batches for training.
+    Efficiently prepare batches for training.
 
     Args:
         key: Random key for shuffling.
         data (dict): Dictionary containing the dataset.
         batch_size (int): Size of each batch.
-        include_id (bool): Whether to include ID in the output.
-        data_keys (list): List of keys to include in the output.
+        include_id (bool, optional): Whether to include ID in the output.
+        data_keys (list, optional): List of keys to include in the output.
+        num_atoms (int, optional): Number of atoms per batch. Defaults to 60.
 
     Returns:
         list: A list of dictionaries, each representing a batch.
     """
-    # Determine the number of training steps per epoch.
-    # print(batch_size)
+    # Validate inputs
+    if data_keys is None:
+        data_keys = list(data.keys())
+
+    # Determine the number of training steps per epoch
     data_size = len(data["R"])
-    # print("data_size", data_size)
     steps_per_epoch = data_size // batch_size
 
-    # Draw random permutations for fetching batches from the train data.
-    perms = jax.random.permutation(key, data_size)
-    perms = perms[
-        : steps_per_epoch * batch_size
-    ]  # Skip the last batch (if incomplete).
+    # Optimize random permutation and batch selection
+    perms = jax.random.permutation(key, data_size)[:steps_per_epoch * batch_size]
     perms = perms.reshape((steps_per_epoch, batch_size))
 
-    # Prepare entries that are identical for each batch.
+    # Precompute sparse indices and offsets
     batch_segments = jnp.repeat(jnp.arange(batch_size), num_atoms)
     offsets = jnp.arange(batch_size) * num_atoms
-    dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
-    dst_idx = dst_idx + offsets[:, None]  # .reshape(-1)  # * good_indices
-    src_idx = src_idx + offsets[:, None]  # .reshape(-1)  # * good_indices
 
-    output = []
-    if data_keys is None:
-        data_keys = [
-            "R",
-            "Z",
-            "N",
-            "mono",
-            "esp",
-            "vdw_surface",
-            "n_grid",
-            "D",
-            "Dxyz",
-            "espMask",
-            "com",
-        ]
-    # if include_id:
-    #     data_keys.append("id")
+    # Compute dst_idx and src_idx only if not provided
+    if dst_idx is None or src_idx is None:
+        dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
 
-    for perm in perms:
-        # print(perm)
-        dict_ = dict()
-        for k, v in data.items():
-            if k in data_keys:
-                # print(k, v.shape)
-                if k == "R":
-                    dict_[k] = v[perm].reshape(batch_size * num_atoms, 3)
-                    # print(dict_[k].
-                elif k == "F":
-                    dict_[k] = v[perm].reshape(batch_size * num_atoms, 3)
-                elif k == "E":
-                    dict_[k] = v[perm].reshape(batch_size, 1)
-                elif k == "Z":
-                    dict_[k] = v[perm].reshape(batch_size * num_atoms)
-                elif k == "mono":
-                    dict_[k] = v[perm].reshape(batch_size * num_atoms)
-                else:
-                    dict_[k] = v[perm]
+    dst_idx = dst_idx + offsets[:, None]
+    src_idx = src_idx + offsets[:, None]
 
-        if True:
-            good_indices = []
-            for i, nat in enumerate(dict_["N"]):
-                # print("nat", nat)
-                cond = (dst_idx[i] < (nat + i * num_atoms)) * (
-                    src_idx[i] < (nat + i * num_atoms)
-                )
-                # print("cond", cond)
-                good_indices.append(
-                    jnp.where(
-                        cond,
-                        1,
-                        0,
-                    )
-                )
-            good_indices = jnp.concatenate(good_indices).flatten()
-            dict_["dst_idx"] = dst_idx.flatten()
-            dict_["src_idx"] = src_idx.flatten()
-            dict_["batch_mask"] = good_indices  # .reshape(-1)
-            # print("good_indices[perm].flatten()", np.sum(good_indices[perm].flatten()))
-            dict_["batch_segments"] = batch_segments.reshape(-1)
-            dict_["atom_mask"] = jnp.where(dict_["Z"] > 0, 1, 0).reshape(-1)
-            # print("atom_mask", dict_["atom_mask"], dict_["N"])
-            output.append(dict_)
-            # print(
-            #    len(dict_["dst_idx"]), len(dict_["src_idx"]), len(dict_["batch_mask"])
-            # )
-    return output
+    # Vectorized batch preparation
+    def prepare_batch(perm):
+        # Efficiently select and reshape data
+        batch = {
+            k: (v[perm].reshape(batch_size * num_atoms, -1) if k in ['R', 'F', 'Z', 'mono']
+                else v[perm].reshape(batch_size, -1) if k == 'E'
+            else v[perm])
+            for k, v in data.items()
+            if k in data_keys
+        }
+
+        # Vectorized good indices computation
+        nat = batch["N"].flatten()
+        batch_indices_mask = jnp.arange(len(dst_idx)) < (nat[:, None] + jnp.arange(batch_size)[:, None] * num_atoms)
+        good_indices = batch_indices_mask.all(axis=0).astype(jnp.int32)
+
+        # Add additional batch metadata
+        batch.update({
+            "dst_idx": dst_idx.flatten(),
+            "src_idx": src_idx.flatten(),
+            "batch_mask": good_indices,
+            "batch_segments": batch_segments.reshape(-1),
+            "atom_mask": jnp.where(batch["Z"] > 0, 1, 0).reshape(-1)
+        })
+
+        return batch
+
+    # Use vmap for efficient batch processing
+    batch_prepare_fn = jax.vmap(prepare_batch)
+    output = batch_prepare_fn(perms)
+
+    return output.tolist()
+
+# def prepare_batches(
+#     key,
+#     data,
+#     batch_size,
+#     include_id=False,
+#     data_keys=None,
+#     num_atoms=60,
+#     dst_idx=None,
+#     src_idx=None,
+# ) -> list:
+#     """
+#     Prepare batches for training.
+#
+#     Args:
+#         key: Random key for shuffling.
+#         data (dict): Dictionary containing the dataset.
+#         batch_size (int): Size of each batch.
+#         include_id (bool): Whether to include ID in the output.
+#         data_keys (list): List of keys to include in the output.
+#
+#     Returns:
+#         list: A list of dictionaries, each representing a batch.
+#     """
+#     # Determine the number of training steps per epoch.
+#     # print(batch_size)
+#     data_size = len(data["R"])
+#     # print("data_size", data_size)
+#     steps_per_epoch = data_size // batch_size
+#
+#     # Draw random permutations for fetching batches from the train data.
+#     perms = jax.random.permutation(key, data_size)
+#     perms = perms[
+#         : steps_per_epoch * batch_size
+#     ]  # Skip the last batch (if incomplete).
+#     perms = perms.reshape((steps_per_epoch, batch_size))
+#
+#     # Prepare entries that are identical for each batch.
+#     batch_segments = jnp.repeat(jnp.arange(batch_size), num_atoms)
+#     offsets = jnp.arange(batch_size) * num_atoms
+#     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
+#     dst_idx = dst_idx + offsets[:, None]  # .reshape(-1)  # * good_indices
+#     src_idx = src_idx + offsets[:, None]  # .reshape(-1)  # * good_indices
+#
+#     output = []
+#     for perm in perms:
+#         # print(perm)
+#         dict_ = dict()
+#         for k, v in data.items():
+#             if k in data_keys:
+#                 # print(k, v.shape)
+#                 if k == "R":
+#                     dict_[k] = v[perm].reshape(batch_size * num_atoms, 3)
+#                     # print(dict_[k].
+#                 elif k == "F":
+#                     dict_[k] = v[perm].reshape(batch_size * num_atoms, 3)
+#                 elif k == "E":
+#                     dict_[k] = v[perm].reshape(batch_size, 1)
+#                 elif k == "Z":
+#                     dict_[k] = v[perm].reshape(batch_size * num_atoms)
+#                 elif k == "mono":
+#                     dict_[k] = v[perm].reshape(batch_size * num_atoms)
+#                 else:
+#                     dict_[k] = v[perm]
+#
+#         if True:
+#             good_indices = []
+#             for i, nat in enumerate(dict_["N"]):
+#                 # print("nat", nat)
+#                 cond = (dst_idx[i] < (nat + i * num_atoms)) * (
+#                     src_idx[i] < (nat + i * num_atoms)
+#                 )
+#                 good_indices.append(
+#                     jnp.where(
+#                         cond,
+#                         1,
+#                         0,
+#                     )
+#                 )
+#             good_indices = jnp.concatenate(good_indices).flatten()
+#             dict_["dst_idx"] = dst_idx.flatten()
+#             dict_["src_idx"] = src_idx.flatten()
+#             dict_["batch_mask"] = good_indices  # .reshape(-1)
+#             dict_["batch_segments"] = batch_segments.reshape(-1)
+#             dict_["atom_mask"] = jnp.where(dict_["Z"] > 0, 1, 0).reshape(-1)
+#             output.append(dict_)
+#
+#     return output
