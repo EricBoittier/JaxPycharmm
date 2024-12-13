@@ -37,7 +37,7 @@ def get_optimizer(
     **kwargs,
 ):
     if isinstance(clip_global, bool):
-        clip_global = 10.0 if clip_global else None
+        clip_global = 1000.0 if clip_global else None
 
     if schedule_fn is None:
         schedule_fn = optax.schedules.constant_schedule(learning_rate)
@@ -76,7 +76,7 @@ def get_optimizer(
         optimizer = optax.chain(
             # optax.adaptive_grad_clip(1.0),
             optax.clip_by_global_norm(clip_global),
-            optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3),
+            optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
         )
     elif isinstance(optimizer, str):
         _chain = []
