@@ -50,9 +50,6 @@ CONVERSION = {
     "forces": 1 / (ase.units.kcal / ase.units.mol),
 }
 
-# Initialize checkpointer
-orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
-
 
 def train_model(
         key,
