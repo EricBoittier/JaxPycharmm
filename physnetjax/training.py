@@ -284,7 +284,6 @@ def train_model(
 
             best_ = False
 
-
             if obj_res[objective] < best_loss:
                 model_attributes = model.return_attributes()
                 # checkpoints.save_checkpoint(ckpt_dir=CKPT_DIR, target=state, step=epoch)
