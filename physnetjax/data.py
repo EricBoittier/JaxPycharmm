@@ -379,14 +379,14 @@ import e3x.ops
 
 
 def prepare_batches(
-        key,
-        data,
-        batch_size,
-        include_id=False,
-        data_keys=None,
-        num_atoms=60,
-        dst_idx=None,
-        src_idx=None,
+    key,
+    data,
+    batch_size,
+    include_id=False,
+    data_keys=None,
+    num_atoms=60,
+    dst_idx=None,
+    src_idx=None,
 ) -> list:
     """
     Efficiently prepare batches for training.
@@ -411,7 +411,7 @@ def prepare_batches(
     steps_per_epoch = data_size // batch_size
 
     # Optimize random permutation and batch selection
-    perms = jax.random.permutation(key, data_size)[:steps_per_epoch * batch_size]
+    perms = jax.random.permutation(key, data_size)[: steps_per_epoch * batch_size]
     perms = perms.reshape((steps_per_epoch, batch_size))
 
     # Precompute sparse indices and offsets
@@ -429,26 +429,32 @@ def prepare_batches(
     def prepare_batch(perm):
         # Efficiently select and reshape data
         batch = {
-            k: (v[perm].reshape(batch_size * num_atoms, -1) if k in ['R', 'F', 'Z', 'mono']
-                else v[perm].reshape(batch_size, -1) if k == 'E'
-            else v[perm])
+            k: (
+                v[perm].reshape(batch_size * num_atoms, -1)
+                if k in ["R", "F", "Z", "mono"]
+                else v[perm].reshape(batch_size, -1) if k == "E" else v[perm]
+            )
             for k, v in data.items()
             if k in data_keys
         }
 
         # Vectorized good indices computation
         nat = batch["N"].flatten()
-        batch_indices_mask = jnp.arange(len(dst_idx)) < (nat[:, None] + jnp.arange(batch_size)[:, None] * num_atoms)
+        batch_indices_mask = jnp.arange(len(dst_idx)) < (
+            nat[:, None] + jnp.arange(batch_size)[:, None] * num_atoms
+        )
         good_indices = batch_indices_mask.all(axis=0).astype(jnp.int32)
 
         # Add additional batch metadata
-        batch.update({
-            "dst_idx": dst_idx.flatten(),
-            "src_idx": src_idx.flatten(),
-            "batch_mask": good_indices,
-            "batch_segments": batch_segments.reshape(-1),
-            "atom_mask": jnp.where(batch["Z"] > 0, 1, 0).reshape(-1)
-        })
+        batch.update(
+            {
+                "dst_idx": dst_idx.flatten(),
+                "src_idx": src_idx.flatten(),
+                "batch_mask": good_indices,
+                "batch_segments": batch_segments.reshape(-1),
+                "atom_mask": jnp.where(batch["Z"] > 0, 1, 0).reshape(-1),
+            }
+        )
 
         return batch
 
@@ -457,6 +463,7 @@ def prepare_batches(
     output = batch_prepare_fn(perms)
 
     return output.tolist()
+
 
 # def prepare_batches(
 #     key,
