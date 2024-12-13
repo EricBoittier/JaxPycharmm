@@ -261,7 +261,7 @@ class EF(nn.Module):
         if self.zbl:
             repulsion = self._calculate_repulsion(
                 atomic_numbers,
-                r,
+                eshift,
                 off_dist,
                 eshift,
                 dst_idx,
@@ -391,6 +391,9 @@ class EF(nn.Module):
         r2 = one_minus_switch_dist / safe_distances
         r = r1 + r2
         eshift = safe_distances / (switch_end**2) - 2.0 / switch_end
+        r *= batch_mask[..., None]
+        off_dist *= batch_mask
+        eshift *= batch_mask
         return r, off_dist, eshift
 
     def _calculate_electrostatics(
