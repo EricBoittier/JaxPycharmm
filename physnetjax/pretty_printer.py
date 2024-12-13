@@ -133,7 +133,7 @@ def print_dict_as_table(data, title="Dictionary"):
     table = Table(title=title)
     for key, value in data.items():
         table.add_column(key, style="cyan", no_wrap=True)
-        table.add_row(str(value))
+    table.add_row(*[str(value) for value in data.values()])
     return table
 
 def pretty_print_optimizer(optimizer, transform, schedule_fn, console):
