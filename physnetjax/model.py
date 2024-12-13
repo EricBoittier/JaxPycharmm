@@ -57,6 +57,13 @@ class EF(nn.Module):
     zbl: bool = True
     debug: bool | List[str] = False
 
+    def setup(self) -> None:
+        if self.zbl:
+            self.repulsion = ZBLRepulsion(
+                cutoff=self.cutoff,
+                trainable=True,
+            )
+
     def return_attributes(self) -> Dict:
         """Return model attributes for checkpointing."""
         return {
@@ -214,7 +221,6 @@ class EF(nn.Module):
         y = e3x.nn.silu(y)
         return y
 
-
     def _calculate_with_charges(
         self,
         x: jnp.ndarray,
@@ -228,11 +234,13 @@ class EF(nn.Module):
         batch_size: int,
     ) -> tuple[Array, tuple[Array, Array, Any]]:
         """Calculate energies including charge interactions."""
-
+        r, off_dist, eshift = self._calc_switches(displacements, batch_mask)
         atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
         electrostatics, batch_electrostatics = self._calculate_electrostatics(
             atomic_charges,
-            displacements,
+            r,
+            off_dist,
+            eshift,
             dst_idx,
             src_idx,
             atom_mask,
@@ -245,7 +253,8 @@ class EF(nn.Module):
         if self.zbl:
             repulsion = self._calculate_repulsion(
                 atomic_numbers,
-                displacements,
+                r,
+                off_dist,
                 dst_idx,
                 src_idx,
                 atom_mask,
@@ -305,7 +314,8 @@ class EF(nn.Module):
     def _calculate_repulsion(
         self,
         atomic_numbers: jnp.ndarray,
-        displacements: jnp.ndarray,
+        distances: jnp.ndarray,
+        off_dist: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
         atom_mask: jnp.ndarray,
@@ -314,15 +324,12 @@ class EF(nn.Module):
         batch_size: int,
     ) -> jnp.ndarray:
         """Calculate repulsion energies between atoms."""
-        repulsion = ZBLRepulsion(
-            cutoff=self.cutoff,
-            trainable=True,
-        )
 
         # add the learnable parameters to the model
-        repulsion_energy = repulsion(
+        repulsion_energy = self.repulsion(
             atomic_numbers,
-            displacements,
+            distances,
+            off_dist,
             dst_idx,
             src_idx,
             atom_mask,
@@ -350,10 +357,37 @@ class EF(nn.Module):
 
         return atomic_energies
 
+    def _calc_switches(self, displacements: jnp.ndarray, batch_mask: jnp.ndarray):
+        # Numerical stability constants
+        eps = 1e-6
+        min_dist = 0.01  # Minimum distance in Angstroms
+        switch_start = 1.0  # Start switching at 2 Angstroms
+        switch_end = self.cutoff  # Complete switch by 10 Angstroms
+        # Calculate distances between atom pairs
+        displacements = displacements + (1 - batch_mask)[..., None]
+        # Safe distance calculation with minimum cutoff
+        squared_distances = jnp.sum(displacements**2, axis=1)
+        distances = jnp.sqrt(jnp.maximum(squared_distances, min_dist**2))
+        # Improved switching function
+        switch_dist = e3x.nn.smooth_switch(distances, switch_start, switch_end)
+        off_dist = 1.0 - e3x.nn.smooth_switch(distances, 8.0, 10.0)
+        one_minus_switch_dist = 1 - switch_dist
+        # Calculate interaction potential with improved stability
+        safe_distances = distances + eps
+        # R1: Short-range regularized potential
+        r1 = switch_dist / jnp.sqrt(squared_distances + 1.0)
+        # R2: Long-range Coulomb potential with safe distance
+        r2 = one_minus_switch_dist / safe_distances
+        r = r1 + r2
+        eshift = safe_distances / (switch_end**2) - 2.0 / switch_end
+        return r, off_dist, eshift
+
     def _calculate_electrostatics(
         self,
         atomic_charges: jnp.ndarray,
-        displacements: jnp.ndarray,
+        r: jnp.ndarray,
+        off_dist: jnp.ndarray,
+        eshift: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
         atom_mask: jnp.ndarray,
@@ -378,30 +412,6 @@ class EF(nn.Module):
         Returns:
             Array of electrostatic energies per atom
         """
-        # Numerical stability constants
-        eps = 1e-6
-        min_dist = 0.01  # Minimum distance in Angstroms
-        switch_start = 1.0  # Start switching at 2 Angstroms
-        switch_end = self.cutoff  # Complete switch by 10 Angstroms
-
-        # Calculate distances between atom pairs
-        displacements = displacements + (1 - batch_mask)[..., None]
-        # Safe distance calculation with minimum cutoff
-        squared_distances = jnp.sum(displacements**2, axis=1)
-        distances = jnp.sqrt(jnp.maximum(squared_distances, min_dist**2))
-
-        # Improved switching function
-        switch_dist = e3x.nn.smooth_switch(distances, switch_start, switch_end)
-        off_dist = 1.0 - e3x.nn.smooth_switch(distances, 8.0, 10.0)
-        one_minus_switch_dist = 1 - switch_dist
-        # Calculate interaction potential with improved stability
-        # R1: Short-range regularized potential
-        # R2: Long-range Coulomb potential with safe distance
-        safe_distances = distances + eps
-        r1 = switch_dist / jnp.sqrt(squared_distances + 1.0)
-        r2 = one_minus_switch_dist / safe_distances
-        r = r1 + r2
-        eshift = safe_distances / (switch_end**2) - 2.0 / switch_end
 
         # Get charges for interacting pairs with safe bounds
         q1 = jnp.clip(jnp.take(atomic_charges, dst_idx, fill_value=0.0), -10.0, 10.0)

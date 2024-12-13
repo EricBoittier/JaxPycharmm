@@ -93,7 +93,8 @@ class ZBLRepulsion(nn.Module):
     def __call__(
         self,
         atomic_numbers: jnp.ndarray,
-        displacements: jnp.ndarray,
+        distances: jnp.ndarray,
+        switch_off: jnp.ndarray,
         idx_i: jnp.ndarray,
         idx_j: jnp.ndarray,
         atom_mask: jnp.ndarray,
@@ -112,11 +113,11 @@ class ZBLRepulsion(nn.Module):
         Returns:
             Array of repulsion energies per atom
         """
-        # Compute distances with numerical stability
-        displacements = displacements + (1 - batch_mask[..., None])
-        distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
-        # Compute switch-off function
-        switch_off = e3x.nn.smooth_switch(distances, 0.1, 10.0)
+        # # Compute distances with numerical stability
+        # displacements = displacements + (1 - batch_mask[..., None])
+        # distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
+        # # Compute switch-off function
+        # switch_off = e3x.nn.smooth_switch(distances, 0.1, 10.0)
 
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values
