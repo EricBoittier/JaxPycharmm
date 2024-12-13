@@ -10,6 +10,8 @@ from typing import Dict, List, Optional, Tuple, Any
 
 import e3x
 import flax.linen as nn
+from flax.linen.initializers import lecun_normal, variance_scaling, zeros, normal
+
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -294,7 +296,7 @@ class EF(nn.Module):
         x = e3x.nn.Dense(1, use_bias=False)(x)
         charge_bias = self.param(
             "charge_bias",
-            lambda rng, shape: jnp.zeros(shape),
+            lambda rng, shape: jnp.random.normal(self.make_rng('params'), shape),
             (self.max_atomic_number + 1),
         )
         atomic_charges = nn.Dense(
