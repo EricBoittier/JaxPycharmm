@@ -42,8 +42,8 @@ NATOMS = 8
 
 train_data, valid_data = prepare_datasets(
     data_key,
-    100, #23887,
-    100, #4000,
+    23887,
+    4000,
     files,
     clip_esp=False,
     natoms=NATOMS,
@@ -86,7 +86,7 @@ params = train_model(
     energy_weight=NATOMS,
     # charges_weight=1,
     # forces_weight=100,
-    schedule_fn="constant",
+    schedule_fn="warmup",
     optimizer="amsgrad",
     batch_size=32,
     num_atoms=NATOMS,
