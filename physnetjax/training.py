@@ -170,6 +170,9 @@ def train_model(
     if best_loss is None:
         best_loss = best
 
+    print(model)
+    print(model.debug)
+
     if isinstance(model.debug, list):
         runInDebug = True if "opt" in model.debug else False
     else:
