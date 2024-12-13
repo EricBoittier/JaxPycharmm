@@ -136,7 +136,7 @@ def print_dict_as_table(data, title="Dictionary"):
         table.add_row(str(value))
     return table
 
-def pretty_print_optimizer(optimizer, transform, schedule_fn):
+def pretty_print_optimizer(optimizer, transform, schedule_fn, console):
     def format_function(func):
         if hasattr(func, "__name__"):
             return f"{str(func)} {func.__name__}"
@@ -144,10 +144,15 @@ def pretty_print_optimizer(optimizer, transform, schedule_fn):
 
     opt = {"init":  f"{format_function(optimizer.init)}",
               "update": f"{format_function(optimizer.update)}"}
-    transform = {"init": f"{format_function(transform.init)}",
+    trans = {"init": f"{format_function(transform.init)}",
                   "update": f"{format_function(transform.update)}"}
-    schedule_fn = {"func": f"{format_function(schedule_fn)}"}
-    return opt, transform, schedule_fn
+    sched = {"func": f"{format_function(schedule_fn)}"}
+    table = print_dict_as_table(opt, title="Optimizer")
+    table2 = print_dict_as_table(trans, title="Transform")
+    table3 = print_dict_as_table(sched, title="Schedule Function")
+    console.print(table)
+    console.print(table2)
+    console.print(table3)
 
 def pretty_print(optimizer, transform, schedule_fn):
     def format_function(func):

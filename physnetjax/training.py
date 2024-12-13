@@ -96,15 +96,8 @@ def train_model(
         transform=transform,
     )
     # pretty_print(optimizer, transform, schedule_fn)
-    opt, trans, sched = pretty_print_optimizer(optimizer, transform, schedule_fn)
-    table = print_dict_as_table(opt, title="Optimizer")
-    table2 = print_dict_as_table(trans, title="Transform")
-    table3 = print_dict_as_table(sched, title="Schedule Function")
     console = Console(width=200, color_system="auto")
-    console.print(table)
-    console.print(table2)
-    console.print(table3)
-
+    pretty_print_optimizer(optimizer, transform, schedule_fn, console)
     table, table2 = training_printer(
         learning_rate,
         energy_weight,
