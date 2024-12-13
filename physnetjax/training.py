@@ -144,7 +144,6 @@ def train_model(
     # load from restart
     if restart:
         from physnetjax.restart import restart_training
-
         (
             ema_params,
             model,
@@ -155,7 +154,6 @@ def train_model(
             best_loss,
             CKPT_DIR,
         ) = restart_training(restart, transform, optimizer, num_atoms)
-
     # initialize
     else:
         ema_params = params

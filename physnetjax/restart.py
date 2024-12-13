@@ -22,17 +22,18 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
     restored = orbax_checkpointer.restore(restart)
     print("Restoring from", restart)
     print("Restored keys:", restored.keys())
+    state = restored["model"]
+    print(dir(state))
     params = restored["params"]
     ema_params = restored["ema_params"]
     opt_state = restored["opt_state"]
-    print("Opt state", opt_state)
+    # print("Opt state", opt_state)
     transform_state = transform.init(params)
     # Validate and reinitialize states if necessary
     opt_state_initial = optimizer.init(params)
     # update mu
     o_a, o_b = opt_state_initial
     from optax import ScaleByAmsgradState
-
     _ = ScaleByAmsgradState(
         mu=opt_state[1][0]["mu"],
         nu=opt_state[1][0]["nu"],
@@ -44,7 +45,7 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
     # Set training variables
     step = restored["epoch"] + 1
     best_loss = restored["best_loss"]
-    print(f"Training resumed from step {step}, best_loss {best_loss}")
+    print(f"Training resumed from step {step - 1}, best_loss {best_loss}")
     CKPT_DIR = Path(restart).parent
     return (
         ema_params,
