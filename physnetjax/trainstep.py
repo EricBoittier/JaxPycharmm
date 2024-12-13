@@ -138,7 +138,7 @@ def train_step(
 
     updates, opt_state = optimizer_update(grad, opt_state, params)
     # update the reduce on plateau
-    updates = otu.tree_scalar_mul(transform_state.scale, updates)
+    # updates = otu.tree_scalar_mul(transform_state.scale, updates)
     # check for nans in the updates
     if debug:
         jax.debug.print("updates {updates}", updates=updates)
