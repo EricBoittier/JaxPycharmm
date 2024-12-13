@@ -95,6 +95,7 @@ class ZBLRepulsion(nn.Module):
         atomic_numbers: jnp.ndarray,
         distances: jnp.ndarray,
         switch_off: jnp.ndarray,
+        eshift: jnp.ndarray,
         idx_i: jnp.ndarray,
         idx_j: jnp.ndarray,
         atom_mask: jnp.ndarray,
@@ -113,11 +114,6 @@ class ZBLRepulsion(nn.Module):
         Returns:
             Array of repulsion energies per atom
         """
-        # # Compute distances with numerical stability
-        # displacements = displacements + (1 - batch_mask[..., None])
-        # distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
-        # # Compute switch-off function
-        # switch_off = e3x.nn.smooth_switch(distances, 0.1, 10.0)
 
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values
@@ -148,7 +144,12 @@ class ZBLRepulsion(nn.Module):
         # Compute base repulsion with distance
         base_repulsion = charge_product / distances
         # Apply screening function and switch
-        repulsion = base_repulsion * phi * switch_off
+
+        repulsion = base_repulsion * phi + eshift * batch_mask
+        # Apply switch-off function
+        repulsion *= switch_off
+
+
         # Sum contributions for each atom using safe operations
         Erep = jax.ops.segment_sum(
             repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
