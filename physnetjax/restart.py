@@ -23,7 +23,7 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
     print("Restoring from", restart)
     print("Restored keys:", restored.keys())
     state = restored["model"]
-    print(dir(state))
+    print(state)
     params = restored["params"]
     ema_params = restored["ema_params"]
     opt_state = restored["opt_state"]
@@ -56,4 +56,5 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
         step,
         best_loss,
         CKPT_DIR,
+        state,
     )

@@ -153,6 +153,7 @@ def train_model(
             step,
             best_loss,
             CKPT_DIR,
+            state,
         ) = restart_training(restart, transform, optimizer, num_atoms)
     # initialize
     else:
@@ -161,13 +162,14 @@ def train_model(
         step = 1
         opt_state = optimizer.init(params)
         transform_state = transform.init(params)
+        state = train_state.TrainState.create(
+            apply_fn=model.apply, params=params, tx=optimizer
+        )
 
     if best:
         best_loss = best
 
-    state = train_state.TrainState.create(
-        apply_fn=model.apply, params=params, tx=optimizer
-    )
+
     runInDebug = True if model.debug else False
     trainTime1 = time.time()
     epoch_printer = Printer()
