@@ -60,7 +60,7 @@ class EF(nn.Module):
         if self.zbl:
             self.repulsion = ZBLRepulsion(
                 cutoff=self.cutoff,
-                trainable=True,
+                trainable=False,
             )
         # self.debug = ["idx", "forces", "energy", "charges", "ele"]
 
