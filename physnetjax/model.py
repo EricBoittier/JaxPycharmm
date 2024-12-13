@@ -17,7 +17,8 @@ from jax import Array
 from physnetjax.zbl import ZBLRepulsion
 
 # Constants
-DTYPE = jnp.float32
+# DTYPE = jnp.float32
+DTYPE = jnp.bfloat16
 HARTREE_TO_KCAL_MOL = 627.509  # Conversion factor for energy units
 
 
