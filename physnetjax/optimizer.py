@@ -14,7 +14,7 @@ base_schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
 base_optimizer = optax.chain(
     #    optax.adaptive_grad_clip(1.0),
     optax.clip_by_global_norm(1.0),
-    optax.amsgrad(learning_rate=base_schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
+    optax.amsgrad(learning_rate=base_schedule_fn, b1=0.9, b2=0.99, eps=1e-3),
 )
 
 base_transform = optax.contrib.reduce_on_plateau(
@@ -72,7 +72,7 @@ def get_optimizer(
         optimizer = optax.chain(
             # optax.adaptive_grad_clip(1.0),
             optax.clip_by_global_norm(1.0),
-            optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-9),
+            optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3),
         )
     elif isinstance(optimizer, str):
         _chain = []
@@ -85,7 +85,7 @@ def get_optimizer(
         elif optimizer == "adamw":
             _chain.append(optax.adamw(learning_rate=schedule_fn))
         elif optimizer == "amsgrad":
-            _chain.append(optax.amsgrad(learning_rate=schedule_fn))
+            _chain.append(optax.amsgrad(learning_rate=schedule_fn,  b1=0.9, b2=0.99, eps=1e-3))
 
         else:
             pass
