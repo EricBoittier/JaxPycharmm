@@ -62,6 +62,7 @@ class EF(nn.Module):
                 cutoff=self.cutoff,
                 trainable=True,
             )
+        self.debug = ["idx", "forces", "energy", "charges", "ele"]
 
     def return_attributes(self) -> Dict:
         """Return model attributes for checkpointing."""
