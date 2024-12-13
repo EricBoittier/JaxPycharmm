@@ -160,9 +160,9 @@ def train_model(
         step = 1
         opt_state = optimizer.init(params)
         transform_state = transform.init(params)
-        state = train_state.TrainState.create(
-            apply_fn=model.apply, params=params, tx=optimizer
-        )
+    state = train_state.TrainState.create(
+        apply_fn=model.apply, params=params, tx=optimizer
+    )
 
     if best:
         best_loss = best
