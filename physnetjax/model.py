@@ -207,24 +207,14 @@ class EF(nn.Module):
             y = e3x.nn.silu(x)
             y = e3x.nn.Dense(
                 self.features,
-                # kernel_init=jax.nn.initializers.he_normal(),
-                # bias_init=jax.nn.initializers.he_normal(),
             )(y)
-            # y = e3x.nn.silu(y)
-            # y = e3x.nn.Dense(
-            #     self.features,
-            #     # kernel_init=jax.nn.initializers.he_normal(),
-            #     # bias_init=jax.nn.initializers.he_normal(),
-            # )(y)
             x = e3x.nn.add(x, y)
-
         y = e3x.nn.Dense(
             self.features,
-            # kernel_init=jax.nn.initializers.he_normal(),
-            # bias_init=jax.nn.initializers.he_normal(),
         )(y)
         y = e3x.nn.silu(y)
         return y
+
 
     def _calculate_with_charges(
         self,

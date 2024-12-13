@@ -57,16 +57,16 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 model = EF(
     # attributes
-    features=32,
+    features=64,
     max_degree=0,
-    num_iterations=3,
-    num_basis_functions=16,
+    num_iterations=5,
+    num_basis_functions=32,
     cutoff=10.0,
     max_atomic_number=11,
     charges=True,
     natoms=NATOMS,
     total_charge=0,
-    n_res=1,
+    n_res=5,
     zbl=True,
     debug=False,
 )
