@@ -89,9 +89,7 @@ class EF(nn.Module):
         batch_size: int,
         batch_mask: jnp.ndarray,
         atom_mask: jnp.ndarray,
-    ) -> (
-        tuple[Array, tuple[Array, Array, Any]] | tuple[Array, tuple[Array, None, None]]
-    ):
+    ) -> tuple[Array, tuple[Array, Array, Array, Array]]:
         """Calculate molecular energy and related properties.
 
         Args:
@@ -117,22 +115,18 @@ class EF(nn.Module):
         # Embed and process atomic features
         x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx)
         print(x)
-        if self.charges:
-            return self._calculate_with_charges(
-                x,
-                atomic_numbers,
-                displacements,
-                dst_idx,
-                src_idx,
-                atom_mask,
-                batch_mask,
-                batch_segments,
-                batch_size,
-            )
-
-        return self._calculate_without_charges(
-            x, atomic_numbers, batch_segments, batch_size, atom_mask
+        return self._calculate(
+            x,
+            atomic_numbers,
+            displacements,
+            dst_idx,
+            src_idx,
+            atom_mask,
+            batch_mask,
+            batch_segments,
+            batch_size,
         )
+
 
     def _calculate_geometric_features(
         self,
@@ -229,7 +223,7 @@ class EF(nn.Module):
         y = e3x.nn.silu(y)
         return y
 
-    def _calculate_with_charges(
+    def _calculate(
         self,
         x: jnp.ndarray,
         atomic_numbers: jnp.ndarray,
@@ -240,23 +234,30 @@ class EF(nn.Module):
         batch_mask: jnp.ndarray,
         batch_segments: jnp.ndarray,
         batch_size: int,
-    ) -> tuple[Array, tuple[Array, Array, Any]]:
+    ) -> tuple[Array, tuple[Array, Array, Array, Array]]:
         """Calculate energies including charge interactions."""
         r, off_dist, eshift = self._calc_switches(displacements, batch_mask)
-        atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
-        electrostatics, batch_electrostatics = self._calculate_electrostatics(
-            atomic_charges,
-            r,
-            off_dist,
-            eshift,
-            dst_idx,
-            src_idx,
-            atom_mask,
-            batch_mask,
-            batch_segments,
-            batch_size,
-        )
+
         atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
+
+        if self.charges:
+            atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
+            electrostatics, batch_electrostatics = self._calculate_electrostatics(
+                atomic_charges,
+                r,
+                off_dist,
+                eshift,
+                dst_idx,
+                src_idx,
+                atom_mask,
+                batch_mask,
+                batch_segments,
+                batch_size,
+            )
+        else:
+            atomic_charges = None
+            electrostatics = 0.0
+            batch_electrostatics = None
 
         if self.zbl:
             repulsion = self._calculate_repulsion(
@@ -284,24 +285,7 @@ class EF(nn.Module):
             num_segments=batch_size,
         )
 
-        return -1 * jnp.sum(energy), (energy, atomic_charges, batch_electrostatics)
-
-    def _calculate_without_charges(
-        self,
-        x: jnp.ndarray,
-        atomic_numbers: jnp.ndarray,
-        batch_segments: jnp.ndarray,
-        batch_size: int,
-        atom_mask: jnp.ndarray,
-    ) -> tuple[Array, tuple[Array, None, None]]:
-        """Calculate energies without charge interactions."""
-        atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
-        energy = jax.ops.segment_sum(
-            atomic_energies,
-            segment_ids=batch_segments,
-            num_segments=batch_size,
-        )
-        return -1.0 * jnp.sum(energy), (energy, None, None)
+        return -1 * jnp.sum(energy), (energy, atomic_charges, batch_electrostatics, repulsion)
 
     def _calculate_atomic_charges(
         self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
