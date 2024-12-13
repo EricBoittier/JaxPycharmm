@@ -30,7 +30,7 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
     # opt_state = restored["opt_state"]
     # print("Opt state", opt_state)
     transform_state = transform.init(params)
-    transform_state = restored["transform_state"]
+    # transform_state = restored["transform_state"]
     # Validate and reinitialize states if necessary
     opt_state = optimizer.init(params)
     # update mu
