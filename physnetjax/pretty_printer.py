@@ -136,6 +136,40 @@ def print_dict_as_table(data, title="Dictionary"):
         table.add_row(str(value))
     return table
 
+def pretty_print_optimizer(optimizer, transform, schedule_fn):
+    def format_function(func):
+        if hasattr(func, "__name__"):
+            return f"{str(func)} {func.__name__}"
+        return str(func)
+
+    opt = {"init":  f"{format_function(optimizer.init)}",
+              "update": f"{format_function(optimizer.update)}"}
+    transform = {"init": f"{format_function(transform.init)}",
+                  "update": f"{format_function(transform.update)}"}
+    schedule_fn = f"{format_function(schedule_fn)}"
+    return opt, transform, schedule_fn
+
+def pretty_print(optimizer, transform, schedule_fn):
+    def format_function(func):
+        if hasattr(func, "__name__"):
+            return f"{str(func)} {func.__name__}"
+        return str(func)
+
+    optimizer_details = (
+        f"Optimizer:\n"
+        f"  init: {format_function(optimizer.init)}\n"
+        f"  update: {format_function(optimizer.update)}"
+    )
+    transform_details = (
+        f"Transform:\n"
+        f"  init: {format_function(transform.init)}\n"
+        f"  update: {format_function(transform.update)}"
+    )
+    schedule_fn_details = f"Schedule_fn: {format_function(schedule_fn)}"
+
+    print("\n".join([optimizer_details, transform_details, schedule_fn_details]))
+
+
 
 def epoch_printer(
         table,

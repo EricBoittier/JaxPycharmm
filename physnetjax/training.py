@@ -15,7 +15,7 @@ from rich.live import Live
 
 import physnetjax
 from physnetjax.data import prepare_batches
-from physnetjax.pretty_printer import epoch_printer
+from physnetjax.pretty_printer import epoch_printer, pretty_print_optimizer
 from physnetjax.evalstep import eval_step
 from physnetjax.optimizer import (
     base_optimizer,
@@ -25,7 +25,7 @@ from physnetjax.optimizer import (
 )
 from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
-from physnetjax.utils import get_last, get_params_model, pretty_print
+# from physnetjax.utils import get_last, get_params_model, pretty_print
 from physnetjax.pretty_printer import (
     init_table,
     epoch_printer,
@@ -96,9 +96,10 @@ def train_model(
         transform=transform,
     )
     # pretty_print(optimizer, transform, schedule_fn)
-    table = print_dict_as_table(dict(optimizer), title="Optimizer")
-    table2 = print_dict_as_table(dict(transform), title="Transform")
-    table3 = print_dict_as_table(dict(schedule_fn), title="Schedule Function")
+    opt, trans, sched = pretty_print_optimizer(optimizer, transform, schedule_fn)
+    table = print_dict_as_table(opt, title="Optimizer")
+    table2 = print_dict_as_table(trans, title="Transform")
+    table3 = print_dict_as_table(sched, title="Schedule Function")
     console = Console(width=200, color_system="auto")
     console.print(table)
     console.print(table2)

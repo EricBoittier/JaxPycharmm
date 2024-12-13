@@ -116,22 +116,4 @@ def _process_model_attributes(
     return kwargs
 
 
-def pretty_print(optimizer, transform, schedule_fn):
-    def format_function(func):
-        if hasattr(func, "__name__"):
-            return f"{str(func)} {func.__name__}"
-        return str(func)
 
-    optimizer_details = (
-        f"Optimizer:\n"
-        f"  init: {format_function(optimizer.init)}\n"
-        f"  update: {format_function(optimizer.update)}"
-    )
-    transform_details = (
-        f"Transform:\n"
-        f"  init: {format_function(transform.init)}\n"
-        f"  update: {format_function(transform.update)}"
-    )
-    schedule_fn_details = f"Schedule_fn: {format_function(schedule_fn)}"
-
-    print("\n".join([optimizer_details, transform_details, schedule_fn_details]))
