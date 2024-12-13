@@ -229,8 +229,9 @@ def train_model(
                     doCharges=doCharges,
                     params=params,
                     ema_params=ema_params,
-                    debug=runInDebug,
+                    debug=True,
                 )
+                print(loss)
                 train_loss += (loss - train_loss) / (i + 1)
                 train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
                 train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
