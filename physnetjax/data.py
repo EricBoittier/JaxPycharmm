@@ -559,7 +559,7 @@ def prepare_batches(
             dict_["batch_segments"] = batch_segments.reshape(-1)
             dict_["atom_mask"] = jnp.where(dict_["Z"] > 0, 1, 0).reshape(-1)
             output.append(dict_)
-    print(output)
+    # print(output)
     return output
 
 import jax
