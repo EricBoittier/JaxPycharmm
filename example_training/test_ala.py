@@ -61,7 +61,7 @@ model = EF(
     debug=["idx", "ele", "energy", "charges"],
 )
 
-DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
+DEFAULT_DATA_KEYS = ("Z", "R", "D", "E", "F", "N")
 params = train_model(
     train_key,
     model,
