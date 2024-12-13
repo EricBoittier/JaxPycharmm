@@ -96,8 +96,8 @@ def main():
     from physnetjax.data import prepare_batches as optimized_prepare_batches
 
     # Generate test dataset
-    data_sizes = [100, 1000, 10000]
-    batch_sizes = [32, 64, 128]
+    data_sizes = [1000, 10000, 50000]
+    batch_sizes = [1, 16, 32, 64, 128]
 
     for data_size in data_sizes:
         print(f"\n--- Dataset Size: {data_size} ---")
