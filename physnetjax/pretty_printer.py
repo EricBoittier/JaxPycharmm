@@ -20,18 +20,18 @@ def get_panel(data, title):
 
 def init_table(doCharges=False):
     table = Table(title="PhysNetJax Training Progress")
-    table.add_column("Epoch", style="cyan", no_wrap=True)
+    table.add_column("Epoch", style="bright_cyan", no_wrap=True)
     table.add_column("time", style="green")
-    table.add_column("Eff. LR", style="magenta")
+    table.add_column("Eff. LR", style="bright_magenta")
     table.add_column("Train Loss", style="magenta")
     table.add_column("Valid Loss", style="green")
     table.add_column("Best Loss", style="red")
-    table.add_column("Train Energy MAE", style="magenta")
+    table.add_column("Train Energy MAE", style="bright_magenta")
     table.add_column("Valid Energy MAE", style="green")
     table.add_column("Train Forces MAE", style="magenta")
-    table.add_column("Valid Forces MAE", style="green")
+    table.add_column("Valid Forces MAE", style="spring_green3")
     if doCharges:
-        table.add_column("Train Dipoles MAE", style="magenta")
+        table.add_column("Train Dipoles MAE", style="spring_green3")
     return table
 
 
@@ -117,8 +117,8 @@ class Printer:
 
         # make a mini table for last checkpoint and save time
         ckp_table = Table(title="Last Checkpoint")
-        ckp_table.add_column("Checkpoint", style="cyan", no_wrap=True)
-        ckp_table.add_column("Save Time", style="green")
+        ckp_table.add_column("Checkpoint", style="bright_magenta", no_wrap=True)
+        ckp_table.add_column("Save Time", style="red")
         ckp_table.add_row(str(ckp), save_time)
 
         # Combine the table and panels into one layout
@@ -239,7 +239,7 @@ def training_printer(
     # new code
     table = Table(title="PhysNetJax Training Params")
     table.add_column("Learning Rate", style="cyan", no_wrap=True)
-    table.add_column("Energy Weight", style="magenta")
+    table.add_column("Energy Weight", style="bright_magenta")
     table.add_column("Forces Weight", style="green")
     table.add_column("Dipole Weight", style="red")
     table.add_column("Charges Weight", style="blue")
@@ -251,7 +251,7 @@ def training_printer(
     table2.add_column("Conversion", style="red")
     table2.add_column("Print Freq", style="blue")
     table2.add_column("Name", style="cyan")
-    table2.add_column("Best", style="magenta")
+    table2.add_column("Best", style="bright_magenta")
     table2.add_column("Objective", style="green")
     table2.add_column("Data Keys", style="red")
     table2.add_column("Ckpt Dir", style="blue")
