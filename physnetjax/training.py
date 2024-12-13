@@ -171,6 +171,8 @@ def train_model(
     runInDebug = True if model.debug else False
     trainTime1 = time.time()
     epoch_printer = Printer()
+    ckp = None
+    save_time = None
 
     with Live(auto_refresh=False) as live:
         # Train for 'num_epochs' epochs.
@@ -281,8 +283,7 @@ def train_model(
                 write_tb_log(writer, obj_res, epoch)  # Call your logging function here
 
             best_ = False
-            ckp = None
-            save_time = None
+
 
             if obj_res[objective] < best_loss:
                 model_attributes = model.return_attributes()
