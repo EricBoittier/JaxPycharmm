@@ -58,6 +58,7 @@ def train_step(
     params,
     ema_params,
     debug=False,
+    ema_decay = 0.99,
 ):
     if doCharges:
 
@@ -73,8 +74,6 @@ def train_step(
                 batch_mask=batch["batch_mask"],
                 atom_mask=batch["atom_mask"],
             )
-            #
-            nonzero = jnp.sum(batch["Z"] != 0)
             dipole = dipole_calc(
                 batch["R"],
                 batch["Z"],
@@ -143,7 +142,6 @@ def train_step(
     # check for nans in the updates
     if debug:
         jax.debug.print("updates {updates}", updates=updates)
-    # jax.debug.print()
     params = optax.apply_updates(params, updates)
 
     energy_mae = mean_absolute_error(
@@ -162,8 +160,6 @@ def train_step(
         dipole_mae = 0
 
     # Update EMA weights
-    ema_decay = 0.999
-    # params = jnp.nan_to_num(params)
 
     ema_params = jax.tree_map(
         lambda ema, new: ema_decay * ema + (1 - ema_decay) * new,

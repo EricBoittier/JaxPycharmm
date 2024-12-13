@@ -1,25 +1,8 @@
-import sys
-
-from flax.training import orbax_utils
-
 import functools
 
-import ase
-import e3x
-import flax.linen as nn
 import jax
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
-import numpy as np
-import optax
 import orbax
-from flax.training import checkpoints, train_state
-from jax.random import randint
-from optax import contrib
-from optax import tree_utils as otu
-from tqdm import tqdm
-import physnetjax
-from physnetjax.data import prepare_batches, prepare_datasets
 
 # from jax import config
 # config.update('jax_enable_x64', True)
@@ -27,10 +10,8 @@ from physnetjax.loss import (
     dipole_calc,
     mean_absolute_error,
     mean_squared_loss,
-    mean_squared_loss_D,
     mean_squared_loss_QD,
 )
-from physnetjax.model import EF
 
 DTYPE = jnp.float32
 
@@ -61,7 +42,6 @@ def eval_step(
             batch_mask=batch["batch_mask"],
             atom_mask=batch["atom_mask"],
         )
-        nonzero = jnp.sum(batch["Z"] != 0)
         dipole = dipole_calc(
             batch["R"],
             batch["Z"],

@@ -14,7 +14,7 @@ base_schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
 base_optimizer = optax.chain(
     #    optax.adaptive_grad_clip(1.0),
     optax.clip_by_global_norm(1.0),
-    optax.amsgrad(learning_rate=base_schedule_fn, b1=0.9, b2=0.99, eps=1e-6),
+    optax.amsgrad(learning_rate=base_schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
 )
 
 base_transform = optax.contrib.reduce_on_plateau(
@@ -53,7 +53,7 @@ def get_optimizer(
             )
         elif schedule_fn == "exponential":
             schedule_fn = optax.schedules.exponential_decay_schedule(
-                init_value=learning_rate, decay_rate=0.999
+                init_value=learning_rate, decay_rate=0.995
             )
         elif schedule_fn == "polynomial":
             schedule_fn = optax.schedules.polynomial_decay_schedule(
@@ -71,7 +71,7 @@ def get_optimizer(
     if optimizer is None:
         optimizer = optax.chain(
             # optax.adaptive_grad_clip(1.0),
-            optax.clip_by_global_norm(10.0),
+            optax.clip_by_global_norm(1.0),
             optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-9),
         )
     elif isinstance(optimizer, str):

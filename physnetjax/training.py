@@ -277,10 +277,7 @@ def train_model(
 
             if log_tb:
                 writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
-                # Correct usage within the context manager
-                # Use the writer for logging
                 writer.set_as_default()
-                # Log to TensorBoard
                 write_tb_log(writer, obj_res, epoch)  # Call your logging function here
 
             best_ = False
