@@ -19,12 +19,20 @@ def generate_mock_data(data_size, num_atoms=60):
     key = jax.random.PRNGKey(42)
 
     return {
-        "R": jax.random.normal(key, shape=(data_size, num_atoms, 3)),  # Atomic positions
+        "R": jax.random.normal(
+            key, shape=(data_size, num_atoms, 3)
+        ),  # Atomic positions
         "F": jax.random.normal(key, shape=(data_size, num_atoms, 3)),  # Forces
         "E": jax.random.normal(key, shape=(data_size, 1)),  # Energies
-        "Z": jax.random.randint(key, shape=(data_size, num_atoms), minval=1, maxval=10),  # Atomic numbers
-        "N": jnp.full((data_size,), num_atoms, dtype=jnp.int32),  # Number of atoms per configuration
-        "mono": jax.random.normal(key, shape=(data_size, num_atoms))  # Additional feature
+        "Z": jax.random.randint(
+            key, shape=(data_size, num_atoms), minval=1, maxval=10
+        ),  # Atomic numbers
+        "N": jnp.full(
+            (data_size,), num_atoms, dtype=jnp.int32
+        ),  # Number of atoms per configuration
+        "mono": jax.random.normal(
+            key, shape=(data_size, num_atoms)
+        ),  # Additional feature
     }
 
 
@@ -44,22 +52,14 @@ def performance_comparison(original_func, optimized_func, data, batch_size=32):
     # Time original function
     start_time = time.time()
     original_batches = original_func(
-        key,
-        data,
-        batch_size,
-        data_keys=tuple(data_keys),
-        num_atoms=data['R'].shape[1]
+        key, data, batch_size, data_keys=tuple(data_keys), num_atoms=data["R"].shape[1]
     )
     original_time = time.time() - start_time
 
     # Time optimized function
     start_time = time.time()
     optimized_batches = optimized_func(
-        key,
-        data,
-        batch_size,
-        data_keys=tuple(data_keys),
-        num_atoms=data['R'].shape[1]
+        key, data, batch_size, data_keys=tuple(data_keys), num_atoms=data["R"].shape[1]
     )
     optimized_time = time.time() - start_time
 
@@ -77,7 +77,7 @@ def performance_comparison(original_func, optimized_func, data, batch_size=32):
                     opt_batch[key],
                     rtol=1e-5,
                     atol=1e-5,
-                    err_msg=f"Mismatch in key: {key}"
+                    err_msg=f"Mismatch in key: {key}",
                 )
             except Exception as e:
                 print(f"Verification failed for key: {key}")
@@ -109,7 +109,7 @@ def main():
                 original_prepare_batches,
                 optimized_prepare_batches,
                 mock_data,
-                batch_size
+                batch_size,
             )
 
 
