@@ -85,7 +85,9 @@ def get_optimizer(
         elif optimizer == "adamw":
             _chain.append(optax.adamw(learning_rate=schedule_fn))
         elif optimizer == "amsgrad":
-            _chain.append(optax.amsgrad(learning_rate=schedule_fn,  b1=0.9, b2=0.99, eps=1e-3))
+            _chain.append(
+                optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3)
+            )
 
         else:
             pass

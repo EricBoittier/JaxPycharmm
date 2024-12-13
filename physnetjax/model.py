@@ -163,16 +163,16 @@ class EF(nn.Module):
             dtype=DTYPE,
         )(atomic_numbers)
 
-        x = e3x.nn.modules.SelfAttention(max_degree=self.max_degree, num_heads=self.features,include_pseudotensors=False
-                              )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
+        x = e3x.nn.modules.SelfAttention(
+            max_degree=self.max_degree,
+            num_heads=self.features,
+            include_pseudotensors=False,
+        )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
+        x = e3x.nn.silu(x)
 
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
-
-        x = e3x.nn.modules.SelfAttention(max_degree=self.max_degree, num_heads=self.features,include_pseudotensors=False
-                              )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
-        x = e3x.nn.silu(x)
 
         return x
 
