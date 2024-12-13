@@ -114,7 +114,7 @@ class EF(nn.Module):
 
         # Embed and process atomic features
         x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx)
-        print(x)
+        # print(x)
         return self._calculate(
             x,
             atomic_numbers,
@@ -138,7 +138,7 @@ class EF(nn.Module):
         positions_dst = e3x.ops.gather_dst(positions, dst_idx=dst_idx)
         positions_src = e3x.ops.gather_src(positions, src_idx=src_idx)
         displacements = positions_src - positions_dst
-        print(displacements)
+        # print(displacements)
         return (
             e3x.nn.basis(
                 displacements,
@@ -521,7 +521,7 @@ class EF(nn.Module):
                 jax.debug.print("Energy: {x}", x=energy)
             if "charges" in self.debug and charges is not None:
                 jax.debug.print("Charges shape: {x}", x=charges.shape)
-        print(output)
+        # print(output)
         return output
 
 

@@ -27,13 +27,13 @@ from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 
 # from physnetjax.utils import get_last, get_params_model, pretty_print
-# from physnetjax.pretty_printer import (
-#     init_table,
-#     epoch_printer,
-#     training_printer,
-#     Printer,
-#     print_dict_as_table,
-# )
+from physnetjax.pretty_printer import (
+    init_table,
+    epoch_printer,
+    training_printer,
+    Printer,
+    print_dict_as_table,
+)
 from physnetjax.restart import restart_training, orbax_checkpointer
 
 from physnetjax.utils import create_checkpoint_dir
@@ -96,30 +96,30 @@ def train_model(
         optimizer=optimizer,
         transform=transform,
     )
-    # pretty_print(optimizer, transform, schedule_fn)
-    # console = Console(width=200, color_system="auto")
-    # pretty_print_optimizer(optimizer, transform, schedule_fn, console)
-    # table, table2 = training_printer(
-    #     learning_rate,
-    #     energy_weight,
-    #     forces_weight,
-    #     dipole_weight,
-    #     charges_weight,
-    #     batch_size,
-    #     num_atoms,
-    #     restart,
-    #     conversion,
-    #     print_freq,
-    #     name,
-    #     best,
-    #     objective,
-    #     data_keys,
-    #     ckpt_dir,
-    #     train_data,
-    #     valid_data,
-    # )
-    # console.print(table)
-    # console.print(table2)
+    pretty_print(optimizer, transform, schedule_fn)
+    console = Console(width=200, color_system="auto")
+    pretty_print_optimizer(optimizer, transform, schedule_fn, console)
+    table, table2 = training_printer(
+        learning_rate,
+        energy_weight,
+        forces_weight,
+        dipole_weight,
+        charges_weight,
+        batch_size,
+        num_atoms,
+        restart,
+        conversion,
+        print_freq,
+        name,
+        best,
+        objective,
+        data_keys,
+        ckpt_dir,
+        train_data,
+        valid_data,
+    )
+    console.print(table)
+    console.print(table2)
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
@@ -179,16 +179,16 @@ def train_model(
         runInDebug = False
 
     trainTime1 = time.time()
-    # epoch_printer = Printer()
+    epoch_printer = Printer()
     ckp = None
     save_time = None
 
     model_attributes = model.return_attributes()
-    # table = print_dict_as_table(model_attributes, title="Model Attributes")
-    # console.print(table)
+    table = print_dict_as_table(model_attributes, title="Model Attributes")
+    console.print(table)
 
-    # with Live(auto_refresh=False) as live:
-    if True:
+    with Live(auto_refresh=False) as live:
+    # if True:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
@@ -231,7 +231,6 @@ def train_model(
                     ema_params=ema_params,
                     debug=True,
                 )
-                print(loss)
                 train_loss += (loss - train_loss) / (i + 1)
                 train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
                 train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
@@ -327,27 +326,26 @@ def train_model(
                 best_ = True
 
             if best_ or (epoch % print_freq == 0):
-                # combined = epoch_printer.update(
-                #     epoch,
-                #     train_loss,
-                #     valid_loss,
-                #     best_loss,
-                #     train_energy_mae,
-                #     valid_energy_mae,
-                #     train_forces_mae,
-                #     valid_forces_mae,
-                #     doCharges,
-                #     train_dipoles_mae,
-                #     valid_dipoles_mae,
-                #     scale,
-                #     slr,
-                #     lr_eff,
-                #     epoch_length,
-                #     ckp,
-                #     save_time,
-                # )
-                # live.update(combined, refresh=True)
-                pass
+                combined = epoch_printer.update(
+                    epoch,
+                    train_loss,
+                    valid_loss,
+                    best_loss,
+                    train_energy_mae,
+                    valid_energy_mae,
+                    train_forces_mae,
+                    valid_forces_mae,
+                    doCharges,
+                    train_dipoles_mae,
+                    valid_dipoles_mae,
+                    scale,
+                    slr,
+                    lr_eff,
+                    epoch_length,
+                    ckp,
+                    save_time,
+                )
+                live.update(combined, refresh=True)
 
     # Return final model parameters.
     return ema_params
