@@ -112,8 +112,8 @@ class Printer:
                 )
 
         # Prepare charts (for example, plot valid_loss over epochs)
-        valid_loss_panel = get_panel(self.valid_losses, "Valid Loss")
-        train_loss_panel = get_panel(self.train_losses, "Train Loss")
+        # valid_loss_panel = get_panel(self.valid_losses, "Valid Loss")
+        # train_loss_panel = get_panel(self.train_losses, "Train Loss")
 
         # make a mini table for last checkpoint and save time
         ckp_table = Table(title="Last Checkpoint")
@@ -122,10 +122,10 @@ class Printer:
         ckp_table.add_row(str(ckp), save_time)
 
         # Combine the table and panels into one layout
-        layout = Columns(
-            [table, Columns([valid_loss_panel, train_loss_panel, ckp_table])]
-        )
-
+        # layout = Columns(
+        #     [table, Columns([valid_loss_panel, train_loss_panel, ckp_table])]
+        # )
+        layout = Columns([table, ckp_table])
         return layout
 
 

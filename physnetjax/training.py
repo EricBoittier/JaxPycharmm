@@ -168,7 +168,6 @@ def train_model(
     if best_loss is None:
         best_loss = best
 
-
     runInDebug = True if model.debug else False
     trainTime1 = time.time()
     epoch_printer = Printer()
