@@ -492,7 +492,7 @@ class EF(nn.Module):
             jax.debug.print("atom_mask {x}", x=atom_mask.shape)
 
         # Calculate energies and forces
-        (_, (energy, charges, electrostatics)), forces = energy_and_forces(
+        (_, (energy, charges, electrostatics, repulsion)), forces = energy_and_forces(
             atomic_numbers,
             positions,
             dst_idx,
@@ -509,6 +509,7 @@ class EF(nn.Module):
             "forces": forces,
             "charges": charges,
             "electrostatics": electrostatics,
+            "repulsion": repulsion,
         }
         # print("output", output)
         # Debug output values
