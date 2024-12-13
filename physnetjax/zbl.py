@@ -146,9 +146,9 @@ class ZBLRepulsion(nn.Module):
         base_repulsion = charge_product / distances
         # Apply screening function and switch
 
-        repulsion = base_repulsion * phi + eshift * batch_mask
+        repulsion = base_repulsion * phi + eshift
         # Apply switch-off function
-        repulsion *= switch_off
+        repulsion *= switch_off * batch_mask
 
         # Sum contributions for each atom using safe operations
         erep = jax.ops.segment_sum(

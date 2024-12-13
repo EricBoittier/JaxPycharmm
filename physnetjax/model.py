@@ -261,7 +261,7 @@ class EF(nn.Module):
         if self.zbl:
             repulsion = self._calculate_repulsion(
                 atomic_numbers,
-                off_dist,
+                r,
                 off_dist,
                 eshift,
                 dst_idx,
