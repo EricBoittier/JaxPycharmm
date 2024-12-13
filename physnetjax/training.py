@@ -146,8 +146,8 @@ def train_model(
                                 nu=opt_state[1][0]["nu"],
                                 nu_max=opt_state[1][0]["nu_max"],
                                 count=opt_state[1][0]["count"])
-        opt_state = (o_a, (_, o_b[1]))
-
+        #opt_state = (o_a, (_, o_b[1]))
+        opt_state = opt_state_initial
         # Set training variables
         step = restored["epoch"] + 1
         best_loss = restored["best_loss"]
@@ -172,8 +172,7 @@ def train_model(
     trainTime1 = time.time()
     epoch_printer = Printer()
 
-    with Live(refresh_per_second=10) as live:
-
+    with Live(auto_refresh=False) as live:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
@@ -315,7 +314,7 @@ def train_model(
                               train_forces_mae, valid_forces_mae, doCharges,
                                       train_dipoles_mae, valid_dipoles_mae,
                               scale, slr, lr_eff, epoch_length)
-                live.update(combined)
+                live.update(combined, refresh=True)
 
     # Return final model parameters.
     return ema_params

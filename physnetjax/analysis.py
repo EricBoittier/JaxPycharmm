@@ -5,6 +5,19 @@ from tqdm import tqdm
 from physnetjax.loss import dipole_calc
 import numpy as np
 
+def get_metrics(x, y):
+    ERROR = x - y
+    RMSE = np.mean(ERROR**2) ** 0.5
+    MAE = np.mean(abs(ERROR))
+    return RMSE, MAE
+
+
+def count_params(params):
+    from jax.flatten_util import ravel_pytree
+    flattened_params, unravel_fn = ravel_pytree(params)
+    total_params = flattened_params.size
+    return total_params
+
 
 def plot(x, y, ax, units="kcal/mol", _property="", kde=True, s=1, diag=True):
     x = x.flatten()
@@ -15,9 +28,8 @@ def plot(x, y, ax, units="kcal/mol", _property="", kde=True, s=1, diag=True):
     except:
         r_value = ""
 
-    ERROR = x - y
-    RMSE = np.mean(ERROR**2) ** 0.5
-    MAE = np.mean(abs(ERROR))
+    RMSE, MAE = get_metrics(x, y)
+
     ax.set_aspect("equal")
     ax.text(
         0.4,
@@ -115,7 +127,7 @@ def eval(batches, model, params, batch_size=500):
     return Es, Eeles, predEs, Fs, predFs, Ds, predDs, charges, outputs
 
 
-def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500):
+def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500, do_plot=True):
     Es, Eeles, predEs, Fs, predFs, Ds, predDs, charges, outputs = eval(
         batches, model, params, batch_size=batch_size
     )
@@ -126,33 +138,37 @@ def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500):
     predFs = predFs / (ase.units.kcal / ase.units.mol)
     Eeles = Eeles / (ase.units.kcal / ase.units.mol)
     summed_q = charges.reshape(len(batches) * batch_size, model.natoms).sum(axis=1)
+    E_rmse, E_mae = get_metrics(Es, predEs)
+    F_rmse, F_mae = get_metrics(Fs, predFs)
+    D_rmse, D_mae = get_metrics(Ds, predDs)
 
-    fig, axes = plt.subplots(2, 3, figsize=(13, 7.5))
-    plot(Es, predEs, axes[0, 0], _property="$E$", s=10, kde=do_kde)
-    plot(Fs, predFs, axes[0, 1], _property="$F$", kde=do_kde)
-    plot(Ds, predDs, axes[0, 2], _property="$D$", units=r"$e \AA$", kde=do_kde)
-    plot(
-        Es - Es.mean(),
-        Eeles - Eeles.mean(),
-        axes[1, 0],
-        _property="$E$ vs $E_{\\rm ele}$",
-        kde=do_kde,
-    )
-    # axes[1,1].axis("off")
+    if do_plot:
+        fig, axes = plt.subplots(2, 3, figsize=(13, 7.5))
+        plot(Es, predEs, axes[0, 0], _property="$E$", s=10, kde=do_kde)
+        plot(Fs, predFs, axes[0, 1], _property="$F$", kde=do_kde)
+        plot(Ds, predDs, axes[0, 2], _property="$D$", units=r"$e \AA$", kde=do_kde)
+        plot(
+            Es - Es.mean(),
+            Eeles - Eeles.mean(),
+            axes[1, 0],
+            _property="$E$ vs $E_{\\rm ele}$",
+            kde=do_kde,
+        )
+        # axes[1,1].axis("off")
 
-    plot(predFs, abs(predFs - Fs), axes[1, 1], _property="$F$", kde=do_kde, diag=False)
-    q_sum_kde = "y" if do_kde else False
-    plot(
-        np.zeros_like(summed_q),
-        summed_q,
-        axes[1, 2],
-        _property="$Q$",
-        units="$e$",
-        kde=q_sum_kde,
-    )
-    plt.subplots_adjust(hspace=0.55)
-    plt.suptitle(_set + f" (n={len(predEs.flatten())})", fontsize=20)
-    plt.show()
+        plot(predFs, abs(predFs - Fs), axes[1, 1], _property="$F$", kde=do_kde, diag=False)
+        q_sum_kde = "y" if do_kde else False
+        plot(
+            np.zeros_like(summed_q),
+            summed_q,
+            axes[1, 2],
+            _property="$Q$",
+            units="$e$",
+            kde=q_sum_kde,
+        )
+        plt.subplots_adjust(hspace=0.55)
+        plt.suptitle(_set + f" (n={len(predEs.flatten())})", fontsize=20)
+        # plt.show()
 
     output = {
         "Es": Es,
@@ -165,7 +181,17 @@ def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500):
         "charges": charges,
         "outputs": outputs,
         "batches": batches,
+        "E_rmse": E_rmse,
+        "E_mae": E_mae,
+        "F_rmse": F_rmse,
+        "F_mae": F_mae,
+        "D_rmse": D_rmse,
+        "D_mae": D_mae,
+        "n_params": count_params(params),
+        
     }
+    model_kwargs = model.return_attributes()
+    output.update(model_kwargs)
 
     return output
 

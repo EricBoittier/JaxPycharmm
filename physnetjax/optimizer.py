@@ -104,7 +104,7 @@ def get_optimizer(
     return optimizer, transform, schedule_fn
 
 
-def cycled_cosine_annealing_schedule(init_lr, period=100):
+def cycled_cosine_annealing_schedule(init_lr, period=200):
     """
     Creates a cosine annealing learning rate schedule with repeated cycles.
 
@@ -116,15 +116,15 @@ def cycled_cosine_annealing_schedule(init_lr, period=100):
     """
 
     # Adjust step to account for the starting step
-    num_cycles = 10
+    num_cycles = 200
     print(period, num_cycles)
     lr_schedule = optax.join_schedules(
         schedules=[
             optax.cosine_onecycle_schedule(
                 transition_steps=period // 2,
-                peak_value=init_lr * (0.9**i),
-                div_factor=1.5,
-                final_div_factor=2,
+                peak_value=init_lr * (0.99**i),
+                div_factor=1.3,
+                final_div_factor=1.6,
             )
             for i in range(num_cycles)
         ],
