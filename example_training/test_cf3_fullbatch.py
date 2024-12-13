@@ -42,8 +42,8 @@ NATOMS = 8
 
 train_data, valid_data = prepare_datasets(
     data_key,
-    23887,
-    4000,
+    100, #23887,
+    100, #4000,
     files,
     clip_esp=False,
     natoms=NATOMS,
