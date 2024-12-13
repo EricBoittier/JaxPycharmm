@@ -364,7 +364,7 @@ class EF(nn.Module):
         eps = 1e-6
         min_dist = 0.01  # Minimum distance in Angstroms
         switch_start = 1.0  # Start switching at 2 Angstroms
-        switch_end = self.cutoff  # Complete switch by 10 Angstroms
+        switch_end = 10.0  # Complete switch by 10 Angstroms
         # Calculate distances between atom pairs
         displacements = displacements + (1 - batch_mask)[..., None]
         # Safe distance calculation with minimum cutoff
