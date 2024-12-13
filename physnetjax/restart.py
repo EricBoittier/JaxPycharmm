@@ -26,14 +26,13 @@ def restart_training(restart: str, num_atoms: int):
     params = restored["params"]
     ema_params = restored["ema_params"]
     opt_state = restored["opt_state"]
-    # print("Opt state", opt_state)
+    print("Opt state", opt_state)
     transform_state = transform.init(params)
     # Validate and reinitialize states if necessary
     opt_state_initial = optimizer.init(params)
     # update mu
     o_a, o_b = opt_state_initial
     from optax import ScaleByAmsgradState
-
     _ = ScaleByAmsgradState(
         mu=opt_state[1][0]["mu"],
         nu=opt_state[1][0]["nu"],
