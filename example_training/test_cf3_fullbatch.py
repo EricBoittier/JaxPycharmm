@@ -74,7 +74,7 @@ model = EF(
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 
 restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-8a3035f6-3921-48bf-9730-8c220320919a/"
-
+restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-82ed0b7f-5f83-41d2-aba5-0a71f631fb15/"
 
 params = train_model(
     train_key,
@@ -86,12 +86,12 @@ params = train_model(
     energy_weight=NATOMS,
     # charges_weight=1,
     # forces_weight=100,
-    schedule_fn="constant",
+    schedule_fn="cosine_annealing",
     optimizer="amsgrad",
     batch_size=32,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-#    restart=restart,
+   restart=restart,
     print_freq=1,
     objective="valid_loss",
     best=1e6,
