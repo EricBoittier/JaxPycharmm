@@ -162,18 +162,17 @@ class EF(nn.Module):
             features=self.features,
             dtype=DTYPE,
         )(atomic_numbers)
-
-        # x = e3x.nn.modules.SelfAttention(
-        #     max_degree=self.max_degree,
-        #     num_heads=2,
-        #     include_pseudotensors=False,
-        # )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
-
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
-
         return x
+
+    def _attention(self, x, basis, dst_idx, src_idx):
+        return e3x.nn.modules.SelfAttention(
+            max_degree=self.max_degree,
+            num_heads=2,
+            include_pseudotensors=False,
+        )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
     def _message_passing_iteration(
         self,
