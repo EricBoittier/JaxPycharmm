@@ -387,7 +387,6 @@ class EF(nn.Module):
 
         # Calculate distances between atom pairs
         displacements = displacements + (1 - batch_mask)[..., None]
-
         # Safe distance calculation with minimum cutoff
         squared_distances = jnp.sum(displacements**2, axis=1)
         distances = jnp.sqrt(jnp.maximum(squared_distances, min_dist**2))
@@ -396,11 +395,6 @@ class EF(nn.Module):
         switch_dist = e3x.nn.smooth_switch(distances, switch_start, switch_end)
         off_dist = 1.0 - e3x.nn.smooth_switch(distances, 8.0, 10.0)
         one_minus_switch_dist = 1 - switch_dist
-
-        # Get charges for interacting pairs with safe bounds
-        q1 = jnp.clip(jnp.take(atomic_charges, dst_idx, fill_value=0.0), -2.0, 2.0)
-        q2 = jnp.clip(jnp.take(atomic_charges, src_idx, fill_value=0.0), -2.0, 2.0)
-
         # Calculate interaction potential with improved stability
         # R1: Short-range regularized potential
         # R2: Long-range Coulomb potential with safe distance
@@ -409,6 +403,10 @@ class EF(nn.Module):
         r2 = one_minus_switch_dist / safe_distances
         r = r1 + r2
         eshift = safe_distances / (switch_end**2) - 2.0 / switch_end
+
+        # Get charges for interacting pairs with safe bounds
+        q1 = jnp.clip(jnp.take(atomic_charges, dst_idx, fill_value=0.0), -10.0, 10.0)
+        q2 = jnp.clip(jnp.take(atomic_charges, src_idx, fill_value=0.0), -10.0, 10.0)
         # Calculate electrostatic energy (in Hartree)
         # Conversion factor 7.199822675975274 is 1/(4π*ε₀) in atomic units
         electrostatics = 7.199822675975274 * q1 * q2 * r * batch_mask

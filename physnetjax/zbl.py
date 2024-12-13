@@ -117,6 +117,7 @@ class ZBLRepulsion(nn.Module):
         distances = jnp.maximum(jnp.linalg.norm(displacements, axis=-1), 1e-10)
         # Compute switch-off function
         switch_off = e3x.nn.smooth_switch(distances, 0.1, 10.0)
+
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values
         safe_atomic_numbers = atomic_numbers  # jnp.maximum(atomic_numbers, 1e-6)
@@ -141,16 +142,12 @@ class ZBLRepulsion(nn.Module):
             jnp.sum(coefficients[None, ...] * exp_terms, axis=1)
             * jnp.exp(max_log)[..., 0]
         )
-        # Ensure all inputs are positive and finite
-        safe_distances = distances  # jnp.maximum(distances, 1e-10)
-        safe_phi = phi  # jnp.maximum(phi, 1e-30)
-        safe_switch = switch_off  # jnp.maximum(switch_off, 1e-30)
         # First compute Z_i * Z_j
         charge_product = safe_atomic_numbers[idx_i] * safe_atomic_numbers[idx_j]
         # Compute base repulsion with distance
-        base_repulsion = charge_product / safe_distances
+        base_repulsion = charge_product / distances
         # Apply screening function and switch
-        repulsion = base_repulsion * safe_phi * safe_switch
+        repulsion = base_repulsion * phi * switch_off
         # Sum contributions for each atom using safe operations
         Erep = jax.ops.segment_sum(
             repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
