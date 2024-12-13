@@ -170,8 +170,9 @@ class EF(nn.Module):
         )(atomic_numbers)
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
-            x = self._refinement_iteration(x)
-            x = self._attention(x, basis, dst_idx, src_idx, num_heads=4)
+            x1 = self._refinement_iteration(x)
+            x = self._multiheadattention(x, x1, basis, dst_idx, src_idx, num_heads=4)
+            x = e3x.nn.silu(x)
 
         return x
 
@@ -181,6 +182,13 @@ class EF(nn.Module):
             num_heads=num_heads,
             include_pseudotensors=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
+
+    def _multiheadattention(self, x, y, basis, dst_idx, src_idx, num_heads=4):
+        return e3x.nn.modules.SelfAttention(
+            max_degree=self.max_degree,
+            num_heads=num_heads,
+            include_pseudotensors=False,
+        )(x, y, basis, dst_idx=dst_idx, src_idx=src_idx)
 
     def _message_passing_iteration(
         self,
