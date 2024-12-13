@@ -532,7 +532,7 @@ class EF(nn.Module):
                 jax.debug.print("Energy: {x}", x=energy)
             if "charges" in self.debug and charges is not None:
                 jax.debug.print("Charges shape: {x}", x=charges.shape)
-
+        print(output)
         return output
 
 
