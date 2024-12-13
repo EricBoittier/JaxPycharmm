@@ -204,7 +204,7 @@ class EF(nn.Module):
                 include_pseudotensors=False,
                 dense_kernel_init=jax.nn.initializers.he_normal(),
                 dense_bias_init=jax.nn.initializers.he_normal(),
-            )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=True)
+            )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
             return e3x.nn.change_max_degree_or_type(
                 x, max_degree=0, include_pseudotensors=False
             )
@@ -213,7 +213,7 @@ class EF(nn.Module):
             include_pseudotensors=False,
             dense_kernel_init=jax.nn.initializers.he_normal(),
             dense_bias_init=jax.nn.initializers.he_normal(),
-        )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=True)
+        )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
