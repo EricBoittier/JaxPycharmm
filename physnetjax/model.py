@@ -514,6 +514,7 @@ class EF(nn.Module):
             batch_mask,
             atom_mask,
         )
+        forces *= atom_mask[..., None]
         # Prepare output dictionary
         output = {
             "energy": energy,

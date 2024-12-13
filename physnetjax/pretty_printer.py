@@ -53,24 +53,24 @@ class Printer:
         self.epoch_lengths = []
 
     def update(
-            self,
-            epoch,
-            train_loss,
-            valid_loss,
-            best_loss,
-            train_energy_mae,
-            valid_energy_mae,
-            train_forces_mae,
-            valid_forces_mae,
-            doCharges,
-            train_dipoles_mae,
-            valid_dipoles_mae,
-            transform_state,
-            slr,
-            lr_eff,
-            epoch_length,
-            ckp,
-            save_time,
+        self,
+        epoch,
+        train_loss,
+        valid_loss,
+        best_loss,
+        train_energy_mae,
+        valid_energy_mae,
+        train_forces_mae,
+        valid_forces_mae,
+        doCharges,
+        train_dipoles_mae,
+        valid_dipoles_mae,
+        transform_state,
+        slr,
+        lr_eff,
+        epoch_length,
+        ckp,
+        save_time,
     ):
 
         self.epochs.append(epoch)
@@ -136,16 +136,21 @@ def print_dict_as_table(data, title="Dictionary"):
     table.add_row(*[str(value) for value in data.values()])
     return table
 
+
 def pretty_print_optimizer(optimizer, transform, schedule_fn, console):
     def format_function(func):
         if hasattr(func, "__name__"):
             return f"{str(func)} {func.__name__}"
         return str(func)
 
-    opt = {"init":  f"{format_function(optimizer.init)}",
-              "update": f"{format_function(optimizer.update)}"}
-    trans = {"init": f"{format_function(transform.init)}",
-                  "update": f"{format_function(transform.update)}"}
+    opt = {
+        "init": f"{format_function(optimizer.init)}",
+        "update": f"{format_function(optimizer.update)}",
+    }
+    trans = {
+        "init": f"{format_function(transform.init)}",
+        "update": f"{format_function(transform.update)}",
+    }
     sched = {"func": f"{format_function(schedule_fn)}"}
     table = print_dict_as_table(opt, title="Optimizer")
     table2 = print_dict_as_table(trans, title="Transform")
@@ -153,6 +158,7 @@ def pretty_print_optimizer(optimizer, transform, schedule_fn, console):
     console.print(table)
     console.print(table2)
     console.print(table3)
+
 
 def pretty_print(optimizer, transform, schedule_fn):
     def format_function(func):
@@ -175,24 +181,23 @@ def pretty_print(optimizer, transform, schedule_fn):
     print("\n".join([optimizer_details, transform_details, schedule_fn_details]))
 
 
-
 def epoch_printer(
-        table,
-        epoch,
-        train_loss,
-        valid_loss,
-        best_loss,
-        train_energy_mae,
-        valid_energy_mae,
-        train_forces_mae,
-        valid_forces_mae,
-        doCharges,
-        train_dipoles_mae,
-        valid_dipoles_mae,
-        transform_state,
-        slr,
-        lr_eff,
-        epoch_length,
+    table,
+    epoch,
+    train_loss,
+    valid_loss,
+    best_loss,
+    train_energy_mae,
+    valid_energy_mae,
+    train_forces_mae,
+    valid_forces_mae,
+    doCharges,
+    train_dipoles_mae,
+    valid_dipoles_mae,
+    transform_state,
+    slr,
+    lr_eff,
+    epoch_length,
 ):
     rows = [
         f"{epoch: 3d}",
@@ -213,23 +218,23 @@ def epoch_printer(
 
 
 def training_printer(
-        learning_rate,
-        energy_weight,
-        forces_weight,
-        dipole_weight,
-        charges_weight,
-        batch_size,
-        num_atoms,
-        restart,
-        conversion,
-        print_freq,
-        name,
-        best,
-        objective,
-        data_keys,
-        ckpt_dir,
-        train_data,
-        valid_data,
+    learning_rate,
+    energy_weight,
+    forces_weight,
+    dipole_weight,
+    charges_weight,
+    batch_size,
+    num_atoms,
+    restart,
+    conversion,
+    print_freq,
+    name,
+    best,
+    objective,
+    data_keys,
+    ckpt_dir,
+    train_data,
+    valid_data,
 ):
     # new code
     table = Table(title="PhysNetJax Training Params")

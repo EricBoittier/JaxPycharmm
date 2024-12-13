@@ -114,6 +114,3 @@ def _process_model_attributes(
         kwargs["natoms"] = natoms
 
     return kwargs
-
-
-

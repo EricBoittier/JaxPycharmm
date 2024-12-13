@@ -25,13 +25,14 @@ from physnetjax.optimizer import (
 )
 from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
+
 # from physnetjax.utils import get_last, get_params_model, pretty_print
 from physnetjax.pretty_printer import (
     init_table,
     epoch_printer,
     training_printer,
     Printer,
-    print_dict_as_table
+    print_dict_as_table,
 )
 from physnetjax.restart import restart_training, orbax_checkpointer
 
