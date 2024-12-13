@@ -163,6 +163,8 @@ class EF(nn.Module):
             dtype=DTYPE,
         )(atomic_numbers)
 
+        x = self._refinement_iteration(x)
+
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
@@ -348,7 +350,7 @@ class EF(nn.Module):
             (self.max_atomic_number + 1),
         )
         atomic_energies = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
+            1, use_bias=True, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
         )(x)
         atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
         atomic_energies *= atom_mask[..., None, None, None]
