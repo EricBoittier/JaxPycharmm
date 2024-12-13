@@ -32,6 +32,8 @@ from physnetjax.pretty_printer import (
     training_printer,
     Printer,
 )
+from physnetjax.restart import restart_training, orbax_checkpointer
+
 from physnetjax.utils import create_checkpoint_dir
 
 from rich.console import Console
@@ -143,7 +145,6 @@ def train_model(
     )
     # load from restart
     if restart:
-        from physnetjax.restart import restart_training
         (
             ema_params,
             model,
