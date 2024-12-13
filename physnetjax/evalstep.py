@@ -42,6 +42,7 @@ def eval_step(
             batch_mask=batch["batch_mask"],
             atom_mask=batch["atom_mask"],
         )
+        print(output)
         dipole = dipole_calc(
             batch["R"],
             batch["Z"],
