@@ -165,7 +165,7 @@ class EF(nn.Module):
 
         x = e3x.nn.modules.SelfAttention(
             max_degree=self.max_degree,
-            num_heads=self.features,
+            num_heads=2,
             include_pseudotensors=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
@@ -497,9 +497,6 @@ class EF(nn.Module):
             batch_mask,
             atom_mask,
         )
-        # Apply atom mask to forces
-        # forces = forces * atom_mask[..., None]
-
         # Prepare output dictionary
         output = {
             "energy": energy,
