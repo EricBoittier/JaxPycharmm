@@ -67,7 +67,7 @@ model = EF(
     natoms=NATOMS,
     total_charge=0,
     n_res=1,
-    zbl=True,
+    zbl=False,
 )
 
 # Train model
@@ -77,7 +77,7 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.0001,
+    learning_rate=0.001,
     energy_weight=1/NATOMS,
     # charges_weight=1,
     # forces_weight=100,
