@@ -47,7 +47,7 @@ def performance_comparison(original_func, optimized_func, data, batch_size=32):
         key,
         data,
         batch_size,
-        data_keys=data_keys,
+        data_keys=tuple(data_keys),
         num_atoms=data['R'].shape[1]
     )
     original_time = time.time() - start_time
@@ -58,7 +58,7 @@ def performance_comparison(original_func, optimized_func, data, batch_size=32):
         key,
         data,
         batch_size,
-        data_keys=data_keys,
+        data_keys=type(data_keys),
         num_atoms=data['R'].shape[1]
     )
     optimized_time = time.time() - start_time

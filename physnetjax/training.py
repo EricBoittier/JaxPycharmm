@@ -76,9 +76,10 @@ def train_model(
     objective="valid_forces_mae",
     ckpt_dir=BASE_CKPT_DIR,
     log_tb=True,
-    data_keys=["R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"],
+    data_keys=("R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"),
 ):
     """Train a model."""
+    data_keys = tuple(data_keys)
 
     print("Training Routine")
     startTime = time.time()
