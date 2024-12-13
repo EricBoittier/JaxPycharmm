@@ -122,7 +122,9 @@ class Printer:
         ckp_table.add_row(str(ckp), save_time)
 
         # Combine the table and panels into one layout
-        layout = Columns([table, Columns([valid_loss_panel, train_loss_panel, ckp_table])])
+        layout = Columns(
+            [table, Columns([valid_loss_panel, train_loss_panel, ckp_table])]
+        )
 
         return layout
 

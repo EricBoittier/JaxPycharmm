@@ -52,30 +52,30 @@ CONVERSION = {
 
 
 def train_model(
-        key,
-        model,
-        train_data,
-        valid_data,
-        num_epochs=1,
-        learning_rate=0.001,
-        energy_weight=1.0,
-        forces_weight=52.91772105638412,
-        dipole_weight=27.211386024367243,
-        charges_weight=14.399645351950548,
-        batch_size=1,
-        num_atoms=60,
-        restart=False,
-        conversion=CONVERSION,
-        print_freq=1,
-        name="test",
-        best=False,
-        optimizer=None,
-        transform=None,
-        schedule_fn=None,
-        objective="valid_forces_mae",
-        ckpt_dir=BASE_CKPT_DIR,
-        log_tb=True,
-        data_keys=("R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"),
+    key,
+    model,
+    train_data,
+    valid_data,
+    num_epochs=1,
+    learning_rate=0.001,
+    energy_weight=1.0,
+    forces_weight=52.91772105638412,
+    dipole_weight=27.211386024367243,
+    charges_weight=14.399645351950548,
+    batch_size=1,
+    num_atoms=60,
+    restart=False,
+    conversion=CONVERSION,
+    print_freq=1,
+    name="test",
+    best=False,
+    optimizer=None,
+    transform=None,
+    schedule_fn=None,
+    objective="valid_forces_mae",
+    ckpt_dir=BASE_CKPT_DIR,
+    log_tb=True,
+    data_keys=("R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"),
 ):
     """Train a model."""
     data_keys = tuple(data_keys)
@@ -324,7 +324,7 @@ def train_model(
                     lr_eff,
                     epoch_length,
                     ckp,
-                    save_time
+                    save_time,
                 )
                 live.update(combined, refresh=True)
 

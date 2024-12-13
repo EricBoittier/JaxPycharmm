@@ -25,7 +25,7 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
     print("Restored keys:", restored.keys())
     state = restored["model"]
     # print(state)
-    params = _ #restored["params"]
+    params = _  # restored["params"]
     ema_params = restored["ema_params"]
     # opt_state = restored["opt_state"]
     # print("Opt state", opt_state)
