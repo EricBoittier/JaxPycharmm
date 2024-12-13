@@ -264,7 +264,7 @@ class EF(nn.Module):
                 atomic_numbers,
                 r,
                 off_dist,
-                eshift,
+                1 - eshift,
                 dst_idx,
                 src_idx,
                 atom_mask,
