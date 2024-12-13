@@ -148,7 +148,7 @@ class ZBLRepulsion(nn.Module):
         # First compute Z_i * Z_j
         charge_product = safe_atomic_numbers[idx_i] * safe_atomic_numbers[idx_j]
         # Compute base repulsion with distance
-        base_repulsion = 0.5 * charge_product / safe_distances
+        base_repulsion = charge_product / safe_distances
         # Apply screening function and switch
         repulsion = base_repulsion * safe_phi * safe_switch
         # Sum contributions for each atom using safe operations
