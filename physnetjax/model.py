@@ -442,7 +442,7 @@ class EF(nn.Module):
             segment_ids=dst_idx,
             num_segments=batch_size * self.natoms,
         )
-        atomic_electrostatics *= atom_mask
+        # atomic_electrostatics *= atom_mask
         batch_electrostatics = jax.ops.segment_sum(
             atomic_electrostatics,
             segment_ids=batch_segments,
