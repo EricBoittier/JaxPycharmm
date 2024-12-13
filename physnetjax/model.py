@@ -220,7 +220,7 @@ class EF(nn.Module):
             # bias_init=jax.nn.initializers.he_normal(),
         )(y)
         y = e3x.nn.silu(y)
-        return y
+        return e3x.nn.add(x, y)
 
     def _calculate_with_charges(
         self,
@@ -295,14 +295,16 @@ class EF(nn.Module):
         self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
     ) -> jnp.ndarray:
         """Calculate atomic charges from atomic features."""
+        x1 = self._refinement_iteration(x)
+        x = e3x.nn.add(x, x1)
         x = e3x.nn.Dense(1, use_bias=False)(x)
         charge_bias = self.param(
             "charge_bias",
-            lambda rng, shape: jnp.zeros(shape) + jnp.sqrt(3),
+            lambda rng, shape: jnp.zeros(shape),
             (self.max_atomic_number + 1),
         )
         atomic_charges = nn.Dense(
-            1, use_bias=True, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
+            1, use_bias=True, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
         )(x)
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
