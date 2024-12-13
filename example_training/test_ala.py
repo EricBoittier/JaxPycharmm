@@ -58,7 +58,7 @@ model = EF(
     natoms=NATOMS,
     total_charge=0,
     n_res=3,
-    debug=["ele", "energy", "charges"],
+    debug=["idx", "ele", "energy", "charges"],
 )
 
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
