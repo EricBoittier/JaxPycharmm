@@ -522,7 +522,7 @@ class EF(nn.Module):
             "charges": charges,
             "electrostatics": electrostatics,
         }
-        print("output", output)
+        # print("output", output)
         # Debug output values
         if isinstance(self.debug, list):
             if "forces" in self.debug:

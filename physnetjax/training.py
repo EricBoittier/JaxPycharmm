@@ -184,7 +184,8 @@ def train_model(
     table = print_dict_as_table(model_attributes, title="Model Attributes")
     console.print(table)
 
-    with Live(auto_refresh=False) as live:
+    # with Live(auto_refresh=False) as live:
+    with True:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
@@ -341,7 +342,7 @@ def train_model(
                     ckp,
                     save_time,
                 )
-                live.update(combined, refresh=True)
+                # live.update(combined, refresh=True)
 
     # Return final model parameters.
     return ema_params
