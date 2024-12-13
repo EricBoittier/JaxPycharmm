@@ -179,7 +179,7 @@ def train_model(
         runInDebug = False
 
     trainTime1 = time.time()
-    epoch_printer = Printer()
+    # epoch_printer = Printer()
     ckp = None
     save_time = None
 
@@ -327,26 +327,27 @@ def train_model(
                 best_ = True
 
             if best_ or (epoch % print_freq == 0):
-                combined = epoch_printer.update(
-                    epoch,
-                    train_loss,
-                    valid_loss,
-                    best_loss,
-                    train_energy_mae,
-                    valid_energy_mae,
-                    train_forces_mae,
-                    valid_forces_mae,
-                    doCharges,
-                    train_dipoles_mae,
-                    valid_dipoles_mae,
-                    scale,
-                    slr,
-                    lr_eff,
-                    epoch_length,
-                    ckp,
-                    save_time,
-                )
+                # combined = epoch_printer.update(
+                #     epoch,
+                #     train_loss,
+                #     valid_loss,
+                #     best_loss,
+                #     train_energy_mae,
+                #     valid_energy_mae,
+                #     train_forces_mae,
+                #     valid_forces_mae,
+                #     doCharges,
+                #     train_dipoles_mae,
+                #     valid_dipoles_mae,
+                #     scale,
+                #     slr,
+                #     lr_eff,
+                #     epoch_length,
+                #     ckp,
+                #     save_time,
+                # )
                 # live.update(combined, refresh=True)
+                pass
 
     # Return final model parameters.
     return ema_params
