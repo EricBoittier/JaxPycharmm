@@ -297,8 +297,8 @@ def train_model(
                 }
                 save_args = orbax_utils.save_args_from_target(ckpt)
                 save_time = time.time()
-                print("Saving checkpoint at", save_time)
-                print(CKPT_DIR / f"epoch-{epoch}")
+                # print("Saving checkpoint at", save_time)
+                ckp = CKPT_DIR / f"epoch-{epoch}"
                 orbax_checkpointer.save(
                     CKPT_DIR / f"epoch-{epoch}", ckpt, save_args=save_args
                 )
@@ -323,6 +323,8 @@ def train_model(
                     slr,
                     lr_eff,
                     epoch_length,
+                    ckp,
+                    save_time
                 )
                 live.update(combined, refresh=True)
 

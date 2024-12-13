@@ -108,7 +108,15 @@ class Printer:
                     self.lr_effs[-i],
                     self.epoch_lengths[-i],
                 )
-        return table
+
+        # Prepare charts (for example, plot valid_loss over epochs)
+        valid_loss_panel = get_panel(self.valid_losses, "Valid Loss")
+        train_loss_panel = get_panel(self.train_losses, "Train Loss")
+
+        # Combine the table and panels into one layout
+        layout = Columns([table, Columns([valid_loss_panel, train_loss_panel])])
+
+        return layout
 
 
 def epoch_printer(
