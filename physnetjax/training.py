@@ -26,7 +26,7 @@ from physnetjax.optimizer import (
 from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 
-from physnetjax.utils import get_last, get_params_model, pretty_print
+from physnetjax.utils import get_last, get_params_model
 from physnetjax.pretty_printer import (
     init_table,
     epoch_printer,
@@ -96,7 +96,7 @@ def train_model(
         optimizer=optimizer,
         transform=transform,
     )
-    pretty_print(optimizer, transform, schedule_fn)
+    # pretty_print(optimizer, transform, schedule_fn)
     console = Console(width=200, color_system="auto")
     pretty_print_optimizer(optimizer, transform, schedule_fn, console)
     table, table2 = training_printer(
