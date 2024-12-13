@@ -19,6 +19,7 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
     _, _model = get_params_model(restart, num_atoms)
     if _model is not None:
         model = _model
+
     restored = orbax_checkpointer.restore(restart)
     print("Restoring from", restart)
     print("Restored keys:", restored.keys())
@@ -26,22 +27,21 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
     # print(state)
     params = restored["params"]
     ema_params = restored["ema_params"]
-    opt_state = restored["opt_state"]
+    # opt_state = restored["opt_state"]
     # print("Opt state", opt_state)
     transform_state = transform.init(params)
     # Validate and reinitialize states if necessary
-    opt_state_initial = optimizer.init(params)
+    opt_state = optimizer.init(params)
     # update mu
-    o_a, o_b = opt_state_initial
-    from optax import ScaleByAmsgradState
-    _ = ScaleByAmsgradState(
-        mu=opt_state[1][0]["mu"],
-        nu=opt_state[1][0]["nu"],
-        nu_max=opt_state[1][0]["nu_max"],
-        count=opt_state[1][0]["count"],
-    )
-    # opt_state = (o_a, (_, o_b[1]))
-    opt_state = opt_state_initial
+    # o_a, o_b = opt_state
+    # from optax import ScaleByAmsgradState
+    # _ = ScaleByAmsgradState(
+    #     mu=opt_state[1][0]["mu"],
+    #     nu=opt_state[1][0]["nu"],
+    #     nu_max=opt_state[1][0]["nu_max"],
+    #     count=opt_state[1][0]["count"],
+    # )
+    # # opt_state = (o_a, (_, o_b[1]))
     # Set training variables
     step = restored["epoch"] + 1
     best_loss = restored["best_loss"]
