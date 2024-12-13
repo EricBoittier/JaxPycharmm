@@ -49,3 +49,5 @@ C
 physnetjax/model.py,3/6/36b98cf165e2e3edb640ae6d1a1ed3921f12aa93
 V
 &example_training/test_cf3_fullbatch.py,6/c/6cb9998d350b99559c6db67ffc31cbcfd63c998c
+J
+physnetjax/test_batches.py,4/9/4968078f2a13fb2bff1d2666caf9766a685630ca
