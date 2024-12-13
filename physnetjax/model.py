@@ -170,7 +170,7 @@ class EF(nn.Module):
         )(atomic_numbers)
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
-            x = self._attention(x, basis, dst_idx, src_idx)
+            # x = self._attention(x, basis, dst_idx, src_idx)
             x = self._refinement_iteration(x)
         return x
 
@@ -226,7 +226,7 @@ class EF(nn.Module):
             self.features,
         )(y)
         y = e3x.nn.silu(y)
-        return e3x.nn.add(x, y)
+        return y
 
     def _calculate_with_charges(
         self,
