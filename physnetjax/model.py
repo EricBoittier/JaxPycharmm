@@ -173,7 +173,7 @@ class EF(nn.Module):
             x = self._refinement_iteration(x)
         return x
 
-    def _attention(self, x, basis, dst_idx, src_idx, num_heads=self.features // 8):
+    def _attention(self, x, basis, dst_idx, src_idx, num_heads=4):
         return e3x.nn.modules.SelfAttention(
             max_degree=self.max_degree,
             num_heads=num_heads,
