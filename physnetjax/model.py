@@ -167,6 +167,9 @@ class EF(nn.Module):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
 
+        x = e3x.nn.modules.SelfAttention(max_degree=self.max_degree, num_heads=self.features,include_pseudotensors=False
+                              )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
+
         return x
 
     def _message_passing_iteration(
@@ -233,6 +236,7 @@ class EF(nn.Module):
         batch_size: int,
     ) -> tuple[Array, tuple[Array, Array, Any]]:
         """Calculate energies including charge interactions."""
+
         atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
         electrostatics, batch_electrostatics = self._calculate_electrostatics(
             atomic_charges,
