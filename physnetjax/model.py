@@ -171,21 +171,21 @@ class EF(nn.Module):
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x1 = self._refinement_iteration(x)
-            x2 = self._refinement_iteration(x1)
+            x2 = self._refinement_iteration(x)
             x = self._multiheadattention(x2, x1, basis, dst_idx, src_idx)
             x = e3x.nn.silu(x)
 
         return x
 
-    def _attention(self, x, basis, dst_idx, src_idx, num_heads=4):
+    def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
         return e3x.nn.modules.SelfAttention(
             max_degree=self.max_degree,
             num_heads=num_heads,
             include_pseudotensors=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
-    def _multiheadattention(self, x, y, basis, dst_idx, src_idx, num_heads=4):
-        return e3x.nn.modules.SelfAttention(
+    def _multiheadattention(self, x, y, basis, dst_idx, src_idx, num_heads=2):
+        return e3x.nn.modules.MultiHeadAttention(
             max_degree=self.max_degree,
             num_heads=num_heads,
             include_pseudotensors=False,
