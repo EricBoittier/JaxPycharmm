@@ -119,7 +119,7 @@ class Printer:
         ckp_table = Table(title="Last Checkpoint")
         ckp_table.add_column("Checkpoint", style="cyan", no_wrap=True)
         ckp_table.add_column("Save Time", style="green")
-        ckp_table.add_row(ckp, save_time)
+        ckp_table.add_row(str(ckp), save_time)
 
         # Combine the table and panels into one layout
         layout = Columns([table, Columns([valid_loss_panel, train_loss_panel, ckp_table])])
@@ -213,14 +213,14 @@ def training_printer(
         f"{num_atoms}",
     )
     table2.add_row(
-        f"{restart}",
+        f"{str(restart)}",
         f"{conversion}",
         f"{print_freq}",
         f"{name}",
         f"{best}",
         f"{objective}",
         f"{data_keys}",
-        f"{ckpt_dir}",
+        f"{str(ckpt_dir)}",
         f"{objective}",
         f"Saving a restart file each time the {objective} improves.",
     )
