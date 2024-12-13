@@ -28,7 +28,7 @@ base_transform = optax.contrib.reduce_on_plateau(
 
 
 def get_optimizer(
-    learning_rate: float = 0.01,
+    learning_rate: float = 0.001,
     schedule_fn: optax.Schedule | str | None = None,
     optimizer: optax.GradientTransformation | str | None = None,
     transform: optax.GradientTransformation | str | None = None,
