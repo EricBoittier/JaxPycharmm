@@ -116,7 +116,7 @@ class EF(nn.Module):
 
         # Embed and process atomic features
         x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx)
-
+        print(x)
         if self.charges:
             return self._calculate_with_charges(
                 x,
@@ -144,7 +144,7 @@ class EF(nn.Module):
         positions_dst = e3x.ops.gather_dst(positions, dst_idx=dst_idx)
         positions_src = e3x.ops.gather_src(positions, src_idx=src_idx)
         displacements = positions_src - positions_dst
-
+        print(displacements)
         return (
             e3x.nn.basis(
                 displacements,
