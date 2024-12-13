@@ -171,4 +171,4 @@ class ZBLRepulsion(nn.Module):
             jax.debug.print("atom {x} {y}", x=atomic_numbers, y=atomic_numbers.shape)
             jax.debug.print("rep {x} {y}", x=repulsion, y=repulsion.shape)
 
-        return Erep[..., None, None, None]
+        return erep[..., None, None, None]

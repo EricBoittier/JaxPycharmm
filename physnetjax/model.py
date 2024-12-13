@@ -20,7 +20,6 @@ from physnetjax.zbl import ZBLRepulsion
 
 # Constants
 DTYPE = jnp.float32
-# DTYPE = jnp.bfloat16
 HARTREE_TO_KCAL_MOL = 627.509  # Conversion factor for energy units
 
 
@@ -517,20 +516,24 @@ class EF(nn.Module):
         # Debug output values
         if isinstance(self.debug, list):
             if "forces" in self.debug:
-                for k in output.keys():
-                    if output[k] is not None:
-                        hasnans = jnp.isnan(output[k]).any()
-                        hasninf = ~jnp.isfinite(output[k]).any()
-                        jax.debug.print(
-                            "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
-                            k=k,
-                            nans=hasnans,
-                            ninf=hasninf,
-                        )
-                jax.debug.print("Forces shape: {x}", x=forces.shape)
+                debug_forces(output, forces)
             if "energy" in self.debug:
                 jax.debug.print("Energy: {x}", x=energy)
             if "charges" in self.debug and charges is not None:
                 jax.debug.print("Charges shape: {x}", x=charges.shape)
 
         return output
+
+
+def debug_forces(output, forces):
+    for k in output.keys():
+        if output[k] is not None:
+            hasnans = jnp.isnan(output[k]).any()
+            hasninf = ~jnp.isfinite(output[k]).any()
+            jax.debug.print(
+                "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
+                k=k,
+                nans=hasnans,
+                ninf=hasninf,
+            )
+    jax.debug.print("Forces shape: {x}", x=forces.shape)
