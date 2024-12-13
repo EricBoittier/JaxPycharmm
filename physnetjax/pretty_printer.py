@@ -146,7 +146,7 @@ def pretty_print_optimizer(optimizer, transform, schedule_fn):
               "update": f"{format_function(optimizer.update)}"}
     transform = {"init": f"{format_function(transform.init)}",
                   "update": f"{format_function(transform.update)}"}
-    schedule_fn = f"{format_function(schedule_fn)}"
+    schedule_fn = {"func": f"{format_function(schedule_fn)}"}
     return opt, transform, schedule_fn
 
 def pretty_print(optimizer, transform, schedule_fn):
