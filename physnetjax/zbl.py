@@ -121,25 +121,25 @@ class ZBLRepulsion(nn.Module):
 
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values
-        safe_atomic_numbers = jnp.maximum(atomic_numbers, 1e-6)
+        safe_atomic_numbers = atomic_numbers #jnp.maximum(atomic_numbers, 1e-6)
 
         # Use safe power operation
         za = jnp.exp(jnp.log(safe_atomic_numbers) * jnp.abs(self.a_exponent))
 
         # Ensure za values are finite
-        za = jnp.nan_to_num(za, nan=1e-6, posinf=1e6, neginf=1e-6)
+        # za = jnp.nan_to_num(za, nan=1e-6, posinf=1e6, neginf=1e-6)
 
         # Compute denominator with better numerical stability
         za_sum = za[idx_i] + za[idx_j]
-        denominator = jnp.maximum(za_sum, 1e-6)
+        # denominator = jnp.maximum(za_sum, 1e-6)
 
         # Compute screening length
-        a_ij = jnp.abs(self.a_coefficient) / denominator
-        a_ij = jnp.nan_to_num(a_ij, nan=1e-6, posinf=1e6, neginf=1e-6)
+        a_ij = jnp.abs(self.a_coefficient) / za_sum
+        # a_ij = jnp.nan_to_num(a_ij, nan=1e-6, posinf=1e6, neginf=1e-6)
 
         # Compute screening function phi with numerical stability
         arguments = jnp.maximum(distances, 1e-10) / jnp.maximum(a_ij, 1e-10)
-        arguments = jnp.nan_to_num(arguments, nan=1e-6, posinf=1e6, neginf=1e-6)
+        # arguments = jnp.nan_to_num(arguments, nan=1e-6, posinf=1e6, neginf=1e-6)
 
         # Normalize coefficients directly instead of using softmax
         raw_coefficients = jnp.abs(self.phi_coefficients)
@@ -147,15 +147,15 @@ class ZBLRepulsion(nn.Module):
         coefficients = raw_coefficients / jnp.maximum(coeff_sum, 1e-10)
 
         # Ensure exponents are positive and finite
-        exponents = jnp.maximum(jnp.abs(self.phi_exponents), 1e-10)
+        # exponents = jnp.maximum(jnp.abs(self.phi_exponents), 1e-10)
 
         # Compute phi using log-sum-exp trick for numerical stability
-        log_terms = -exponents[None, ...] * arguments[..., None]
+        log_terms = -self.phi_exponents[None, ...] * arguments[..., None]
         max_log = jnp.max(log_terms, axis=1, keepdims=True)
         exp_terms = jnp.exp(log_terms - max_log)
 
         # Clean up any numerical artifacts
-        exp_terms = jnp.nan_to_num(exp_terms, nan=0.0, posinf=1.0, neginf=0.0)
+        # exp_terms = jnp.nan_to_num(exp_terms, nan=0.0, posinf=1.0, neginf=0.0)
 
         # Compute phi with coefficient weighting
         phi = (
@@ -164,7 +164,7 @@ class ZBLRepulsion(nn.Module):
         )
 
         # Ensure phi is positive and finite
-        phi = jnp.maximum(phi, 1e-30)
+        # phi = phi #jnp.maximum(phi, 1e-30)
         # phi = jnp.nan_to_num(phi, nan=1e-30, posinf=1e6, neginf=1e-30)
 
         # Compute nuclear repulsion potential with numerical stability
