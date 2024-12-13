@@ -296,7 +296,7 @@ class EF(nn.Module):
         x = e3x.nn.Dense(1, use_bias=False)(x)
         charge_bias = self.param(
             "charge_bias",
-            lambda rng, shape: jnp.random.normal(self.make_rng('params'), shape),
+            lambda rng, shape: jax.random.normal(self.make_rng('params'), shape),
             (self.max_atomic_number + 1),
         )
         atomic_charges = nn.Dense(
