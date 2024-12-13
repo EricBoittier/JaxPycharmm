@@ -297,6 +297,7 @@ def train_model(
                 }
                 save_args = orbax_utils.save_args_from_target(ckpt)
                 save_time = time.time()
+                save_time = time.strftime("%H:%M:%S", time.gmtime(save_time))
                 # print("Saving checkpoint at", save_time)
                 ckp = CKPT_DIR / f"epoch-{epoch}"
                 orbax_checkpointer.save(
