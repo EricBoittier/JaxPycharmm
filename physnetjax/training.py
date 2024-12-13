@@ -97,8 +97,8 @@ def train_model(
         transform=transform,
     )
     # pretty_print(optimizer, transform, schedule_fn)
-    console = Console(width=200, color_system="auto")
-    pretty_print_optimizer(optimizer, transform, schedule_fn, console)
+    # console = Console(width=200, color_system="auto")
+    # pretty_print_optimizer(optimizer, transform, schedule_fn, console)
     table, table2 = training_printer(
         learning_rate,
         energy_weight,
@@ -118,8 +118,8 @@ def train_model(
         train_data,
         valid_data,
     )
-    console.print(table)
-    console.print(table2)
+    # console.print(table)
+    # console.print(table2)
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
@@ -182,7 +182,7 @@ def train_model(
 
     model_attributes = model.return_attributes()
     table = print_dict_as_table(model_attributes, title="Model Attributes")
-    console.print(table)
+    # console.print(table)
 
     # with Live(auto_refresh=False) as live:
     if True:
