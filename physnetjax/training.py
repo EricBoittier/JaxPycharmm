@@ -163,9 +163,9 @@ def train_model(
         step = 1
         opt_state = optimizer.init(params)
         transform_state = transform.init(params)
-    state = train_state.TrainState.create(
-        apply_fn=model.apply, params=params, tx=optimizer
-    )
+        state = train_state.TrainState.create(
+            apply_fn=model.apply, params=params, tx=optimizer
+        )
 
     if best_loss is None:
         best_loss = best
@@ -183,7 +183,7 @@ def train_model(
     model_attributes = model.return_attributes()
     table = print_dict_as_table(model_attributes, title="Model Attributes")
     console.print(table)
-    jax.debug.print("Model Attributes {x}", x=model_attributes)
+
     with Live(auto_refresh=False) as live:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
