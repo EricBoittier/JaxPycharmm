@@ -63,11 +63,11 @@ model = EF(
     num_basis_functions=20,
     cutoff=6.0,
     max_atomic_number=11,
-    charges=True,
+    charges=False,
     natoms=NATOMS,
     total_charge=0,
     n_res=1,
-    zbl=True,
+    zbl=False,
 )
 
 # Train model
