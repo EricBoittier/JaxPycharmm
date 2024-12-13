@@ -341,14 +341,13 @@ class EF(nn.Module):
     ) -> jnp.ndarray:
         """Calculate atomic energies from atomic features."""
         x = e3x.nn.Dense(1, use_bias=False)(x)
-        x = e3x.nn.silu(x)
         energy_bias = self.param(
             "energy_bias",
             lambda rng, shape: jnp.zeros(shape),
             (self.max_atomic_number + 1),
         )
         atomic_energies = nn.Dense(
-            1, use_bias=True, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
+            1, use_bias=False, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
         )(x)
         atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
         atomic_energies *= atom_mask[..., None, None, None]
