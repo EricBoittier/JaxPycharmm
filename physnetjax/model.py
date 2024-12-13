@@ -346,7 +346,7 @@ class EF(nn.Module):
             (self.max_atomic_number + 1),
         )
         atomic_energies = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.he_normal, dtype=DTYPE
+            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
         )(x)
         atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
         atomic_energies *= atom_mask[..., None, None, None]
