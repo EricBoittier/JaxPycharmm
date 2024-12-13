@@ -143,7 +143,7 @@ class EF(nn.Module):
                 displacements,
                 num=self.num_basis_functions,
                 max_degree=self.max_degree,
-                radial_fn=e3x.nn.reciprocal_bernstein,
+                radial_fn=e3x.nn.exponential_chebyshev,
                 cutoff_fn=functools.partial(e3x.nn.smooth_cutoff, cutoff=self.cutoff),
             ),
             displacements,
