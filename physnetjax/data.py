@@ -567,7 +567,7 @@ import jax.numpy as jnp
 from typing import Dict, List, Optional
 
 
-def prepare_batches_old(
+def prepare_batches_jit(
     key,
     data: Dict[str, jnp.ndarray],
     batch_size: int,
