@@ -140,6 +140,7 @@ def train_model(
         dst_idx=dst_idx,
         src_idx=src_idx,
     )
+    best_loss = None
     # load from restart
     if restart:
         (
@@ -164,8 +165,9 @@ def train_model(
         apply_fn=model.apply, params=params, tx=optimizer
     )
 
-    if best:
+    if best_loss is None:
         best_loss = best
+
 
     runInDebug = True if model.debug else False
     trainTime1 = time.time()
