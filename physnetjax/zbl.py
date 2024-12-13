@@ -122,6 +122,7 @@ class ZBLRepulsion(nn.Module):
         za = jnp.exp(jnp.log(safe_atomic_numbers) * jnp.abs(self.a_exponent))
         # Compute denominator with better numerical stability
         za_sum = za[idx_i] + za[idx_j]
+        za_sum = jnp.maximum(za_sum, 1e-10) * batch_mask
         # Compute screening length
         a_ij = jnp.abs(self.a_coefficient) / za_sum
         # Compute screening function phi with numerical stability
