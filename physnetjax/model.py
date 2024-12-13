@@ -171,6 +171,8 @@ class EF(nn.Module):
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
+            x = self._attention(x, basis, dst_idx, src_idx, num_heads=4)
+
         return x
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=4):
@@ -218,7 +220,7 @@ class EF(nn.Module):
             self.features,
         )(y)
         y = e3x.nn.silu(y)
-        return y
+        return e3x.nn.add(x, y)
 
     def _calculate_with_charges(
         self,
