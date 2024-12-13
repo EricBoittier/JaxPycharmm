@@ -272,7 +272,7 @@ class EF(nn.Module):
                 batch_segments,
                 batch_size,
             )
-            repulsion *= batch_mask
+            repulsion *= batch_mask[..., None]
             if isinstance(self.debug, list) and "repulsion" in self.debug:
                 jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
                 jax.debug.print("Repulsion: {x}", x=repulsion)
