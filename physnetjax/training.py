@@ -282,6 +282,9 @@ def train_model(
                 write_tb_log(writer, obj_res, epoch)  # Call your logging function here
 
             best_ = False
+            ckp = None
+            save_time = None
+
             if obj_res[objective] < best_loss:
                 model_attributes = model.return_attributes()
                 # checkpoints.save_checkpoint(ckpt_dir=CKPT_DIR, target=state, step=epoch)
