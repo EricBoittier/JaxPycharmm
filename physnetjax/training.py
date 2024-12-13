@@ -185,7 +185,7 @@ def train_model(
     console.print(table)
 
     # with Live(auto_refresh=False) as live:
-    with True:
+    if True:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
