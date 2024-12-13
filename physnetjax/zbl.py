@@ -117,7 +117,7 @@ class ZBLRepulsion(nn.Module):
 
         # Compute atomic number dependent screening length with safe operations
         # Clip atomic numbers to prevent zero or negative values
-        safe_atomic_numbers = atomic_numbers  # jnp.maximum(atomic_numbers, 1e-6)
+        safe_atomic_numbers = jnp.maximum(atomic_numbers, 1e-6)
         # Use safe power operation
         za = jnp.exp(jnp.log(safe_atomic_numbers) * jnp.abs(self.a_exponent))
         # Compute denominator with better numerical stability
