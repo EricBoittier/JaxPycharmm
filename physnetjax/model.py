@@ -191,7 +191,7 @@ class EF(nn.Module):
         for _ in range(self.n_res):
             y = e3x.nn.silu(x)
             y = e3x.nn.Dense(self.features)(y)
-            y = e3x.nn.relu(y)
+            y = e3x.nn.silu(y)
             y = e3x.nn.Dense(self.features)(y)
             x = e3x.nn.add(x, y)
 
@@ -281,11 +281,8 @@ class EF(nn.Module):
         atomic_charges = nn.Dense(
             1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
         )(x)
-        # Use softer bounds on charges (-2 to +2) with smooth clamping
-        atomic_charges = jnp.tanh(atomic_charges) * 2.0
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
-
         return atomic_charges
 
     def _calculate_repulsion(
@@ -323,6 +320,7 @@ class EF(nn.Module):
     ) -> jnp.ndarray:
         """Calculate atomic energies from atomic features."""
         x = e3x.nn.Dense(1, use_bias=False)(x)
+        x = e3x.nn.silu(x)
         energy_bias = self.param(
             "energy_bias",
             lambda rng, shape: jnp.zeros(shape),
@@ -413,7 +411,6 @@ class EF(nn.Module):
             segment_ids=batch_segments,
             num_segments=batch_size,
         )
-        # atomic_electrostatics = e3x.nn.smooth_damping(atomic_electrostatics)
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
         if isinstance(self.debug, list) and "ele" in self.debug:
             jax.debug.print(f"{x}", x=atomic_electrostatics)
@@ -483,7 +480,6 @@ class EF(nn.Module):
             batch_mask,
             atom_mask,
         )
-
         # Apply atom mask to forces
         forces = forces * atom_mask[..., None]
 
