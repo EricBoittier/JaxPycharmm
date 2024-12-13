@@ -57,17 +57,17 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 # Initialize model
 model = EF(
-    features=12,
+    features=128,
     max_degree=2,
-    num_iterations=4,
+    num_iterations=3,
     num_basis_functions=20,
-    cutoff=10.0,
+    cutoff=6.0,
     max_atomic_number=11,
     charges=True,
     natoms=NATOMS,
     total_charge=0,
     n_res=1,
-    debug=["repulsion"],
+    zbl=True,
 )
 
 # Train model
@@ -76,13 +76,18 @@ params = train_model(
     model,
     train_data,
     valid_data,
-    num_epochs=20000,
-    learning_rate=0.05,
-    forces_weight=100,
-    batch_size=BATCH_SIZE,
+    num_epochs=int(1e6),
+    learning_rate=0.001,
+    energy_weight=NATOMS,
+    # charges_weight=1,
+    # forces_weight=100,
+    schedule_fn="constant",
+    optimizer="amsgrad",
+    batch_size=64,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
+    # restart=restart,
     print_freq=1,
-    restart=restart,
-    best=100000,
+    objective="valid_loss",
+    best=1e6,
 )
