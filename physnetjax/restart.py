@@ -3,12 +3,11 @@ from typing import Tuple
 from physnetjax.utils import get_last, get_params_model
 
 import orbax
-from orbax import optimizer, transform
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 
-def restart_training(restart: str, num_atoms: int):
+def restart_training(restart: str, transform, optimizer, num_atoms: int):
     """
     Restart training from a previous checkpoint.
 
@@ -33,6 +32,7 @@ def restart_training(restart: str, num_atoms: int):
     # update mu
     o_a, o_b = opt_state_initial
     from optax import ScaleByAmsgradState
+
     _ = ScaleByAmsgradState(
         mu=opt_state[1][0]["mu"],
         nu=opt_state[1][0]["nu"],

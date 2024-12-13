@@ -154,7 +154,7 @@ def train_model(
             step,
             best_loss,
             CKPT_DIR,
-        ) = restart_training(restart, num_atoms)
+        ) = restart_training(restart, transform, optimizer, num_atoms)
 
     # initialize
     else:
