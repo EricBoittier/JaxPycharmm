@@ -149,23 +149,21 @@ class ZBLRepulsion(nn.Module):
         # Apply switch-off function
         repulsion *= switch_off
 
-
         # Sum contributions for each atom using safe operations
-        Erep = jax.ops.segment_sum(
+        erep = jax.ops.segment_sum(
             repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
         )
         # Apply atom mask and final safety checks
-        Erep = jnp.multiply(Erep, atom_mask)
+        erep = jnp.multiply(erep, atom_mask)
 
         if self.debug:  # print everything for temporary debugging
             jax.debug.print("za_sum {x} {y}", x=za_sum, y=za_sum.shape)
-            jax.debug.print("erep {x} {y}", x=Erep, y=Erep.shape)
+            jax.debug.print("erep {x} {y}", x=erep, y=erep.shape)
             jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
             jax.debug.print("switch {x} {y}", x=switch_off, y=switch_off.shape)
             jax.debug.print("phi {x} {y}", x=phi, y=phi.shape)
             jax.debug.print("rep {x} {y}", x=repulsion, y=repulsion.shape)
             jax.debug.print("a {x} {y}", x=a_ij, y=a_ij.shape)
-            # jax.debug.print("denom {x} {y}", x=denominator, y=denominator.shape)
             jax.debug.print("za {x} {y}", x=za, y=za.shape)
             jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
             jax.debug.print("idxi {x} {y}", x=idx_i, y=idx_i.shape)
