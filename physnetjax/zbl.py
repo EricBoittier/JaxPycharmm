@@ -212,7 +212,7 @@ class ZBLRepulsion(nn.Module):
             jax.debug.print("phi {x} {y}", x=phi, y=phi.shape)
             jax.debug.print("rep {x} {y}", x=repulsion, y=repulsion.shape)
             jax.debug.print("a {x} {y}", x=a_ij, y=a_ij.shape)
-            jax.debug.print("denom {x} {y}", x=denominator, y=denominator.shape)
+            # jax.debug.print("denom {x} {y}", x=denominator, y=denominator.shape)
             jax.debug.print("za {x} {y}", x=za, y=za.shape)
             jax.debug.print("dist {x} {y}", x=distances, y=distances.shape)
             jax.debug.print("idxi {x} {y}", x=idx_i, y=idx_i.shape)
