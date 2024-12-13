@@ -58,7 +58,7 @@ def train_step(
     params,
     ema_params,
     debug=False,
-    ema_decay = 0.99,
+    ema_decay=0.99,
 ):
     if doCharges:
 

@@ -100,7 +100,8 @@ def _process_model_attributes(
     bool_fields = ["charges", "zbl"]
 
     import re
-    non_decimal = re.compile(r'[^\d.]+')
+
+    non_decimal = re.compile(r"[^\d.]+")
     for field in int_fields:
         kwargs[field] = int(non_decimal.sub("", kwargs[field]))
     for field in float_fields:

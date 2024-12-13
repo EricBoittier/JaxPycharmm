@@ -84,4 +84,3 @@ def process_tensorboard_logs(log_dir: Union[str, Path]) -> pl.DataFrame:
     ]
 
     return pl.concat(dataframes)
-

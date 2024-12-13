@@ -80,7 +80,9 @@ class EF(nn.Module):
         batch_size: int,
         batch_mask: jnp.ndarray,
         atom_mask: jnp.ndarray,
-    ) -> tuple[Array, tuple[Array, Array, Any]] | tuple[Array, tuple[Array, None, None]]:
+    ) -> (
+        tuple[Array, tuple[Array, Array, Any]] | tuple[Array, tuple[Array, None, None]]
+    ):
         """Calculate molecular energy and related properties.
 
         Args:
@@ -175,30 +177,37 @@ class EF(nn.Module):
     ) -> jnp.ndarray:
         """Perform one iteration of message passing."""
         if iteration == self.num_iterations - 1:
-            x = e3x.nn.MessagePass(max_degree=0, include_pseudotensors=False,
-                                   dense_kernel_init=jax.nn.initializers.he_normal(),
-                                   dense_bias_init=jax.nn.initializers.he_normal()
-                                   )(
-                x, basis, dst_idx=dst_idx, src_idx=src_idx
-            )
+            x = e3x.nn.MessagePass(
+                max_degree=0,
+                include_pseudotensors=False,
+                dense_kernel_init=jax.nn.initializers.he_normal(),
+                dense_bias_init=jax.nn.initializers.he_normal(),
+            )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
             return e3x.nn.change_max_degree_or_type(
                 x, max_degree=0, include_pseudotensors=False
             )
 
-        return e3x.nn.MessagePass(include_pseudotensors=False,
-                                  dense_kernel_init=jax.nn.initializers.he_normal(),
-                                   dense_bias_init=jax.nn.initializers.he_normal()
-                                  )(
-            x, basis, dst_idx=dst_idx, src_idx=src_idx
-        )
+        return e3x.nn.MessagePass(
+            include_pseudotensors=False,
+            dense_kernel_init=jax.nn.initializers.he_normal(),
+            dense_bias_init=jax.nn.initializers.he_normal(),
+        )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
         for _ in range(self.n_res):
             y = e3x.nn.silu(x)
-            y = e3x.nn.Dense(self.features)(y)
+            y = e3x.nn.Dense(
+                self.features,
+                kernel_init=jax.nn.initializers.he_normal(),
+                bias_init=jax.nn.initializers.he_normal(),
+            )(y)
             y = e3x.nn.silu(y)
-            y = e3x.nn.Dense(self.features)(y)
+            y = e3x.nn.Dense(
+                self.features,
+                kernel_init=jax.nn.initializers.he_normal(),
+                bias_init=jax.nn.initializers.he_normal(),
+            )(y)
             x = e3x.nn.add(x, y)
 
         y = e3x.nn.Dense(self.features)(y)
@@ -285,7 +294,7 @@ class EF(nn.Module):
             (self.max_atomic_number + 1),
         )
         atomic_charges = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
+            1, use_bias=False, kernel_init=jax.nn.initializers.he_uniform, dtype=DTYPE
         )(x)
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
@@ -333,7 +342,7 @@ class EF(nn.Module):
             (self.max_atomic_number + 1),
         )
         atomic_energies = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
+            1, use_bias=False, kernel_init=jax.nn.initializers.he_normal, dtype=DTYPE
         )(x)
         atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
         atomic_energies *= atom_mask[..., None, None, None]
@@ -418,7 +427,9 @@ class EF(nn.Module):
         )
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
         if isinstance(self.debug, list) and "ele" in self.debug:
-            jax.debug.print(f"{atomic_electrostatics}", atomic_electrostatics=atomic_electrostatics)
+            jax.debug.print(
+                f"{atomic_electrostatics}", atomic_electrostatics=atomic_electrostatics
+            )
         return atomic_electrostatics, batch_electrostatics
 
     @nn.compact

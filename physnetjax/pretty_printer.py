@@ -9,8 +9,14 @@ import asciichartpy as acp
 import numpy as np
 from rich.columns import Columns
 
+
 def get_panel(data, title):
-    return Panel(acp.plot(data), expand=False, title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~")
+    return Panel(
+        acp.plot(data),
+        expand=False,
+        title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
+    )
+
 
 def init_table(doCharges=False):
     table = Table(title="PhysNetJax Training Progress")
@@ -27,6 +33,7 @@ def init_table(doCharges=False):
     if doCharges:
         table.add_column("Train Dipoles MAE", style="magenta")
     return table
+
 
 class Printer:
     def __init__(self):
@@ -45,11 +52,24 @@ class Printer:
         self.lr_effs = []
         self.epoch_lengths = []
 
-    def update(self, epoch, train_loss, valid_loss, best_loss, train_energy_mae,
-                  valid_energy_mae,
-                  train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae,
-                  valid_dipoles_mae,
-                  transform_state, slr, lr_eff, epoch_length):
+    def update(
+        self,
+        epoch,
+        train_loss,
+        valid_loss,
+        best_loss,
+        train_energy_mae,
+        valid_energy_mae,
+        train_forces_mae,
+        valid_forces_mae,
+        doCharges,
+        train_dipoles_mae,
+        valid_dipoles_mae,
+        transform_state,
+        slr,
+        lr_eff,
+        epoch_length,
+    ):
 
         self.epochs.append(epoch)
         self.train_losses.append(train_loss)
@@ -70,46 +90,82 @@ class Printer:
         # update the table with the last few data points
         for i in range(5, 0, -1):
             if len(self.epochs) >= i:
-                table = epoch_printer(table, self.epochs[-i], self.train_losses[-i],
-                                      self.valid_losses[-i], self.best_losses[-i],
-                                      self.train_energy_maes[-i],
-                                        self.valid_energy_maes[-i],
-                                        self.train_forces_maes[-i],
-                                      self.valid_forces_maes[-i], doCharges,
-                                        self.train_dipoles_maes[-i],
-                                        self.valid_dipoles_maes[-i],
-                                        self.transform_states[-i], self.slrs[-i],
-                                      self.lr_effs[-i], self.epoch_lengths[-i])
+                table = epoch_printer(
+                    table,
+                    self.epochs[-i],
+                    self.train_losses[-i],
+                    self.valid_losses[-i],
+                    self.best_losses[-i],
+                    self.train_energy_maes[-i],
+                    self.valid_energy_maes[-i],
+                    self.train_forces_maes[-i],
+                    self.valid_forces_maes[-i],
+                    doCharges,
+                    self.train_dipoles_maes[-i],
+                    self.valid_dipoles_maes[-i],
+                    self.transform_states[-i],
+                    self.slrs[-i],
+                    self.lr_effs[-i],
+                    self.epoch_lengths[-i],
+                )
         return table
 
 
-
-def epoch_printer(table, epoch, train_loss, valid_loss, best_loss, train_energy_mae,
-                  valid_energy_mae,
-                  train_forces_mae, valid_forces_mae, doCharges, train_dipoles_mae,
-                  valid_dipoles_mae,
-                  transform_state, slr, lr_eff, epoch_length):
-    rows = [f"{epoch: 3d}",
-    f"{epoch_length}",
-    f"{lr_eff: 8.3e}",
-    f"{train_loss : 8.3f}",
-    f"{valid_loss : 8.3f}",
-    f"{best_loss:8.3f}",
-    f"{train_energy_mae: 8.3f}",
-    f"{valid_energy_mae: 8.3f}",
-    f"{train_forces_mae: 8.3f}",
-    f"{valid_forces_mae: 8.3f}",]
+def epoch_printer(
+    table,
+    epoch,
+    train_loss,
+    valid_loss,
+    best_loss,
+    train_energy_mae,
+    valid_energy_mae,
+    train_forces_mae,
+    valid_forces_mae,
+    doCharges,
+    train_dipoles_mae,
+    valid_dipoles_mae,
+    transform_state,
+    slr,
+    lr_eff,
+    epoch_length,
+):
+    rows = [
+        f"{epoch: 3d}",
+        f"{epoch_length}",
+        f"{lr_eff: 8.3e}",
+        f"{train_loss : 8.3f}",
+        f"{valid_loss : 8.3f}",
+        f"{best_loss:8.3f}",
+        f"{train_energy_mae: 8.3f}",
+        f"{valid_energy_mae: 8.3f}",
+        f"{train_forces_mae: 8.3f}",
+        f"{valid_forces_mae: 8.3f}",
+    ]
     if doCharges:
         rows.append(f"{train_dipoles_mae: 8.3f}")
-    table.add_row(
-        *rows
-    )
+    table.add_row(*rows)
     return table
 
-def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
-                     charges_weight, batch_size, num_atoms, restart, conversion,
-                     print_freq, name, best, objective, data_keys, ckpt_dir,
-                     train_data, valid_data):
+
+def training_printer(
+    learning_rate,
+    energy_weight,
+    forces_weight,
+    dipole_weight,
+    charges_weight,
+    batch_size,
+    num_atoms,
+    restart,
+    conversion,
+    print_freq,
+    name,
+    best,
+    objective,
+    data_keys,
+    ckpt_dir,
+    train_data,
+    valid_data,
+):
     # new code
     table = Table(title="PhysNetJax Training Params")
     table.add_column("Learning Rate", style="cyan", no_wrap=True)
@@ -150,6 +206,6 @@ def training_printer(learning_rate, energy_weight, forces_weight, dipole_weight,
         f"{data_keys}",
         f"{ckpt_dir}",
         f"{objective}",
-        f"Saving a restart file each time the {objective} improves."
+        f"Saving a restart file each time the {objective} improves.",
     )
     return table, table2

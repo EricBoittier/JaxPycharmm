@@ -5,6 +5,7 @@ from tqdm import tqdm
 from physnetjax.loss import dipole_calc
 import numpy as np
 
+
 def get_metrics(x, y):
     ERROR = x - y
     RMSE = np.mean(ERROR**2) ** 0.5
@@ -14,6 +15,7 @@ def get_metrics(x, y):
 
 def count_params(params):
     from jax.flatten_util import ravel_pytree
+
     flattened_params, unravel_fn = ravel_pytree(params)
     total_params = flattened_params.size
     return total_params
@@ -41,7 +43,7 @@ def plot(x, y, ax, units="kcal/mol", _property="", kde=True, s=1, diag=True):
         fontsize=10,
     )
     if kde:
-        NSTEP = min(y.shape[0], 300) 
+        NSTEP = min(y.shape[0], 300)
         if kde == "y":
             xy = np.vstack([y])
         else:
@@ -127,7 +129,9 @@ def eval(batches, model, params, batch_size=500):
     return Es, Eeles, predEs, Fs, predFs, Ds, predDs, charges, outputs
 
 
-def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500, do_plot=True):
+def plot_stats(
+    batches, model, params, _set="", do_kde=False, batch_size=500, do_plot=True
+):
     Es, Eeles, predEs, Fs, predFs, Ds, predDs, charges, outputs = eval(
         batches, model, params, batch_size=batch_size
     )
@@ -156,7 +160,14 @@ def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500, do
         )
         # axes[1,1].axis("off")
 
-        plot(predFs, abs(predFs - Fs), axes[1, 1], _property="$F$", kde=do_kde, diag=False)
+        plot(
+            predFs,
+            abs(predFs - Fs),
+            axes[1, 1],
+            _property="$F$",
+            kde=do_kde,
+            diag=False,
+        )
         q_sum_kde = "y" if do_kde else False
         plot(
             np.zeros_like(summed_q),
@@ -188,7 +199,6 @@ def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500, do
         "D_rmse": D_rmse,
         "D_mae": D_mae,
         "n_params": count_params(params),
-        
     }
     model_kwargs = model.return_attributes()
     output.update(model_kwargs)
@@ -196,11 +206,10 @@ def plot_stats(batches, model, params, _set="", do_kde=False, batch_size=500, do
     return output
 
 
-
-
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
+
 
 # Function to compute SOAP descriptors
 def compute_soap_descriptors(
@@ -303,13 +312,14 @@ def process_data(descriptors, method, **kwargs):
     )
 
 
-
 import re
+
 
 def clean_and_cast_to_float(s):
     # Use regex to keep only digits, periods, and minus signs
-    cleaned_str = re.sub(r'[^0-9.-]', '', s)
+    cleaned_str = re.sub(r"[^0-9.-]", "", s)
     return float(cleaned_str[:7]) if cleaned_str else None
+
 
 import matplotlib.pyplot as plt
 
@@ -317,15 +327,15 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-#def make_bonds_ase():
+# def make_bonds_ase():
 ## Create a NeighborList object
-#cutoffs = [r + 0.5 for r in atomic_radii]  # Slightly increase radii for bonding cutoff
-#nl = NeighborList(cutoffs=cutoffs, self_interaction=False, bothways=True)
-#nl.update(molecule)
+# cutoffs = [r + 0.5 for r in atomic_radii]  # Slightly increase radii for bonding cutoff
+# nl = NeighborList(cutoffs=cutoffs, self_interaction=False, bothways=True)
+# nl.update(molecule)
 #
 ## Get bonds automatically
-#bonds = []
-#for atom in range(len(molecule)):
+# bonds = []
+# for atom in range(len(molecule)):
 #    indices, offsets = nl.get_neighbors(atom)
 #    for i in indices:
 #        if (atom, i) not in bonds and (i, atom) not in bonds:
@@ -333,15 +343,16 @@ import numpy as np
 #
 #
 
+
 def kabsch_alignment(P, Q):
     """
     Calculate the optimal rotation matrix using the Kabsch algorithm.
     Aligns points P to points Q.
-    
+
     Parameters:
     - P: Coordinates of the moving frame (Nx3 numpy array).
     - Q: Coordinates of the reference frame (Nx3 numpy array).
-    
+
     Returns:
     - R: Optimal rotation matrix (3x3 numpy array).
     """
@@ -354,6 +365,6 @@ def kabsch_alignment(P, Q):
     if d:
         S[-1] = -S[-1]
         V[:, -1] = -V[:, -1]
-        
+
     R = np.dot(V, W)
     return R

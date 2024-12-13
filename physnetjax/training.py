@@ -26,7 +26,12 @@ from physnetjax.optimizer import (
 from physnetjax.tensorboard_logging import write_tb_log
 from physnetjax.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
-from physnetjax.pretty_printer import init_table, epoch_printer, training_printer, Printer
+from physnetjax.pretty_printer import (
+    init_table,
+    epoch_printer,
+    training_printer,
+    Printer,
+)
 from physnetjax.utils import create_checkpoint_dir
 
 from rich.console import Console
@@ -45,9 +50,6 @@ CONVERSION = {
 
 # Initialize checkpointer
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
-
-
-
 
 
 def train_model(
@@ -80,7 +82,7 @@ def train_model(
 
     print("Training Routine")
     startTime = time.time()
-    print("Start Time: ", time.strftime('%H:%M:%S', time.gmtime(startTime)))
+    print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(startTime)))
 
     best_loss = 10000
     doCharges = model.charges
@@ -95,9 +97,25 @@ def train_model(
     pretty_print(optimizer, transform, schedule_fn)
     console = Console(width=200, color_system="auto")
 
-    table, table2 = training_printer(learning_rate, energy_weight, forces_weight, dipole_weight, charges_weight, batch_size, num_atoms,
-                         restart, conversion, print_freq, name, best, objective, data_keys, ckpt_dir, train_data,
-                         valid_data)
+    table, table2 = training_printer(
+        learning_rate,
+        energy_weight,
+        forces_weight,
+        dipole_weight,
+        charges_weight,
+        batch_size,
+        num_atoms,
+        restart,
+        conversion,
+        print_freq,
+        name,
+        best,
+        objective,
+        data_keys,
+        ckpt_dir,
+        train_data,
+        valid_data,
+    )
     console.print(table)
     console.print(table2)
 
@@ -142,11 +160,14 @@ def train_model(
         # update mu
         o_a, o_b = opt_state_initial
         from optax import ScaleByAmsgradState
-        _ = ScaleByAmsgradState(mu=opt_state[1][0]["mu"],
-                                nu=opt_state[1][0]["nu"],
-                                nu_max=opt_state[1][0]["nu_max"],
-                                count=opt_state[1][0]["count"])
-        #opt_state = (o_a, (_, o_b[1]))
+
+        _ = ScaleByAmsgradState(
+            mu=opt_state[1][0]["mu"],
+            nu=opt_state[1][0]["nu"],
+            nu_max=opt_state[1][0]["nu_max"],
+            count=opt_state[1][0]["count"],
+        )
+        # opt_state = (o_a, (_, o_b[1]))
         opt_state = opt_state_initial
         # Set training variables
         step = restored["epoch"] + 1
@@ -306,11 +327,23 @@ def train_model(
                 best_ = True
 
             if best_ or (epoch % print_freq == 0):
-                combined = epoch_printer.update(epoch, train_loss, valid_loss, best_loss,
-                                      train_energy_mae, valid_energy_mae,
-                              train_forces_mae, valid_forces_mae, doCharges,
-                                      train_dipoles_mae, valid_dipoles_mae,
-                              scale, slr, lr_eff, epoch_length)
+                combined = epoch_printer.update(
+                    epoch,
+                    train_loss,
+                    valid_loss,
+                    best_loss,
+                    train_energy_mae,
+                    valid_energy_mae,
+                    train_forces_mae,
+                    valid_forces_mae,
+                    doCharges,
+                    train_dipoles_mae,
+                    valid_dipoles_mae,
+                    scale,
+                    slr,
+                    lr_eff,
+                    epoch_length,
+                )
                 live.update(combined, refresh=True)
 
     # Return final model parameters.

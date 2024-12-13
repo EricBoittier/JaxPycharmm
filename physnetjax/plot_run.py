@@ -1,19 +1,22 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def plot_run(base_df):
     for ycol in ["train_loss", "valid_loss"]:
         sns.lineplot(base_df, x="epoch", y=ycol, label=ycol)
-    plt.ylim(0,7)
+    plt.ylim(0, 7)
     plt.legend()
     plt.show()
 
     for ycol in ["train_energy_mae", "valid_energy_mae"]:
         sns.lineplot(base_df, x="epoch", y=ycol)
-    plt.ylim(0,5)
+    plt.ylim(0, 5)
     plt.axhline(0.01749)
 
     plt.show()
+
+
 #
 # import altair as alt
 #
