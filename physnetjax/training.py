@@ -183,7 +183,7 @@ def train_model(
     model_attributes = model.return_attributes()
     table = print_dict_as_table(model_attributes, title="Model Attributes")
     console.print(table)
-
+    jax.debug.print("Model Attributes {x}", x=model_attributes)
     with Live(auto_refresh=False) as live:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
