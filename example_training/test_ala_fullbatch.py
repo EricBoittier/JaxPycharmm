@@ -44,8 +44,8 @@ data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 # Prepare datasets
 train_data, valid_data = prepare_datasets(
     data_key,
-    train_size=8000,
-    valid_size=1000,
+    train_size=800,
+    valid_size=100,
     files=DATA_FILES,
     natoms=NATOMS,
 )
@@ -78,12 +78,12 @@ params = train_model(
     valid_data,
     num_epochs=int(1e6),
     learning_rate=0.0001,
-    energy_weight=NATOMS,
+    energy_weight=1/NATOMS,
     # charges_weight=1,
     # forces_weight=100,
     schedule_fn="constant",
     optimizer="amsgrad",
-    batch_size=32,
+    batch_size=1,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     # restart=restart,
