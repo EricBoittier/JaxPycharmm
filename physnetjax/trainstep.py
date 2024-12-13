@@ -104,7 +104,6 @@ def train_step(
             return loss, (output["energy"], output["forces"], output["charges"], dipole)
 
     else:
-        print(batch["atom_mask"])
 
         def loss_fn(params):
             output = model_apply(
