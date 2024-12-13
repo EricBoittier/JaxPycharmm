@@ -17,8 +17,8 @@ from jax import Array
 from physnetjax.zbl import ZBLRepulsion
 
 # Constants
-# DTYPE = jnp.float32
-DTYPE = jnp.bfloat16
+DTYPE = jnp.float32
+# DTYPE = jnp.bfloat16
 HARTREE_TO_KCAL_MOL = 627.509  # Conversion factor for energy units
 
 
@@ -175,7 +175,9 @@ class EF(nn.Module):
     ) -> jnp.ndarray:
         """Perform one iteration of message passing."""
         if iteration == self.num_iterations - 1:
-            x = e3x.nn.MessagePass(max_degree=0, include_pseudotensors=False)(
+            x = e3x.nn.MessagePass(max_degree=0, include_pseudotensors=False,
+                                   dense_kernel_init=jax.nn.initializers.he_normal,
+                                   dense_bias_init=jax.nn.initializers.he_normal)(
                 x, basis, dst_idx=dst_idx, src_idx=src_idx
             )
             return e3x.nn.change_max_degree_or_type(
