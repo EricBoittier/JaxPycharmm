@@ -173,10 +173,10 @@ class EF(nn.Module):
             x = self._refinement_iteration(x)
         return x
 
-    def _attention(self, x, basis, dst_idx, src_idx):
+    def _attention(self, x, basis, dst_idx, src_idx, num_heads=self.features // 8):
         return e3x.nn.modules.SelfAttention(
             max_degree=self.max_degree,
-            num_heads=2,
+            num_heads=num_heads,
             include_pseudotensors=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
