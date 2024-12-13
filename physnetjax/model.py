@@ -210,10 +210,11 @@ class EF(nn.Module):
             )(y)
             x = e3x.nn.add(x, y)
 
-        y = e3x.nn.Dense(self.features,
-                         kernel_init=jax.nn.initializers.he_normal(),
-                         bias_init=jax.nn.initializers.he_normal(),
-                         )(y)
+        y = e3x.nn.Dense(
+            self.features,
+            kernel_init=jax.nn.initializers.he_normal(),
+            bias_init=jax.nn.initializers.he_normal(),
+        )(y)
         y = e3x.nn.silu(y)
         return e3x.nn.add(x, y)
 
