@@ -88,7 +88,7 @@ class Printer:
 
         table = init_table(doCharges)
         # update the table with the last few data points
-        for i in range(5, 0, -1):
+        for i in range(10, 0, -1):
             if len(self.epochs) >= i:
                 table = epoch_printer(
                     table,
