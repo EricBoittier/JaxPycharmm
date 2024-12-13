@@ -705,4 +705,4 @@ def prepare_batches_old(
     return output
 
 # Example of optional JIT compilation if desired (and arguments are stable):
-prepare_batches_old = jax.jit(prepare_batches_old, static_argnames=('batch_size', 'num_atoms', 'data_keys'))
+prepare_batches = jax.jit(prepare_batches_old, static_argnames=('batch_size', 'num_atoms', 'data_keys'))
