@@ -184,7 +184,7 @@ class EF(nn.Module):
                 include_pseudotensors=False,
                 dense_kernel_init=jax.nn.initializers.he_normal(),
                 dense_bias_init=jax.nn.initializers.he_normal(),
-            )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
+            )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=True)
             return e3x.nn.change_max_degree_or_type(
                 x, max_degree=0, include_pseudotensors=False
             )
@@ -193,7 +193,7 @@ class EF(nn.Module):
             include_pseudotensors=False,
             dense_kernel_init=jax.nn.initializers.he_normal(),
             dense_bias_init=jax.nn.initializers.he_normal(),
-        )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
+        )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=True)
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
@@ -296,7 +296,7 @@ class EF(nn.Module):
         x = e3x.nn.Dense(1, use_bias=False)(x)
         charge_bias = self.param(
             "charge_bias",
-            lambda rng, shape: jax.random.normal(self.make_rng('params'), shape),
+            lambda rng, shape: jnp.zeros(shape),
             (self.max_atomic_number + 1),
         )
         atomic_charges = nn.Dense(
