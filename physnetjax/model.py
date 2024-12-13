@@ -6,15 +6,14 @@ and forces using message passing and equivariant transformations.
 """
 
 import functools
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Any
 
 import e3x
 import flax.linen as nn
 import jax
 import jax.numpy as jnp
-import numpy.typing as npt
+from jax import Array
 
-import physnetjax
 from physnetjax.zbl import ZBLRepulsion
 
 # Constants
@@ -80,7 +79,7 @@ class EF(nn.Module):
         batch_size: int,
         batch_mask: jnp.ndarray,
         atom_mask: jnp.ndarray,
-    ) -> Tuple[float, Union[jnp.ndarray, Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]]]:
+    ) -> tuple[Array, tuple[Array, Array, Any]] | tuple[Array, tuple[Array, None, None]]:
         """Calculate molecular energy and related properties.
 
         Args:
@@ -210,7 +209,7 @@ class EF(nn.Module):
         batch_mask: jnp.ndarray,
         batch_segments: jnp.ndarray,
         batch_size: int,
-    ) -> Tuple[float, Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]]:
+    ) -> tuple[Array, tuple[Array, Array, Any]]:
         """Calculate energies including charge interactions."""
         atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
         electrostatics, batch_electrostatics = self._calculate_electrostatics(
@@ -258,7 +257,7 @@ class EF(nn.Module):
         batch_segments: jnp.ndarray,
         batch_size: int,
         atom_mask: jnp.ndarray,
-    ) -> Tuple[float, jnp.ndarray]:
+    ) -> tuple[Array, tuple[Array, None, None]]:
         """Calculate energies without charge interactions."""
         atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
         energy = jax.ops.segment_sum(
@@ -352,7 +351,6 @@ class EF(nn.Module):
 
         Args:
             atomic_charges: Predicted atomic charges
-            positions: Atomic positions
             dst_idx: Destination indices for pair interactions
             src_idx: Source indices for pair interactions
             batch_segments: Batch assignment for each atom
@@ -364,20 +362,20 @@ class EF(nn.Module):
             Array of electrostatic energies per atom
         """
         # Numerical stability constants
-        EPS = 1e-6
-        MIN_DIST = 0.01  # Minimum distance in Angstroms
-        SWITCH_START = 1.0  # Start switching at 2 Angstroms
-        SWITCH_END = self.cutoff  # Complete switch by 10 Angstroms
+        eps = 1e-6
+        min_dist = 0.01  # Minimum distance in Angstroms
+        switch_start = 1.0  # Start switching at 2 Angstroms
+        switch_end = self.cutoff  # Complete switch by 10 Angstroms
 
         # Calculate distances between atom pairs
         displacements = displacements + (1 - batch_mask)[..., None]
 
         # Safe distance calculation with minimum cutoff
         squared_distances = jnp.sum(displacements**2, axis=1)
-        distances = jnp.sqrt(jnp.maximum(squared_distances, MIN_DIST**2))
+        distances = jnp.sqrt(jnp.maximum(squared_distances, min_dist**2))
 
         # Improved switching function
-        switch_dist = e3x.nn.smooth_switch(distances, SWITCH_START, SWITCH_END)
+        switch_dist = e3x.nn.smooth_switch(distances, switch_start, switch_end)
         off_dist = 1.0 - e3x.nn.smooth_switch(distances, 8.0, 10.0)
         one_minus_switch_dist = 1 - switch_dist
 
@@ -388,16 +386,16 @@ class EF(nn.Module):
         # Calculate interaction potential with improved stability
         # R1: Short-range regularized potential
         # R2: Long-range Coulomb potential with safe distance
-        safe_distances = distances + EPS
-        R1 = switch_dist / jnp.sqrt(squared_distances + 1.0)
-        R2 = one_minus_switch_dist / safe_distances
-        R = R1 + R2
-        E_shift = safe_distances / (SWITCH_END**2) - 2.0 / SWITCH_END
+        safe_distances = distances + eps
+        r1 = switch_dist / jnp.sqrt(squared_distances + 1.0)
+        r2 = one_minus_switch_dist / safe_distances
+        r = r1 + r2
+        eshift = safe_distances / (switch_end**2) - 2.0 / switch_end
         # Calculate electrostatic energy (in Hartree)
         # Conversion factor 7.199822675975274 is 1/(4π*ε₀) in atomic units
-        electrostatics = 7.199822675975274 * q1 * q2 * R * batch_mask
+        electrostatics = 7.199822675975274 * q1 * q2 * r * batch_mask
         # apply shifted force truncation scheme
-        electrostatics += E_shift * batch_mask
+        electrostatics += eshift * batch_mask
         electrostatics *= off_dist
         # Sum contributions for each atom
         atomic_electrostatics = jax.ops.segment_sum(
@@ -413,7 +411,7 @@ class EF(nn.Module):
         )
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
         if isinstance(self.debug, list) and "ele" in self.debug:
-            jax.debug.print(f"{x}", x=atomic_electrostatics)
+            jax.debug.print(f"{atomic_electrostatics}", atomic_electrostatics=atomic_electrostatics)
         return atomic_electrostatics, batch_electrostatics
 
     @nn.compact
@@ -453,7 +451,6 @@ class EF(nn.Module):
             batch_mask = jnp.ones_like(dst_idx)
             atom_mask = jnp.ones_like(atomic_numbers)
 
-        # print("atom_mask", atom_mask)
         # Since we want to also predict forces, i.e. the gradient of the energy w.r.t. positions (argument 1), we use
         # jax.value_and_grad to create a function for predicting both energy and forces for us.
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)

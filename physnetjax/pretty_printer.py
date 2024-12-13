@@ -80,13 +80,6 @@ class Printer:
                                         self.valid_dipoles_maes[-i],
                                         self.transform_states[-i], self.slrs[-i],
                                       self.lr_effs[-i], self.epoch_lengths[-i])
-
-        # plot_panel = get_panel(self.train_losses, "Train Loss")
-        # plot_panel2 = get_panel(self.valid_losses, "Valid Loss")
-        #
-        # col1 = Columns([plot_panel, plot_panel2], expand=True)
-        # col2 = Columns([table], expand=True)
-        # combined = Columns([col1, col2])
         return table
 
 
