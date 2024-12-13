@@ -163,8 +163,6 @@ class EF(nn.Module):
             dtype=DTYPE,
         )(atomic_numbers)
 
-        x = self._refinement_iteration(x)
-
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
@@ -295,8 +293,6 @@ class EF(nn.Module):
         self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray
     ) -> jnp.ndarray:
         """Calculate atomic charges from atomic features."""
-        x1 = self._refinement_iteration(x)
-        x = e3x.nn.add(x, x1)
         x = e3x.nn.Dense(1, use_bias=False)(x)
         charge_bias = self.param(
             "charge_bias",
@@ -304,7 +300,7 @@ class EF(nn.Module):
             (self.max_atomic_number + 1),
         )
         atomic_charges = nn.Dense(
-            1, use_bias=True, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
+            1, use_bias=False, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
         )(x)
         atomic_charges += charge_bias[atomic_numbers][..., None, None, None]
         atomic_charges *= atom_mask[..., None, None, None]
