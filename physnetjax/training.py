@@ -122,7 +122,6 @@ def train_model(
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
-    writer = None
 
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
@@ -319,6 +318,8 @@ def train_model(
                     "objectives": obj_res,
                 }
                 save_args = orbax_utils.save_args_from_target(ckpt)
+                save_time = time.time()
+                print("Saving checkpoint at", save_time)
                 print(CKPT_DIR / f"epoch-{epoch}")
                 orbax_checkpointer.save(
                     CKPT_DIR / f"epoch-{epoch}", ckpt, save_args=save_args
