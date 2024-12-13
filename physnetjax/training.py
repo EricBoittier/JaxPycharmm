@@ -99,25 +99,25 @@ def train_model(
     # pretty_print(optimizer, transform, schedule_fn)
     # console = Console(width=200, color_system="auto")
     # pretty_print_optimizer(optimizer, transform, schedule_fn, console)
-    table, table2 = training_printer(
-        learning_rate,
-        energy_weight,
-        forces_weight,
-        dipole_weight,
-        charges_weight,
-        batch_size,
-        num_atoms,
-        restart,
-        conversion,
-        print_freq,
-        name,
-        best,
-        objective,
-        data_keys,
-        ckpt_dir,
-        train_data,
-        valid_data,
-    )
+    # table, table2 = training_printer(
+    #     learning_rate,
+    #     energy_weight,
+    #     forces_weight,
+    #     dipole_weight,
+    #     charges_weight,
+    #     batch_size,
+    #     num_atoms,
+    #     restart,
+    #     conversion,
+    #     print_freq,
+    #     name,
+    #     best,
+    #     objective,
+    #     data_keys,
+    #     ckpt_dir,
+    #     train_data,
+    #     valid_data,
+    # )
     # console.print(table)
     # console.print(table2)
 
@@ -184,7 +184,7 @@ def train_model(
     save_time = None
 
     model_attributes = model.return_attributes()
-    table = print_dict_as_table(model_attributes, title="Model Attributes")
+    # table = print_dict_as_table(model_attributes, title="Model Attributes")
     # console.print(table)
 
     # with Live(auto_refresh=False) as live:
