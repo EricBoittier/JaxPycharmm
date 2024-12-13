@@ -53,24 +53,24 @@ class Printer:
         self.epoch_lengths = []
 
     def update(
-        self,
-        epoch,
-        train_loss,
-        valid_loss,
-        best_loss,
-        train_energy_mae,
-        valid_energy_mae,
-        train_forces_mae,
-        valid_forces_mae,
-        doCharges,
-        train_dipoles_mae,
-        valid_dipoles_mae,
-        transform_state,
-        slr,
-        lr_eff,
-        epoch_length,
-        ckp,
-        save_time,
+            self,
+            epoch,
+            train_loss,
+            valid_loss,
+            best_loss,
+            train_energy_mae,
+            valid_energy_mae,
+            train_forces_mae,
+            valid_forces_mae,
+            doCharges,
+            train_dipoles_mae,
+            valid_dipoles_mae,
+            transform_state,
+            slr,
+            lr_eff,
+            epoch_length,
+            ckp,
+            save_time,
     ):
 
         self.epochs.append(epoch)
@@ -129,23 +129,31 @@ class Printer:
         return layout
 
 
+def print_dict_as_table(data, title="Dictionary"):
+    table = Table(title=title)
+    for key, value in data.items():
+        table.add_column(key, style="cyan", no_wrap=True)
+        table.add_row(str(value))
+    return table
+
+
 def epoch_printer(
-    table,
-    epoch,
-    train_loss,
-    valid_loss,
-    best_loss,
-    train_energy_mae,
-    valid_energy_mae,
-    train_forces_mae,
-    valid_forces_mae,
-    doCharges,
-    train_dipoles_mae,
-    valid_dipoles_mae,
-    transform_state,
-    slr,
-    lr_eff,
-    epoch_length,
+        table,
+        epoch,
+        train_loss,
+        valid_loss,
+        best_loss,
+        train_energy_mae,
+        valid_energy_mae,
+        train_forces_mae,
+        valid_forces_mae,
+        doCharges,
+        train_dipoles_mae,
+        valid_dipoles_mae,
+        transform_state,
+        slr,
+        lr_eff,
+        epoch_length,
 ):
     rows = [
         f"{epoch: 3d}",
@@ -166,23 +174,23 @@ def epoch_printer(
 
 
 def training_printer(
-    learning_rate,
-    energy_weight,
-    forces_weight,
-    dipole_weight,
-    charges_weight,
-    batch_size,
-    num_atoms,
-    restart,
-    conversion,
-    print_freq,
-    name,
-    best,
-    objective,
-    data_keys,
-    ckpt_dir,
-    train_data,
-    valid_data,
+        learning_rate,
+        energy_weight,
+        forces_weight,
+        dipole_weight,
+        charges_weight,
+        batch_size,
+        num_atoms,
+        restart,
+        conversion,
+        print_freq,
+        name,
+        best,
+        objective,
+        data_keys,
+        ckpt_dir,
+        train_data,
+        valid_data,
 ):
     # new code
     table = Table(title="PhysNetJax Training Params")

@@ -31,6 +31,7 @@ from physnetjax.pretty_printer import (
     epoch_printer,
     training_printer,
     Printer,
+    print_dict_as_table
 )
 from physnetjax.restart import restart_training, orbax_checkpointer
 
@@ -94,8 +95,14 @@ def train_model(
         optimizer=optimizer,
         transform=transform,
     )
-    pretty_print(optimizer, transform, schedule_fn)
+    # pretty_print(optimizer, transform, schedule_fn)
+    table = print_dict_as_table(dict(optimizer), title="Optimizer")
+    table2 = print_dict_as_table(dict(transform), title="Transform")
+    table3 = print_dict_as_table(dict(schedule_fn), title="Schedule Function")
     console = Console(width=200, color_system="auto")
+    console.print(table)
+    console.print(table2)
+    console.print(table3)
 
     table, table2 = training_printer(
         learning_rate,
@@ -173,6 +180,10 @@ def train_model(
     epoch_printer = Printer()
     ckp = None
     save_time = None
+
+    model_attributes = model.return_attributes()
+    table = print_dict_as_table(model_attributes, title="Model Attributes")
+    console.print(table)
 
     with Live(auto_refresh=False) as live:
         # Train for 'num_epochs' epochs.
