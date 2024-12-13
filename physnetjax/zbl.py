@@ -165,50 +165,44 @@ class ZBLRepulsion(nn.Module):
 
         # Ensure phi is positive and finite
         phi = jnp.maximum(phi, 1e-30)
-        phi = jnp.nan_to_num(phi, nan=1e-30, posinf=1e6, neginf=1e-30)
+        # phi = jnp.nan_to_num(phi, nan=1e-30, posinf=1e6, neginf=1e-30)
 
         # Compute nuclear repulsion potential with numerical stability
         # Factor 1.0 represents e^2/(4πε₀) in atomic units
 
         # Ensure all inputs are positive and finite
-        safe_distances = jnp.maximum(distances, 1e-10)
-        safe_phi = jnp.maximum(phi, 1e-30)
-        safe_switch = jnp.maximum(switch_off, 1e-30)
+        safe_distances = distances #jnp.maximum(distances, 1e-10)
+        safe_phi = phi #jnp.maximum(phi, 1e-30)
+        safe_switch = switch_off #jnp.maximum(switch_off, 1e-30)
 
         # Compute repulsion in steps with careful numerical control
         # First compute Z_i * Z_j
         charge_product = safe_atomic_numbers[idx_i] * safe_atomic_numbers[idx_j]
-        charge_product = jnp.minimum(charge_product, 1e4)  # Limit maximum value
+        #charge_product = jnp.minimum(charge_product, 1e4)  # Limit maximum value
 
         # Compute base repulsion with distance
         base_repulsion = 0.5 * charge_product / safe_distances
-        base_repulsion = jnp.minimum(base_repulsion, 1e6)  # Limit maximum value
+        #base_repulsion = jnp.minimum(base_repulsion, 1e6)  # Limit maximum value
 
         # Apply screening function and switch
         repulsion = base_repulsion * safe_phi * safe_switch
-
         # Clip extremely large values to prevent gradient explosions
-        repulsion = jnp.clip(repulsion, 0.0, 1e6)
-
+        #repulsion = jnp.clip(repulsion, 0.0, 1e6)
         # Clean up any remaining numerical artifacts
-        repulsion = jnp.nan_to_num(repulsion, nan=0.0, posinf=1e6, neginf=0.0)
-
+        #repulsion = jnp.nan_to_num(repulsion, nan=0.0, posinf=1e6, neginf=0.0)
         # Apply batch segmentation with safe multiplication
-        repulsion = jnp.multiply(repulsion, batch_mask)
-
+        #repulsion = jnp.multiply(repulsion, batch_mask)
         # Sum contributions for each atom using safe operations
         Erep = jax.ops.segment_sum(
             repulsion, segment_ids=idx_i, num_segments=atomic_numbers.shape[0]
         )
-
         # Apply atom mask and final safety checks
         Erep = jnp.multiply(Erep, atom_mask)
-        Erep = jnp.clip(Erep, 0.0, 1e6)  # Final clip to ensure bounded values
-        Erep = jnp.nan_to_num(Erep, nan=0.0, posinf=1e6, neginf=0.0)
-
+        #Erep = jnp.clip(Erep, 0.0, 1e6)  # Final clip to ensure bounded values
+        #Erep = jnp.nan_to_num(Erep, nan=0.0, posinf=1e6, neginf=0.0)
         # Scale the output to prevent gradient explosions
-        scale_factor = 1e-2  # Adjust this value based on your needs
-        Erep = Erep * scale_factor
+        #scale_factor = 1e-2  # Adjust this value based on your needs
+        #Erep = Erep * scale_factor
 
         if self.debug:  # print everything for temporary debugging
             jax.debug.print("za_sum {x} {y}", x=za_sum, y=za_sum.shape)
