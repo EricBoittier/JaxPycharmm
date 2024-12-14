@@ -75,6 +75,7 @@ def get_params_model(restart: str, natoms: int = None):
 
     # kwargs = _process_model_attributes(restored["model_attributes"], natoms)
     kwargs = restored["model_attributes"]
+    print(kwargs)
     model = EF(**kwargs)
     model.natoms = natoms
     print(model)
