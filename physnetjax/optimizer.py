@@ -74,7 +74,7 @@ def get_optimizer(
 
     if optimizer is None:
         optimizer = optax.chain(
-            # optax.adaptive_grad_clip(1.0),
+            optax.adaptive_grad_clip(1.0),
             optax.clip_by_global_norm(clip_global),
             optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
         )
