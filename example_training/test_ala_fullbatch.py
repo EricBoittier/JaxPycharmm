@@ -58,7 +58,7 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 # Initialize model
 model = EF(
     features=128,
-    max_degree=2,
+    max_degree=1,
     num_iterations=3,
     num_basis_functions=20,
     cutoff=6.0,
