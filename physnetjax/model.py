@@ -231,7 +231,7 @@ class EF(nn.Module):
         )(y)
         y = e3x.nn.silu(y)
 
-        return e3x.nn.add(x1, y)
+        return y
 
     def _calculate(
         self,
