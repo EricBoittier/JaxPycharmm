@@ -74,7 +74,7 @@ def get_optimizer(
 
     if optimizer is None:
         optimizer = optax.chain(
-            optax.adaptive_grad_clip(1.0),
+            # optax.adaptive_grad_clip(1.0),
             optax.clip_by_global_norm(clip_global),
             optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
         )
@@ -84,7 +84,7 @@ def get_optimizer(
             if not isinstance(clip_global, float):
                 clip_global = 1.0
             _chain.append(optax.clip_by_global_norm(clip_global))
-            _chain.append(optax.adaptive_grad_clip(clip_global))
+            # _chain.append(optax.adaptive_grad_clip(clip_global))
         if optimizer == "adam":
             _chain.append(optax.adam(learning_rate=schedule_fn))
         elif optimizer == "adamw":
