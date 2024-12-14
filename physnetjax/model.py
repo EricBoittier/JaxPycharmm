@@ -165,9 +165,13 @@ class EF(nn.Module):
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = e3x.nn.silu(x)
-            if self.n_res < 0:
-                x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features)
+
             x = self._refinement_iteration(x)
+        x = e3x.nn.change_max_degree_or_type(
+            x, max_degree=0, include_pseudotensors=False
+        )
+        if self.n_res < 0:
+            x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features)
         return x
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
@@ -175,8 +179,6 @@ class EF(nn.Module):
             max_degree=self.max_degree,
             num_heads=num_heads,
             include_pseudotensors=False,
-            # use_relative_positional_encoding_qk=False,
-            # use_relative_positional_encoding_v=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
     def _multiheadattention(self, x, y, basis, dst_idx, src_idx, num_heads=2):
@@ -199,13 +201,11 @@ class EF(nn.Module):
             x = e3x.nn.MessagePass(
                 max_degree=0,
                 include_pseudotensors=False,
-                dense_kernel_init=jax.nn.initializers.he_normal(),
-                dense_bias_init=jax.nn.initializers.he_normal(),
+                dense_kernel_init=jax.nn.initializers.he_uniform(),
+                dense_bias_init=jax.nn.initializers.he_uniform(),
             )(x, basis, dst_idx=dst_idx, src_idx=src_idx,
               indices_are_sorted=False)
-            return e3x.nn.change_max_degree_or_type(
-                x, max_degree=0, include_pseudotensors=False
-            )
+            return x
 
         return e3x.nn.MessagePass(
             include_pseudotensors=False,
