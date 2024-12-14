@@ -166,7 +166,7 @@ class EF(nn.Module):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = e3x.nn.silu(x)
             if self.n_res < 0:
-                x = self._attention(x, None, dst_idx, src_idx, num_heads=self.features)
+                x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features)
             x = self._refinement_iteration(x)
         return x
 
@@ -175,8 +175,8 @@ class EF(nn.Module):
             max_degree=self.max_degree,
             num_heads=num_heads,
             include_pseudotensors=False,
-            use_relative_positional_encoding_qk=False,
-            use_relative_positional_encoding_v=False,
+            # use_relative_positional_encoding_qk=False,
+            # use_relative_positional_encoding_v=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
     def _multiheadattention(self, x, y, basis, dst_idx, src_idx, num_heads=2):
