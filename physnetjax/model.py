@@ -174,6 +174,7 @@ class EF(nn.Module):
                 basis, max_degree=0, include_pseudotensors=False
             )
             x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features)
+            x = self._refinement_iteration(x)
         return x
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
@@ -216,8 +217,9 @@ class EF(nn.Module):
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
+        x1 = e3x.nn.silu(x)
         for _ in range(abs(self.n_res)):
-            y = e3x.nn.hard_tanh(x)
+            y = e3x.nn.silu(x)
             y = e3x.nn.add(x, y)
             y = e3x.nn.Dense(
                 self.features,
@@ -227,7 +229,8 @@ class EF(nn.Module):
             self.features,
         )(y)
         y = e3x.nn.silu(y)
-        return y
+
+        return e3x.nn.add(x1, y)
 
     def _calculate(
         self,
