@@ -165,6 +165,7 @@ class EF(nn.Module):
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
+
         x = e3x.nn.change_max_degree_or_type(
             x, max_degree=0, include_pseudotensors=False
         )
