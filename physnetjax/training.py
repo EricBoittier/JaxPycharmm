@@ -170,7 +170,6 @@ def train_model(
     if best_loss is None:
         best_loss = best
 
-
     if isinstance(model.debug, list):
         runInDebug = True if "opt" in model.debug else False
     else:
@@ -186,7 +185,7 @@ def train_model(
     console.print(table)
 
     with Live(auto_refresh=False) as live:
-    # if True:
+        # if True:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.

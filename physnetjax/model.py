@@ -127,7 +127,6 @@ class EF(nn.Module):
             batch_size,
         )
 
-
     def _calculate_geometric_features(
         self,
         positions: jnp.ndarray,
@@ -241,7 +240,9 @@ class EF(nn.Module):
         atomic_energies = self._calculate_atomic_energies(x, atomic_numbers, atom_mask)
 
         if self.charges:
-            atomic_charges = self._calculate_atomic_charges(x, atomic_numbers, atom_mask)
+            atomic_charges = self._calculate_atomic_charges(
+                x, atomic_numbers, atom_mask
+            )
             electrostatics, batch_electrostatics = self._calculate_electrostatics(
                 atomic_charges,
                 r,
@@ -286,7 +287,12 @@ class EF(nn.Module):
             num_segments=batch_size,
         )
 
-        return -1 * jnp.sum(energy), (energy, atomic_charges, batch_electrostatics, repulsion)
+        return -1 * jnp.sum(energy), (
+            energy,
+            atomic_charges,
+            batch_electrostatics,
+            repulsion,
+        )
 
     def _calculate_atomic_charges(
         self, x: jnp.ndarray, atomic_numbers: jnp.ndarray, atom_mask: jnp.ndarray

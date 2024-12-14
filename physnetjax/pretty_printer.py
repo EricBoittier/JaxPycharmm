@@ -128,11 +128,25 @@ class Printer:
         layout = Columns([table, ckp_table])
         return layout
 
-styles = ["bright_black"  , "bright_red",
-          "bright_green"  , "dark_turquoise", "bright_yellow" ,
-          "bright_blue"   , "bright_magenta",
-          "bright_cyan" ,   "bright_white", "light_goldenrod3",
-          "spring_green3", "light_yellow3", "bright_cyan", "bright_magenta",]
+
+styles = [
+    "bright_black",
+    "bright_red",
+    "bright_green",
+    "dark_turquoise",
+    "bright_yellow",
+    "bright_blue",
+    "bright_magenta",
+    "bright_cyan",
+    "bright_white",
+    "light_goldenrod3",
+    "spring_green3",
+    "light_yellow3",
+    "bright_cyan",
+    "bright_magenta",
+]
+
+
 def print_dict_as_table(data, title="Dictionary"):
     table = Table(title=title)
     for i, (key, value) in enumerate(data.items()):
