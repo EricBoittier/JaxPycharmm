@@ -128,10 +128,14 @@ class Printer:
         layout = Columns([table, ckp_table])
         return layout
 
-
+styles = ["bright_black"  , "bright_red",
+          "bright_green"  , "dark_turquoise", "bright_yellow" ,
+          "bright_blue"   , "bright_magenta",
+          "bright_cyan" ,   "bright_white", "light_goldenrod3",
+          "spring_green3", "light_yellow3", "bright_cyan", "bright_magenta",]
 def print_dict_as_table(data, title="Dictionary"):
     table = Table(title=title)
-    for key, value in data.items():
+    for i, (key, value) in enumerate(data.items()):
         table.add_column(key, style="cyan", no_wrap=True)
     table.add_row(*[str(value) for value in data.values()])
     return table
@@ -238,25 +242,25 @@ def training_printer(
 ):
     # new code
     table = Table(title="PhysNetJax Training Params")
-    table.add_column("Learning Rate", style="cyan", no_wrap=True)
+    table.add_column("Learning Rate", style="yellow4", no_wrap=True)
     table.add_column("Energy Weight", style="bright_magenta")
     table.add_column("Forces Weight", style="green")
-    table.add_column("Dipole Weight", style="red")
-    table.add_column("Charges Weight", style="blue")
-    table.add_column("Batch Size", style="cyan")
-    table.add_column("Num Atoms", style="magenta")
+    table.add_column("Dipole Weight", style="light_goldenrod3")
+    table.add_column("Charges Weight", style="bright_magenta")
+    table.add_column("Batch Size", style="yellow4")
+    table.add_column("Num Atoms", style="light_yellow3")
 
     table2 = Table(title="PhysNetJax Training Data")
     table2.add_column("Restart", style="green", no_wrap=False)
     # table2.add_column("Conversion", style="red")
-    table2.add_column("Print Freq", style="blue")
-    table2.add_column("Name", style="cyan")
+    # table2.add_column("Print Freq", style="blue")
+    table2.add_column("Name", style="yellow4")
     table2.add_column("Best", style="bright_magenta")
     table2.add_column("Objective", style="green")
-    table2.add_column("Data Keys", style="red")
+    table2.add_column("Data Keys", style="yellow4")
     # table2.add_column("Ckpt Dir", style="blue")
     # table2.add_column("Objective", style="green")
-    table2.add_column("Saving", style="red")
+    table2.add_column("Saving", style="light_goldenrod3")
     table.add_row(
         f"{learning_rate}",
         f"{energy_weight}",
@@ -269,7 +273,7 @@ def training_printer(
     table2.add_row(
         f"{str(restart)}",
         # f"{conversion}",
-        f"{print_freq}",
+        # f"{print_freq}",
         f"{name}",
         f"{best}",
         # f"{objective}",
