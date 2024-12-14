@@ -57,11 +57,11 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 # Initialize model
 model = EF(
-    features=20,
+    features=80,
     max_degree=1,
     num_iterations=2,
     num_basis_functions=20,
-    cutoff=10.0,
+    cutoff=5.0,
     max_atomic_number=11,
     charges=True,
     natoms=NATOMS,
