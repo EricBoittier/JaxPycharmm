@@ -78,7 +78,7 @@ def get_params_model(restart: str, natoms: int = None):
     print(kwargs)
     model = EF(**kwargs)
     model.natoms = natoms
-    model.zbl = bool(kwargs["zbl"])
+    model.zbl = bool(kwargs["zbl"]) if "zbl" in kwargs.keys() else False
     print(model)
     return params, model
 
