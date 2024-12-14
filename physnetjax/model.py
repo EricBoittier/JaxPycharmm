@@ -165,7 +165,7 @@ class EF(nn.Module):
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             if self.n_res < 0:
-                x = self._attention(x, basis, None, None)
+                x = self._attention(x, basis, None, None, num_heads=self.features)
             x = self._refinement_iteration(x)
             x = e3x.nn.silu(x)
         return x
