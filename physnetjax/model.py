@@ -165,7 +165,7 @@ class EF(nn.Module):
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             if self.n_res < 0:
-                x = self._attention(x, basis, dst_idx, src_idx)
+                x = self._attention(x, basis, None, None)
             x = self._refinement_iteration(x)
             x = e3x.nn.silu(x)
         return x
@@ -199,7 +199,8 @@ class EF(nn.Module):
                 include_pseudotensors=False,
                 dense_kernel_init=jax.nn.initializers.he_normal(),
                 dense_bias_init=jax.nn.initializers.he_normal(),
-            )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
+            )(x, basis, dst_idx=dst_idx, src_idx=src_idx,
+              indices_are_sorted=False)
             return e3x.nn.change_max_degree_or_type(
                 x, max_degree=0, include_pseudotensors=False
             )
@@ -208,7 +209,8 @@ class EF(nn.Module):
             include_pseudotensors=False,
             dense_kernel_init=jax.nn.initializers.he_normal(),
             dense_bias_init=jax.nn.initializers.he_normal(),
-        )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
+        )(x, basis, dst_idx=dst_idx, src_idx=src_idx,
+          indices_are_sorted=False)
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
