@@ -70,6 +70,9 @@ model = EF(
     zbl=False,
 )
 
+
+restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-414ad170-d9f2-4eda-b2ee-5cc17158bdfb"
+
 # Train model
 params = train_model(
     train_key,
@@ -86,7 +89,7 @@ params = train_model(
     batch_size=32,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-    # restart=restart,
+    restart=restart,
     print_freq=1,
     objective="valid_loss",
     best=1e6,
