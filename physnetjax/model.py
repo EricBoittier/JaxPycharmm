@@ -172,9 +172,9 @@ class EF(nn.Module):
         x = e3x.nn.change_max_degree_or_type(
             x, max_degree=0, include_pseudotensors=False
         )
-        if self.n_res < 0:
+        if self.n_res <= -1:
             for i in range(self.num_iterations):
-                x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features)
+                x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features//8)
                 x = self._refinement_iteration(x)
         return x
 
