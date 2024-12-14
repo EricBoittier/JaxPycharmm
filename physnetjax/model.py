@@ -177,7 +177,7 @@ class EF(nn.Module):
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
         return e3x.nn.modules.SelfAttention(
-            max_degree=self.max_degree,
+            max_degree=0,
             num_heads=num_heads,
             include_pseudotensors=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
