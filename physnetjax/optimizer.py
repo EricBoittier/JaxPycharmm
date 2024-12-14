@@ -82,7 +82,7 @@ def get_optimizer(
         _chain = []
         if clip_global:
             if not isinstance(clip_global, float):
-                clip_global = 1.0
+                clip_global = 10.0
             _chain.append(optax.clip_by_global_norm(clip_global))
             # _chain.append(optax.adaptive_grad_clip(clip_global))
         if optimizer == "adam":

@@ -80,7 +80,7 @@ params = train_model(
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.002,
+    learning_rate=0.001,
     energy_weight=10,
     # charges_weight=1,
     # forces_weight=100,
