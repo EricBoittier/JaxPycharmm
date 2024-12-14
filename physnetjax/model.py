@@ -213,7 +213,8 @@ class EF(nn.Module):
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
         for _ in range(abs(self.n_res)):
-            # y = e3x.nn.silu(x)
+            y = e3x.nn.hard_tanh(x)
+            y = e3x.nn.add(x, y)
             y = e3x.nn.Dense(
                 self.features,
             )(y)
