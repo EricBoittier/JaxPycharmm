@@ -173,9 +173,9 @@ def pretty_print_optimizer(optimizer, transform, schedule_fn, console):
     table = print_dict_as_table(opt, title="Optimizer")
     table2 = print_dict_as_table(trans, title="Transform")
     table3 = print_dict_as_table(sched, title="Schedule Function")
-    # console.print(table)
-    # console.print(table2)
-    # console.print(table3)
+    console.print(table)
+    console.print(table2)
+    console.print(table3)
 
 
 def pretty_print(optimizer, transform, schedule_fn):
