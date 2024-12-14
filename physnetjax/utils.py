@@ -78,6 +78,7 @@ def get_params_model(restart: str, natoms: int = None):
     print(kwargs)
     model = EF(**kwargs)
     model.natoms = natoms
+    model.zbl = bool(kwargs["zbl"])
     print(model)
     return params, model
 
