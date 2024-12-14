@@ -166,15 +166,16 @@ class EF(nn.Module):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
             x = self._refinement_iteration(x)
 
+        basis = e3x.nn.change_max_degree_or_type(
+            basis, max_degree=0, include_pseudotensors=False
+        )
         x = e3x.nn.change_max_degree_or_type(
             x, max_degree=0, include_pseudotensors=False
         )
         if self.n_res < 0:
-            basis = e3x.nn.change_max_degree_or_type(
-                basis, max_degree=0, include_pseudotensors=False
-            )
-            x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features)
-            x = self._refinement_iteration(x)
+            for i in range(self.num_iterations):
+                x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features)
+                x = self._refinement_iteration(x)
         return x
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
