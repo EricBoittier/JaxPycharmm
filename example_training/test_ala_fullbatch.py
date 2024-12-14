@@ -66,7 +66,7 @@ model = EF(
     charges=True,
     natoms=NATOMS,
     total_charge=0,
-    n_res=5,
+    n_res=-5,
     zbl=False,
 )
 

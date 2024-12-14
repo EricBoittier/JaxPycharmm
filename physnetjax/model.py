@@ -164,8 +164,10 @@ class EF(nn.Module):
         )(atomic_numbers)
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
-            # x = self._attention(x, basis, dst_idx, src_idx)
+            if self.n_res < 0:
+                x = self._attention(x, basis, dst_idx, src_idx)
             x = self._refinement_iteration(x)
+            x = e3x.nn.silu(x)
         return x
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
@@ -210,8 +212,8 @@ class EF(nn.Module):
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
-        for _ in range(self.n_res):
-            y = e3x.nn.silu(x)
+        for _ in range(abs(self.n_res)):
+            # y = e3x.nn.silu(x)
             y = e3x.nn.Dense(
                 self.features,
             )(y)
