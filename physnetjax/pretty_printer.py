@@ -247,7 +247,7 @@ def training_printer(
     table.add_column("Num Atoms", style="magenta")
 
     table2 = Table(title="PhysNetJax Training Data")
-    table2.add_column("Restart", style="green")
+    table2.add_column("Restart", style="green", no_wrap=False)
     # table2.add_column("Conversion", style="red")
     table2.add_column("Print Freq", style="blue")
     table2.add_column("Name", style="cyan")
@@ -255,7 +255,7 @@ def training_printer(
     table2.add_column("Objective", style="green")
     table2.add_column("Data Keys", style="red")
     # table2.add_column("Ckpt Dir", style="blue")
-    table2.add_column("Objective", style="green")
+    # table2.add_column("Objective", style="green")
     table2.add_column("Saving", style="red")
     table.add_row(
         f"{learning_rate}",
@@ -272,7 +272,7 @@ def training_printer(
         f"{print_freq}",
         f"{name}",
         f"{best}",
-        f"{objective}",
+        # f"{objective}",
         f"{data_keys}",
         # f"{str(ckpt_dir)}",
         f"{objective}",
