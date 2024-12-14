@@ -164,10 +164,10 @@ class EF(nn.Module):
         )(atomic_numbers)
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
+            x = e3x.nn.silu(x)
             if self.n_res < 0:
                 x = self._attention(x, None, dst_idx, src_idx, num_heads=self.features)
             x = self._refinement_iteration(x)
-            x = e3x.nn.silu(x)
         return x
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
