@@ -23,15 +23,15 @@ def init_table(doCharges=False):
     table.add_column("Epoch", style="bright_cyan", no_wrap=True)
     table.add_column("time", style="green")
     table.add_column("Eff. LR", style="bright_magenta")
-    table.add_column("Train Loss", style="magenta")
-    table.add_column("Valid Loss", style="green")
-    table.add_column("Best Loss", style="red")
-    table.add_column("Train Energy MAE", style="bright_magenta")
-    table.add_column("Valid Energy MAE", style="green")
-    table.add_column("Train Forces MAE", style="magenta")
+    table.add_column("Train Loss", style="medium_orchid3")
+    table.add_column("Valid Loss", style="spring_green3")
+    table.add_column("Best Loss", style="dark_goldenrod")
+    table.add_column("Train Energy MAE", style="medium_orchid3")
+    table.add_column("Valid Energy MAE", style="spring_green3")
+    table.add_column("Train Forces MAE", style="medium_orchid3")
     table.add_column("Valid Forces MAE", style="spring_green3")
     if doCharges:
-        table.add_column("Train Dipoles MAE", style="spring_green3")
+        table.add_column("Train Dipoles MAE", style="medium_orchid3")
     return table
 
 
@@ -150,7 +150,7 @@ styles = [
 def print_dict_as_table(data, title="Dictionary"):
     table = Table(title=title)
     for i, (key, value) in enumerate(data.items()):
-        table.add_column(key, style="cyan", no_wrap=True)
+        table.add_column(key, style=styles[i], no_wrap=True)
     table.add_row(*[str(value) for value in data.values()])
     return table
 
@@ -256,25 +256,25 @@ def training_printer(
 ):
     # new code
     table = Table(title="PhysNetJax Training Params")
-    table.add_column("Learning Rate", style="yellow4", no_wrap=True)
+    table.add_column("Learning Rate", style="spring_green3", no_wrap=True)
     table.add_column("Energy Weight", style="bright_magenta")
-    table.add_column("Forces Weight", style="green")
+    table.add_column("Forces Weight", style="spring_green3")
     table.add_column("Dipole Weight", style="light_goldenrod3")
     table.add_column("Charges Weight", style="bright_magenta")
-    table.add_column("Batch Size", style="yellow4")
+    table.add_column("Batch Size", style="light_goldenrod3")
     table.add_column("Num Atoms", style="light_yellow3")
 
     table2 = Table(title="PhysNetJax Training Data")
-    table2.add_column("Restart", style="green", no_wrap=False)
+    table2.add_column("Restart", style="spring_green3", no_wrap=False)
     # table2.add_column("Conversion", style="red")
     # table2.add_column("Print Freq", style="blue")
-    table2.add_column("Name", style="yellow4")
+    # table2.add_column("Name", style="yellow4")
     table2.add_column("Best", style="bright_magenta")
-    table2.add_column("Objective", style="green")
+    table2.add_column("Objective", style="light_goldenrod3")
     table2.add_column("Data Keys", style="yellow4")
     # table2.add_column("Ckpt Dir", style="blue")
     # table2.add_column("Objective", style="green")
-    table2.add_column("Saving", style="light_goldenrod3")
+    # table2.add_column("Saving", style="light_goldenrod3")
     table.add_row(
         f"{learning_rate}",
         f"{energy_weight}",
@@ -288,12 +288,12 @@ def training_printer(
         f"{str(restart)}",
         # f"{conversion}",
         # f"{print_freq}",
-        f"{name}",
+        # f"{name}",
         f"{best}",
         # f"{objective}",
         f"{data_keys}",
         # f"{str(ckpt_dir)}",
         f"{objective}",
-        f"Saving a restart file each time the {objective} improves.",
+        # f"Saving a restart file each time the {objective} improves.",
     )
     return table, table2
