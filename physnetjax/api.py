@@ -119,7 +119,7 @@ if __name__ == "__main__":
             cutoff=args.cutoff,
             max_atomic_number=args.max_atomic_number,
             charges=True,
-            zbl=True,
+            zbl=False,
             natoms=args.natoms,
             total_charge=args.total_charge,
             n_res=args.n_res,
