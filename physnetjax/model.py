@@ -204,16 +204,14 @@ class EF(nn.Module):
                 include_pseudotensors=False,
                 dense_kernel_init=jax.nn.initializers.he_uniform(),
                 dense_bias_init=jax.nn.initializers.he_uniform(),
-            )(x, basis, dst_idx=dst_idx, src_idx=src_idx,
-              indices_are_sorted=False)
+            )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
             return x
 
         return e3x.nn.MessagePass(
             include_pseudotensors=False,
             dense_kernel_init=jax.nn.initializers.he_normal(),
             dense_bias_init=jax.nn.initializers.he_normal(),
-        )(x, basis, dst_idx=dst_idx, src_idx=src_idx,
-          indices_are_sorted=False)
+        )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
