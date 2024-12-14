@@ -175,6 +175,8 @@ class EF(nn.Module):
             max_degree=self.max_degree,
             num_heads=num_heads,
             include_pseudotensors=False,
+            use_relative_positional_encoding_qk=False,
+            use_relative_positional_encoding_v=False,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx)
 
     def _multiheadattention(self, x, y, basis, dst_idx, src_idx, num_heads=2):
