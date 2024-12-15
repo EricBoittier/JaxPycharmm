@@ -90,7 +90,7 @@ atoms = ase.Atoms(Z, R)
 calculator = get_ase_calc(params, model, atoms)
 atoms.calc = calculator
 atoms1 = atoms.copy()
-ml_selection = pycharmm.SelectAtoms().by_res_id("1:1")
+ml_selection = pycharmm.SelectAtoms().by_res_id("1")
 print("ml_selection", list(ml_selection))
 
 
