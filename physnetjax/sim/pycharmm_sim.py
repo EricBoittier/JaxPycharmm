@@ -120,3 +120,6 @@ print("Success")
 minimize.run_sd(**{"nstep": 1000, "tolenr": 1e-5, "tolgrd": 1e-5})
 energy.show()
 stream.charmm_script("print coor")
+# write the final coordinates to a pdb file
+write.pdb("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp_min.pdb")
+
