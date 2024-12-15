@@ -13,8 +13,6 @@ import ase.io as ase_io
 # import numpy as np
 from physnetjax.calc.pycharmm_calculator import PyCharmm_Calculator
 
-# from physnetjax.model import *
-# from physnetjax.model import EF, train_model
 import e3x
 import numpy as np
 

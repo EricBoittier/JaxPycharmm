@@ -17,6 +17,8 @@ from jax import Array
 
 from physnetjax.models.zbl import ZBLRepulsion
 
+import ase.data
+
 # Constants
 DTYPE = jnp.float32
 HARTREE_TO_KCAL_MOL = 627.509  # Conversion factor for energy units
@@ -173,7 +175,9 @@ class EF(nn.Module):
         )
         if self.n_res <= -1:
             for i in range(self.num_iterations):
-                x = self._attention(x, basis, dst_idx, src_idx, num_heads=self.features//8)
+                x = self._attention(
+                    x, basis, dst_idx, src_idx, num_heads=self.features // 8
+                )
                 x = self._refinement_iteration(x)
         return x
 
@@ -456,6 +460,45 @@ class EF(nn.Module):
             )
         return atomic_electrostatics, batch_electrostatics
 
+    def _calculate_dipole(
+        self,
+        positions: jnp.ndarray,
+        atomic_numbers: jnp.ndarray,
+        charges: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        batch_size: int,
+    ) -> jnp.ndarray:
+        """
+        Calculate dipoles for a batch of molecules.
+
+        Args:
+            positions (jnp.ndarray): Atomic positions.
+            atomic_numbers (jnp.ndarray): Atomic numbers.
+            charges (jnp.ndarray): Atomic charges.
+            batch_segments (jnp.ndarray): Batch segment indices.
+            batch_size (int): Number of molecules in the batch.
+
+        Returns:
+            jnp.ndarray: Calculated dipoles for each molecule in the batch.
+        """
+        charges = charges.squeeze()
+        positions = positions.squeeze()
+        atomic_numbers = atomic_numbers.squeeze()
+        masses = jnp.take(ase.data.atomic_masses, atomic_numbers)
+        bs_masses = jax.ops.segment_sum(
+            masses, segment_ids=batch_segments, num_segments=batch_size
+        )
+        masses_per_atom = jnp.take(bs_masses, batch_segments)
+        dis_com = positions * masses[..., None] / masses_per_atom[..., None]
+        com = jnp.sum(dis_com, axis=1)
+        pos_com = positions - com[..., None]
+        dipoles = jax.ops.segment_sum(
+            pos_com * charges[..., None],
+            segment_ids=batch_segments,
+            num_segments=batch_size,
+        )
+        return dipoles
+
     @nn.compact
     def __call__(
         self,
@@ -520,6 +563,28 @@ class EF(nn.Module):
             atom_mask,
         )
         forces *= atom_mask[..., None]
+
+        dipoles = (
+            self._calculate_dipole(
+                positions,
+                atomic_numbers,
+                charges,
+                batch_segments,
+                batch_size,
+            )
+            if self.charges
+            else None
+        )
+        sum_charges = (
+            jax.ops.segment_sum(
+                charges,
+                segment_ids=batch_segments,
+                num_segments=batch_size,
+            )
+            if self.charges
+            else None
+        )
+
         # Prepare output dictionary
         output = {
             "energy": energy,
@@ -527,6 +592,8 @@ class EF(nn.Module):
             "charges": charges,
             "electrostatics": electrostatics,
             "repulsion": repulsion,
+            "dipoles": dipoles,
+            "sum_charges": sum_charges,
         }
         # print("output", output)
         # Debug output values

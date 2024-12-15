@@ -16,7 +16,6 @@ from physnetjax.models.model import EF
 
 DTYPE = jnp.float32
 
-
 @functools.partial(
     jax.jit,
     static_argnames=(
@@ -58,18 +57,7 @@ def train_step(
                 batch_mask=batch["batch_mask"],
                 atom_mask=batch["atom_mask"],
             )
-            dipole = dipole_calc(
-                batch["R"],
-                batch["Z"],
-                output["charges"],
-                batch["batch_segments"],
-                batch_size,
-            )
-            sum_charges = jax.ops.segment_sum(
-                output["charges"],
-                segment_ids=batch["batch_segments"],
-                num_segments=batch_size,
-            )
+
             loss = mean_squared_loss_QD(
                 energy_prediction=output["energy"],
                 energy_target=batch["E"],
@@ -77,11 +65,11 @@ def train_step(
                 forces_prediction=output["forces"],
                 forces_target=batch["F"],
                 forces_weight=forces_weight,
-                dipole_prediction=dipole,
+                dipole_prediction=output["dipoles"],
                 dipole_target=batch["D"],
                 dipole_weight=dipole_weight,
-                total_charges_prediction=sum_charges,
-                total_charge_target=jnp.zeros_like(sum_charges),
+                total_charges_prediction=output["sum_charges"],
+                total_charge_target=jnp.zeros_like(output["sum_charges"]),
                 total_charge_weight=charges_weight,
                 atomic_mask=batch["atom_mask"],
             )

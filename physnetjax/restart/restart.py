@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Tuple
-from physnetjax.utils import get_last, get_params_model
+from physnetjax.utils.utils import get_last, get_params_model
 
 import orbax
 

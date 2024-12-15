@@ -9,7 +9,7 @@ import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from rich.live import Live
 
-from physnetjax.data import prepare_batches
+from physnetjax.data.data import prepare_batches
 from physnetjax.utils.pretty_printer import pretty_print_optimizer
 from physnetjax.training.evalstep import eval_step
 from physnetjax.training.optimizer import (
@@ -26,7 +26,7 @@ from physnetjax.utils.pretty_printer import (
     Printer,
     print_dict_as_table,
 )
-from physnetjax.restart import restart_training, orbax_checkpointer
+from physnetjax.restart.restart import restart_training, orbax_checkpointer
 
 from rich.console import Console
 
