@@ -5,7 +5,7 @@ from physnetjax.analysis.analysis import count_params, plot_stats
 from physnetjax.restart.restart import get_params_model, get_last
 
 
-def save_pickle(params, location):
+def _save_pickle(params, location):
     import pickle
 
     with open(location, "wb") as f:
