@@ -258,7 +258,7 @@ def run_heating(
             "iprfrq": 1000,
             "isvfrq": 1000,
             "ntrfrq": 0,
-            "ihtfrq": 500,
+            "ihtfrq": 100,
             "ieqfrq": 100,
             "firstt": initial_temp,
             "finalt": final_temp,
@@ -309,7 +309,7 @@ def run_equilibration(
             "iunwri": files["res"].file_unit,
             "iuncrd": files["dcd"].file_unit,
             "nsavl": 0,
-            "nprint": 10,
+            "nprint": 100,
             "iprfrq": 100,
             "ieqfrq": 100,
             "firstt": temp,
@@ -332,7 +332,7 @@ def run_equilibration(
 
     return files
 
-def run_production(timestep=0.0005, nsteps=1000000, temp=300, prefix="mm"):
+def run_production(timestep=0.0005, integrator="verlet", tottime=5.0, savetime=0.01, temp=300, prefix="mm"):
     """
     Run the production phase of molecular dynamics.
 
@@ -343,6 +343,10 @@ def run_production(timestep=0.0005, nsteps=1000000, temp=300, prefix="mm"):
         prefix (str): Prefix for output files (default: "mm")
     """
     files = setup_charmm_files(prefix, "dyna")
+    nsteps = int(tottime / timestep)
+    nsavc = int(savetime / timestep)
+
+    print(f"nsteps: {nsteps}")
 
     dynamics_dict = get_base_dynamics_dict()
     dynamics_dict.update(
@@ -351,7 +355,7 @@ def run_production(timestep=0.0005, nsteps=1000000, temp=300, prefix="mm"):
             "start": False,
             "restart": True,
             "nstep": nsteps,
-            "nsavc": 500,
+            "nsavc": nsavc,
             "imgfrq": 10,
             "iunrea": files["str"].file_unit,
             "iunwri": files["res"].file_unit,
@@ -364,7 +368,7 @@ def run_production(timestep=0.0005, nsteps=1000000, temp=300, prefix="mm"):
             "finalt": temp,
         }
     )
-
+    dynamics_dict = change_integrator(dynamics_dict, integrator)
     dyn_prod = pycharmm.DynamicsScript(**dynamics_dict)
     dyn_prod.run()
 
@@ -402,6 +406,7 @@ def main():
     run_minimization(output_pdb)
     files = run_heating(integrator="verlet")
     files = run_equilibration(integrator="langevin", prefix="equi", restart=files["res"].file_name)
+    files = run_production(integrator="verlet", prefix="dyna", tottime=1000)
 
 
 if __name__ == "__main__":
