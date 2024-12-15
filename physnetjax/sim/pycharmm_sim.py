@@ -173,7 +173,7 @@ def setup_charmm_files(prefix, phase):
 
 
 def run_heating(
-    timestep=0.0001,
+    timestep=0.0005,
     tottime=5.0,
     savetime=0.10,
     initial_temp=10,
