@@ -6,7 +6,7 @@ import orbax
 
 # from jax import config
 # config.update('jax_enable_x64', True)
-from physnetjax.loss import (
+from physnetjax.training.loss import (
     dipole_calc,
     mean_absolute_error,
     mean_squared_loss,

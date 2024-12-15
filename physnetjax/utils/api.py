@@ -1,4 +1,3 @@
-import argparse
 import os
 
 from physnetjax.data import prepare_datasets
@@ -6,12 +5,7 @@ from physnetjax.data import prepare_datasets
 # Set environment variables
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 
-import jax
-import numpy as np
-import optax
-import physnetjax
-from physnetjax.model import EF
-from physnetjax.training import train_model
+from physnetjax.models.model import EF
 
 
 # Check JAX configuration
@@ -25,10 +19,7 @@ def print_jax_config():
 print_jax_config()
 import argparse
 
-import e3x
 import jax
-import numpy as np
-import optax
 
 from model import EF
 from training import train_model

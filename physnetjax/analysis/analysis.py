@@ -1,9 +1,7 @@
 import ase
-import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde, linregress
 from tqdm import tqdm
-from physnetjax.loss import dipole_calc
-import numpy as np
+from physnetjax.training.loss import dipole_calc
 
 
 def get_metrics(x, y):
@@ -215,7 +213,6 @@ from sklearn.preprocessing import StandardScaler
 def compute_soap_descriptors(
     positions, atomic_numbers, species, r_cut=5.0, n_max=8, l_max=6, sigma=0.5
 ):
-    import matplotlib.pyplot as plt
     import numpy as np
     from ase import Atoms
     from dscribe.descriptors import SOAP

@@ -1,16 +1,13 @@
-from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import ase
-import matplotlib.pyplot as plt
 import numpy as np
-from ase.atoms import Atoms
-from ase.units import Bohr, Debye, Hartree, kcal, mol
+from ase.units import Bohr, Hartree, kcal
 from numpy.typing import NDArray
 from tqdm import tqdm
 
-from physnetjax.enums import KEY_TRANSLATION, MolecularData
+from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
 
 # Constants
 HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM = Hartree / Bohr

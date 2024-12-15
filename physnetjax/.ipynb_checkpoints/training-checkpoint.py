@@ -1,33 +1,27 @@
 import uuid
 from pathlib import Path
-from typing import Tuple
 import time
 
 import ase
 import e3x
 import jax
-import orbax
 import orbax.checkpoint
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
-from jax import random
 from rich.live import Live
 
-import physnetjax
 from physnetjax.data import prepare_batches
-from physnetjax.pretty_printer import epoch_printer
-from physnetjax.evalstep import eval_step
-from physnetjax.optimizer import (
+from physnetjax.training.evalstep import eval_step
+from physnetjax.training.optimizer import (
     base_optimizer,
     base_schedule_fn,
     base_transform,
     get_optimizer,
 )
-from physnetjax.tensorboard_logging import write_tb_log
-from physnetjax.trainstep import train_step
+from physnetjax.logging.tensorboard_logging import write_tb_log
+from physnetjax.training.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
-from physnetjax.pretty_printer import init_table, epoch_printer, training_printer, Printer
-from physnetjax.utils import create_checkpoint_dir
+from physnetjax.utils.pretty_printer import training_printer, Printer
 
 from rich.console import Console
 

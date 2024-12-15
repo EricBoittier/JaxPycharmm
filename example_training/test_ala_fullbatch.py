@@ -9,16 +9,14 @@ from pathlib import Path
 
 # JAX imports
 import jax
-import jax.numpy as jnp
 import optax
 import orbax.checkpoint
 
 # Custom imports
 sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
 from physnetjax.data import prepare_datasets
-from physnetjax.model import EF
+from physnetjax.models.model import EF
 from physnetjax.training import train_model
-from physnetjax.utils import get_files, get_last, get_params_model
 
 # Configure environment
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"

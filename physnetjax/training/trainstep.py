@@ -1,34 +1,18 @@
 import functools
-import sys
 
-import ase
-import e3x
-import flax.linen as nn
 import jax
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
-import numpy as np
 import optax
-import orbax
-from flax.training import checkpoints, orbax_utils, train_state
-from jax.random import randint
-from optax import contrib
-from optax import tree_utils as otu
-from tqdm import tqdm
-
-import physnetjax
-from physnetjax.data import prepare_batches, prepare_datasets
 
 # from jax import config
 # config.update('jax_enable_x64', True)
-from physnetjax.loss import (
+from physnetjax.training.loss import (
     dipole_calc,
     mean_absolute_error,
     mean_squared_loss,
-    mean_squared_loss_D,
     mean_squared_loss_QD,
 )
-from physnetjax.model import EF
+from physnetjax.models.model import EF
 
 DTYPE = jnp.float32
 

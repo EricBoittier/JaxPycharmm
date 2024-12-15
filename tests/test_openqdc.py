@@ -20,7 +20,7 @@ sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
 import jax
 
 from openqdc.datasets import Spice
-from physnetjax.savepad import *
+from physnetjax.data.savepad import *
 
 NATOMS = 96
 
@@ -33,7 +33,7 @@ output2 = process_in_memory(datadicts, max_atoms=NATOMS)
 
 data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 
-from physnetjax.model import EF
+from physnetjax.models.model import EF
 from physnetjax.training import train_model
 
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]

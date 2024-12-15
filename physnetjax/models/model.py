@@ -6,17 +6,16 @@ and forces using message passing and equivariant transformations.
 """
 
 import functools
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple
 
 import e3x
 import flax.linen as nn
-from flax.linen.initializers import lecun_normal, variance_scaling, zeros, normal
 
 import jax
 import jax.numpy as jnp
 from jax import Array
 
-from physnetjax.zbl import ZBLRepulsion
+from physnetjax.models.zbl import ZBLRepulsion
 
 # Constants
 DTYPE = jnp.float32

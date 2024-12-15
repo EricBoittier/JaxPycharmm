@@ -9,22 +9,12 @@ print(jax.devices())
 import ase
 import ase.calculators.calculator as ase_calc
 import ase.io as ase_io
-from ase.md.velocitydistribution import (
-    MaxwellBoltzmannDistribution,
-    Stationary,
-    ZeroRotation,
-)
-from ase.md.verlet import VelocityVerlet
-import ase.optimize as ase_opt
-import matplotlib.pyplot as plt
-import py3Dmol
 
 # import numpy as np
-from physnetjax.pycharmm_calculator import PyCharmm_Calculator
+from physnetjax.calc.pycharmm_calculator import PyCharmm_Calculator
 
 # from physnetjax.model import *
 # from physnetjax.model import EF, train_model
-import pandas as pd
 import e3x
 import numpy as np
 

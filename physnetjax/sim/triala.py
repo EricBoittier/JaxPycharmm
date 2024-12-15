@@ -4,42 +4,14 @@ import os
 # os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count=8'
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-
-import pandas
-import numpy as np
-
 # ASE
-from ase import Atoms
 from ase import io
-import ase.units as units
 
 # PyCHARMM
 os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
 os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cmake"
-import pycharmm
-import pycharmm.generate as gen
-import pycharmm.ic as ic
-import pycharmm.coor as coor
-import pycharmm.energy as energy
-import pycharmm.dynamics as dyn
-import pycharmm.nbonds as nbonds
-import pycharmm.minimize as minimize
-import pycharmm.crystal as crystal
-import pycharmm.image as image
-import pycharmm.psf as psf
-import pycharmm.read as read
-import pycharmm.write as write
-import pycharmm.settings as settings
-import pycharmm.lingo as stream
-import pycharmm.select as select
-import pycharmm.shake as shake
-import pycharmm.cons_fix as cons_fix
-import pycharmm.cons_harm as cons_harm
-from pycharmm.lib import charmm as libcharmm
-import pycharmm.lib as lib
 
 # from pycharmm_calculator import PyCharmm_Calculator
-from helper_mlp import get_pyc
 
 import jax
 
@@ -48,7 +20,7 @@ print(devices)
 print(jax.default_backend())
 print(jax.devices())
 
-from helper_mlp import *
+from physnetjax.sim.helper_mlp import *
 
 # from helper_mlp import Model
 
@@ -56,37 +28,19 @@ from helper_mlp import *
 with open("i_", "w") as f:
     print("...")
 
-import pandas
-import numpy as np
-
 # ASE
-from ase import Atoms
 from ase import io
 import ase.units as units
 
 # PyCHARMM
 import pycharmm
-import pycharmm.generate as gen
-import pycharmm.ic as ic
 import pycharmm.coor as coor
 import pycharmm.energy as energy
-import pycharmm.dynamics as dyn
-import pycharmm.nbonds as nbonds
 import pycharmm.minimize as minimize
-import pycharmm.crystal as crystal
-import pycharmm.image as image
-import pycharmm.psf as psf
 import pycharmm.read as read
 import pycharmm.write as write
 import pycharmm.settings as settings
 import pycharmm.lingo as stream
-import pycharmm.select as select
-import pycharmm.shake as shake
-import pycharmm.cons_fix as cons_fix
-import pycharmm.cons_harm as cons_harm
-from pycharmm.lib import charmm as libcharmm
-import pycharmm.lib as lib
-
 
 import pandas as pd
 
@@ -162,7 +116,7 @@ stream.charmm_script(f"echo {Z}")
 
 atoms = ase.Atoms(Z, R)
 
-from helper_mlp import get_ase_calc
+from physnetjax.sim.helper_mlp import get_ase_calc
 
 calculator = get_ase_calc(params, model, atoms)
 atoms.set_calculator(calculator)

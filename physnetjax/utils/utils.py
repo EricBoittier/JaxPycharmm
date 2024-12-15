@@ -7,7 +7,7 @@ import uuid
 import jax.numpy as jnp
 import orbax
 import physnetjax
-from physnetjax.model import EF
+from physnetjax.models.model import EF
 
 DTYPE = jnp.float32
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
