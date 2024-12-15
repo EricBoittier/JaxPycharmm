@@ -94,7 +94,7 @@ def setup_calculator(atoms, params, model):
         ml_fq=False,
     )
 
-    return verify_energy(U)
+    return verify_energy(U), _
 
 
 def verify_energy(U, atol=1e-4):
@@ -133,7 +133,8 @@ def main():
     setup_coordinates(pdb_file, psf_file, atoms)
 
     # Setup calculator and run minimization
-    if setup_calculator(atoms, params, model):
+    calc_setup, _ = setup_calculator(atoms, params, model)
+    if calc_setup:
         pass
     else:
         print("Error in setting up calculator.")
