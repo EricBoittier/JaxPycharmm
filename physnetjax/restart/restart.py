@@ -7,7 +7,7 @@ import orbax
 
 from physnetjax.models.model import EF
 from physnetjax.utils.utils import get_files
-
+import orbax.checkpoint
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 
