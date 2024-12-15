@@ -181,9 +181,11 @@ def change_integrator(dynamics_dict, integrator):
                 "cpt": False,
                 "new": False,
                 "langevin": True,
-                "iasors": 1,
+                "iasors": 0,
                 "iasvel": 1,
                 "ichecw": 0,
+                "twindh": 0,
+                "twindl": 0,
             }
         )
     elif integrator == "verlet":
@@ -194,9 +196,11 @@ def change_integrator(dynamics_dict, integrator):
                 "cpt": False,
                 "new": False,
                 "langevin": False,
-                "iasors": 1,
+                "iasors": 0,
                 "iasvel": 1,
                 "ichecw": 0,
+                "twindh": 10,
+                "twindl": -10,
             }
         )
     else:
