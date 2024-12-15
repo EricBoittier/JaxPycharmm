@@ -1,0 +1,682 @@
+[CpuDevice(id=0)]
+cpu
+[CpuDevice(id=0)]
+shape (9786, 37, 3) not failed [   0    1    2 ... 9783 9784 9785]
+dataR (9786, 37, 3)
+D (9786, 3)
+R (9786, 37, 3)
+(9786, 37, 3)
+['R', 'Z', 'F', 'E', 'N', 'D', 'com']
+9786
+0 R 9786 (9786, 37, 3)
+1 Z 9786 (9786, 37)
+2 F 9786 (9786, 37, 3)
+3 E 9786 (9786, 1)
+4 N 9786 (9786, 1)
+5 D 9786 (9786, 3)
+6 com 9786 (9786, 3)
+Training Routine
+Start Time:  22:31:57
+Traced<ConcreteArray([[-0.82373095 -0.6728697  -0.2504406 ]
+ [ 0.8957739  -0.28393745 -0.5713444 ]
+ [-0.26379967  1.0298576  -0.27634335]
+ ...
+ [ 0.          0.          0.        ]
+ [ 0.          0.          0.        ]
+ [ 0.          0.          0.        ]], dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array([[-0.82373095, -0.6728697 , -0.2504406 ],
+       [ 0.8957739 , -0.28393745, -0.5713444 ],
+       [-0.26379967,  1.0298576 , -0.27634335],
+       ...,
+       [ 0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.        ,  0.        ]], dtype=float32)
+  tangent = Traced<ShapedArray(float32[1332,3])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[1332,3]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x1496a40ca100>, in_tracers=(Traced<ShapedArray(float32[1332,3]):JaxprTrace(level=1/0)>, Traced<ShapedArray(float32[1332,3]):JaxprTrace(level=1/0)>), out_tracer_refs=[<weakref at 0x14962f074400; to 'JaxprTracer' at 0x14962f0740f0>], out_avals=[ShapedArray(float32[1332,3])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[1332,3] b:f32[1332,3]. let c:f32[1332,3] = sub a b in (c,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False), 'name': 'subtract', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x1496a7e8d600>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))
+Traced<ConcreteArray([[[[ 0.06127028  0.5486339   0.08374263 ...  0.68464905  0.5581596
+     0.4951446 ]]]
+
+
+ [[[-0.27824506  2.0385206   0.7804932  ...  0.35246074  0.29281306
+     2.3742676 ]]]
+
+
+ [[[-0.27826807  1.7366545   0.29358962 ...  0.8686074   0.36695024
+     3.4064972 ]]]
+
+
+ ...
+
+
+ [[[ 3.7649448   1.1284524  -0.16005072 ...  4.157887    8.986273
+    13.130662  ]]]
+
+
+ [[[ 3.7649448   1.1284524  -0.16005072 ...  4.157887    8.986273
+    13.130662  ]]]
+
+
+ [[[ 3.7649448   1.1284524  -0.16005072 ...  4.157887    8.986273
+    13.130662  ]]]], dtype=float32)>with<JVPTrace(level=2/0)> with
+  primal = Array([[[[ 0.06127028,  0.5486339 ,  0.08374263, ...,  0.68464905,
+           0.5581596 ,  0.4951446 ]]],
+
+
+       [[[-0.27824506,  2.0385206 ,  0.7804932 , ...,  0.35246074,
+           0.29281306,  2.3742676 ]]],
+
+
+       [[[-0.27826807,  1.7366545 ,  0.29358962, ...,  0.8686074 ,
+           0.36695024,  3.4064972 ]]],
+
+
+       ...,
+
+
+       [[[ 3.7649448 ,  1.1284524 , -0.16005072, ...,  4.157887  ,
+           8.986273  , 13.130662  ]]],
+
+
+       [[[ 3.7649448 ,  1.1284524 , -0.16005072, ...,  4.157887  ,
+           8.986273  , 13.130662  ]]],
+
+
+       [[[ 3.7649448 ,  1.1284524 , -0.16005072, ...,  4.157887  ,
+           8.986273  , 13.130662  ]]]], dtype=float32)
+  tangent = Traced<ShapedArray(float32[37,1,1,64])>with<JaxprTrace(level=1/0)> with
+    pval = (ShapedArray(float32[37,1,1,64]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962eab1bd0>, in_tracers=(Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=1/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=1/0)>, Traced<ConcreteArray([[[[ 0.11583875  0.79611146  0.15543026 ...  0.9495501   0.80716604
+     0.7330359 ]]]
+
+
+ [[[-1.2340157   2.252782    1.0528421  ...  0.5548326   0.4749231
+     2.5581496 ]]]
+
+
+ [[[-1.2363851   1.9771237   0.47598824 ...  1.145015    0.57370293
+     3.5084941 ]]]
+
+
+ ...
+
+
+ [[[ 3.845429    1.4052643  -2.8048656  ...  4.2190595   8.987395
+    13.130689  ]]]
+
+
+ [[[ 3.845429    1.4052643  -2.8048656  ...  4.2190595   8.987395
+    13.130689  ]]]
+
+
+ [[[ 3.845429    1.4052643  -2.8048656  ...  4.2190595   8.987395
+    13.130689  ]]]], dtype=float32):JaxprTrace(level=1/0)>, Traced<ConcreteArray([[[[0.5289273  0.68914205 0.5387795  ... 0.7210247  0.6915053
+    0.6754711 ]]]
+
+
+ [[[0.22547936 0.9048903  0.74132025 ... 0.63525605 0.61654836
+    0.9281191 ]]]
+
+
+ [[[0.22506584 0.8783742  0.6168001  ... 0.75859916 0.63961715
+    0.97092855]]]
+
+
+ ...
+
+
+ [[[0.9790702  0.8030179  0.05706181 ... 0.9855009  0.99987507
+    0.999998  ]]]
+
+
+ [[[0.9790702  0.8030179  0.05706181 ... 0.9855009  0.99987507
+    0.999998  ]]]
+
+
+ [[[0.9790702  0.8030179  0.05706181 ... 0.9855009  0.99987507
+    0.999998  ]]]], dtype=float32):JaxprTrace(level=1/0)>), out_tracer_refs=[<weakref at 0x14962df88770; to 'JaxprTracer' at 0x14962df88730>], out_avals=[ShapedArray(float32[37,1,1,64])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[37,1,1,64] b:f32[37,1,1,64] c:f32[37,1,1,64] d:f32[37,1,1,64]. let
+    e:f32[37,1,1,64] = mul a c
+    f:f32[37,1,1,64] = mul d b
+    g:f32[37,1,1,64] = add_any e f
+  in (g,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue, UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None, None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False, False, False), 'name': '_multiply', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962df81360>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))
+{'energy': Array([[[[7576.4355]]]], dtype=float32), 'forces': Array([[ 203.33826  ,  -64.94525  ,  508.84528  ],
+       [  58.61684  ,    9.881569 ,   91.96095  ],
+       [   7.4196606,   -2.1108325,  105.50404  ],
+       [  41.14224  ,  -42.224846 ,   91.67474  ],
+       [ 186.93863  ,  -58.52649  ,  278.80597  ],
+       [ 437.99335  ,  104.705345 ,  176.58865  ],
+       [ -35.51602  , -263.75098  ,  234.9849   ],
+       [ -28.181473 ,  -55.213234 ,   55.364967 ],
+       [-102.56047  , -226.98056  ,  -71.14831  ],
+       [ -53.623352 ,  -62.650173 ,  -16.363564 ],
+       [ 112.631195 , -329.5354   , -256.82855  ],
+       [  24.529392 ,  -90.9393   ,  -30.11701  ],
+       [  52.853138 ,  -34.531403 ,  -43.931946 ],
+       [   3.6117303,  -57.28501  ,  -80.63493  ],
+       [-199.01555  ,   67.38198  , -121.44307  ],
+       [-487.73596  ,  219.05003  ,   27.318428 ],
+       [ -68.63473  ,  207.32007  , -374.73196  ],
+       [  20.295425 ,   22.753883 ,  -71.84213  ],
+       [-110.242165 ,  413.90982  , -332.34784  ],
+       [ -21.431488 ,   95.07121  ,  -29.174316 ],
+       [ -48.122902 ,   68.22386  ,  -68.538994 ],
+       [   5.6942434,   80.395706 ,  -73.94534  ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ],
+       [   0.       ,    0.       ,    0.       ]], dtype=float32), 'charges': Array([[[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]],
+
+
+       [[[0.]]]], dtype=float32), 'electrostatics': Array([-117.44164], dtype=float32)}
+EF(
+    # attributes
+    features = 64
+    max_degree = 0
+    num_iterations = 2
+    num_basis_functions = 20
+    cutoff = 10.0
+    max_atomic_number = 11
+    charges = True
+    natoms = 37
+    total_charge = 0
+    n_res = 3
+    zbl = True
+    debug = ['idx']
+)
+['idx']
+Traced<ShapedArray(float32[1332,3])>with<JVPTrace(level=5/0)> with
+  primal = Traced<ShapedArray(float32[1332,3])>with<DynamicJaxprTrace(level=1/0)>
+  tangent = Traced<ShapedArray(float32[1332,3])>with<JaxprTrace(level=4/0)> with
+    pval = (ShapedArray(float32[1332,3]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962da64f40>, in_tracers=(Traced<ShapedArray(float32[1332,3]):JaxprTrace(level=4/0)>, Traced<ShapedArray(float32[1332,3]):JaxprTrace(level=4/0)>), out_tracer_refs=[<weakref at 0x14962d26c040; to 'JaxprTracer' at 0x14962d26bfc0>], out_avals=[ShapedArray(float32[1332,3])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[1332,3] b:f32[1332,3]. let c:f32[1332,3] = sub a b in (c,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False), 'name': 'subtract', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962d897250>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))
+Traced<ShapedArray(float32[37,1,1,64])>with<JVPTrace(level=5/0)> with
+  primal = Traced<ShapedArray(float32[37,1,1,64])>with<JVPTrace(level=3/0)> with
+    primal = Traced<ShapedArray(float32[37,1,1,64])>with<DynamicJaxprTrace(level=1/0)>
+    tangent = Traced<ShapedArray(float32[37,1,1,64])>with<JaxprTrace(level=2/0)> with
+      pval = (ShapedArray(float32[37,1,1,64]), None)
+      recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962d331540>, in_tracers=(Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>), out_tracer_refs=[<weakref at 0x14962d19cae0; to 'JaxprTracer' at 0x14962d19caa0>], out_avals=[ShapedArray(float32[37,1,1,64])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[37,1,1,64] b:f32[37,1,1,64] c:f32[37,1,1,64] d:f32[37,1,1,64]. let
+    e:f32[37,1,1,64] = mul a c
+    f:f32[37,1,1,64] = mul d b
+    g:f32[37,1,1,64] = add_any e f
+  in (g,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue, UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None, None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False, False, False), 'name': '_multiply', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962d194d60>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))
+  tangent = Traced<ShapedArray(float32[37,1,1,64])>with<JaxprTrace(level=4/0)> with
+    pval = (ShapedArray(float32[37,1,1,64]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962d331510>, in_tracers=(Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=4/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=4/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=4/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=4/0)>), out_tracer_refs=[<weakref at 0x14962d19cb80; to 'JaxprTracer' at 0x14962d19cb40>], out_avals=[ShapedArray(float32[37,1,1,64])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[37,1,1,64] b:f32[37,1,1,64] c:f32[37,1,1,64] d:f32[37,1,1,64]. let
+    e:f32[37,1,1,64] = mul a c
+    f:f32[37,1,1,64] = mul d b
+    g:f32[37,1,1,64] = add_any e f
+  in (g,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue, UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None, None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False, False, False), 'name': '_multiply', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962d194c10>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))
+{'energy': Traced<ShapedArray(float32[1,1,1,1])>with<JVPTrace(level=3/0)> with
+  primal = Traced<ShapedArray(float32[1,1,1,1])>with<DynamicJaxprTrace(level=1/0)>
+  tangent = Traced<ShapedArray(float32[1,1,1,1])>with<JaxprTrace(level=2/0)> with
+    pval = (ShapedArray(float32[1,1,1,1]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962d062010>, in_tracers=(Traced<ShapedArray(float32[1,1,1,1]):JaxprTrace(level=2/0)>, Traced<ShapedArray(int32[37,1]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,1]):JaxprTrace(level=2/0)>), out_tracer_refs=[<weakref at 0x14962d0dd990; to 'JaxprTracer' at 0x14962d0dd950>], out_avals=[ShapedArray(float32[1,1,1,1])], primitive=scatter-add, params={'update_jaxpr': { lambda ; a:f32[] b:f32[]. let c:f32[] = add a b in (c,) }, 'update_consts': (), 'dimension_numbers': ScatterDimensionNumbers(update_window_dims=(1, 2, 3), inserted_window_dims=(0,), scatter_dims_to_operand_dims=(0,)), 'indices_are_sorted': False, 'unique_indices': False, 'mode': <GatherScatterMode.FILL_OR_DROP: 2>}, effects=frozenset(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962d0e8370>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={})), 'forces': Traced<ShapedArray(float32[37,3])>with<JVPTrace(level=3/0)> with
+  primal = Traced<ShapedArray(float32[37,3])>with<DynamicJaxprTrace(level=1/0)>
+  tangent = Traced<ShapedArray(float32[37,3])>with<JaxprTrace(level=2/0)> with
+    pval = (ShapedArray(float32[37,3]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962d4b7d70>, in_tracers=(Traced<ShapedArray(float32[37,3]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1]):JaxprTrace(level=2/0)>), out_tracer_refs=[<weakref at 0x14962d27c5e0; to 'JaxprTracer' at 0x14962d27ca00>], out_avals=[ShapedArray(float32[37,3])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[37,3] b:f32[37,1]. let c:f32[37,3] = mul a b in (c,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False), 'name': '_multiply', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962dfbb970>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={})), 'charges': Traced<ShapedArray(float32[37,1,1,1])>with<JVPTrace(level=3/0)> with
+  primal = Traced<ShapedArray(float32[37,1,1,1])>with<DynamicJaxprTrace(level=1/0)>
+  tangent = Traced<ShapedArray(float32[37,1,1,1])>with<JaxprTrace(level=2/0)> with
+    pval = (ShapedArray(float32[37,1,1,1]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962d332580>, in_tracers=(Traced<ShapedArray(float32[37,1,1,1]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,1]):JaxprTrace(level=2/0)>), out_tracer_refs=[<weakref at 0x14962d1c9cb0; to 'JaxprTracer' at 0x14962d1c9db0>], out_avals=[ShapedArray(float32[37,1,1,1])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[37,1,1,1] b:f32[37,1,1,1]. let
+    c:f32[37,1,1,1] = mul a b
+  in (c,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False), 'name': '_multiply', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962d1b3f70>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={})), 'electrostatics': Traced<ShapedArray(float32[1])>with<JVPTrace(level=3/0)> with
+  primal = Traced<ShapedArray(float32[1])>with<DynamicJaxprTrace(level=1/0)>
+  tangent = Traced<ShapedArray(float32[1])>with<JaxprTrace(level=2/0)> with
+    pval = (ShapedArray(float32[1]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962d333520>, in_tracers=(Traced<ShapedArray(float32[1]):JaxprTrace(level=2/0)>, Traced<ShapedArray(int32[37,1]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37]):JaxprTrace(level=2/0)>), out_tracer_refs=[<weakref at 0x14962d2409a0; to 'JaxprTracer' at 0x14962d240960>], out_avals=[ShapedArray(float32[1])], primitive=scatter-add, params={'update_jaxpr': { lambda ; a:f32[] b:f32[]. let c:f32[] = add a b in (c,) }, 'update_consts': (), 'dimension_numbers': ScatterDimensionNumbers(update_window_dims=(), inserted_window_dims=(0,), scatter_dims_to_operand_dims=(0,)), 'indices_are_sorted': False, 'unique_indices': False, 'mode': <GatherScatterMode.FILL_OR_DROP: 2>}, effects=frozenset(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962d22d9f0>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))}
+updates {'params': {'Dense_0': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_1': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_10': {'0+': {'kernel': Array([[nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan]], dtype=float32)}}, 'Dense_11': {'kernel': Array([[nan]], dtype=float32)}, 'Dense_2': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_3': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_4': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_5': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_6': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_7': {'0+': {'bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+       nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'Dense_8': {'0+': {'kernel': Array([[nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan],
+       [nan]], dtype=float32)}}, 'Dense_9': {'kernel': Array([[nan]], dtype=float32)}, 'Embed_0': {'embedding': Array([[[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]],
+
+
+       [[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+          nan, nan, nan, nan]]]], dtype=float32)}, 'MessagePass_0': {'filter': {'0+': {'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'tensor': {'kernel': Array([[[[[[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan]]]]]]],      dtype=float32)}}, 'MessagePass_1': {'filter': {'0+': {'kernel': Array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       ...,
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)}}, 'tensor': {'kernel': Array([[[[[[[nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan,
+             nan, nan, nan, nan, nan, nan, nan, nan, nan]]]]]]],      dtype=float32)}}, 'charge_bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'energy_bias': Array([nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan],      dtype=float32), 'repulsion': {'a_coefficient': Array(nan, dtype=float32), 'a_exponent': Array(nan, dtype=float32), 'phi_coefficients': Array([nan, nan, nan, nan], dtype=float32), 'phi_exponents': Array([nan, nan, nan, nan], dtype=float32)}}}
+8469952.0
+Traced<ShapedArray(float32[1332,3])>with<JVPTrace(level=3/0)> with
+  primal = Traced<ShapedArray(float32[1332,3])>with<DynamicJaxprTrace(level=1/0)>
+  tangent = Traced<ShapedArray(float32[1332,3])>with<JaxprTrace(level=2/0)> with
+    pval = (ShapedArray(float32[1332,3]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962cf9bb50>, in_tracers=(Traced<ShapedArray(float32[1332,3]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[1332,3]):JaxprTrace(level=2/0)>), out_tracer_refs=[<weakref at 0x14962d214310; to 'JaxprTracer' at 0x14962d2141e0>], out_avals=[ShapedArray(float32[1332,3])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[1332,3] b:f32[1332,3]. let c:f32[1332,3] = sub a b in (c,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False), 'name': 'subtract', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962cb089a0>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))
+Traced<ShapedArray(float32[37,1,1,64])>with<JVPTrace(level=3/0)> with
+  primal = Traced<ShapedArray(float32[37,1,1,64])>with<DynamicJaxprTrace(level=1/0)>
+  tangent = Traced<ShapedArray(float32[37,1,1,64])>with<JaxprTrace(level=2/0)> with
+    pval = (ShapedArray(float32[37,1,1,64]), None)
+    recipe = JaxprEqnRecipe(eqn_id=<object object at 0x14962da64fc0>, in_tracers=(Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>, Traced<ShapedArray(float32[37,1,1,64]):JaxprTrace(level=2/0)>), out_tracer_refs=[<weakref at 0x14962df4c2c0; to 'JaxprTracer' at 0x14962df4c370>], out_avals=[ShapedArray(float32[37,1,1,64])], primitive=pjit, params={'jaxpr': { lambda ; a:f32[37,1,1,64] b:f32[37,1,1,64] c:f32[37,1,1,64] d:f32[37,1,1,64]. let
+    e:f32[37,1,1,64] = mul a c
+    f:f32[37,1,1,64] = mul d b
+    g:f32[37,1,1,64] = add_any e f
+  in (g,) }, 'in_shardings': (UnspecifiedValue, UnspecifiedValue, UnspecifiedValue, UnspecifiedValue), 'out_shardings': (UnspecifiedValue,), 'in_layouts': (None, None, None, None), 'out_layouts': (None,), 'resource_env': None, 'donated_invars': (False, False, False, False), 'name': '_multiply', 'keep_unused': False, 'inline': True}, effects=set(), source_info=<jax._src.source_info_util.SourceInfo object at 0x14962cb3a9e0>, ctx=JaxprEqnContext(compute_type=None, threefry_partitionable=False, xla_metadata={}))
+{'energy': Traced<ShapedArray(float32[1,1,1,1])>with<DynamicJaxprTrace(level=1/0)>, 'forces': Traced<ShapedArray(float32[37,3])>with<DynamicJaxprTrace(level=1/0)>, 'charges': Traced<ShapedArray(float32[37,1,1,1])>with<DynamicJaxprTrace(level=1/0)>, 'electrostatics': Traced<ShapedArray(float32[1])>with<DynamicJaxprTrace(level=1/0)>}
+{'energy': Traced<ShapedArray(float32[1,1,1,1])>with<DynamicJaxprTrace(level=1/0)>, 'forces': Traced<ShapedArray(float32[37,3])>with<DynamicJaxprTrace(level=1/0)>, 'charges': Traced<ShapedArray(float32[37,1,1,1])>with<DynamicJaxprTrace(level=1/0)>, 'electrostatics': Traced<ShapedArray(float32[1])>with<DynamicJaxprTrace(level=1/0)>}

@@ -60,5 +60,5 @@ dist/
 # Ignore specific folders not needed
 #example_training/
 #input/
-#slurm/
+slurm/analysis/*
 

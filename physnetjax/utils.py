@@ -69,7 +69,7 @@ def get_params_model(restart: str, natoms: int = None):
     # print("Restored keys:", restored.keys())
 
     params = restored["params"]
-
+    print(restored["model"].keys())
     if "model_attributes" not in restored.keys():
         return params, None
 
@@ -103,7 +103,7 @@ def _process_model_attributes(
 
     import re
 
-    non_decimal = re.compile(r"[^\d.]+")
+    non_decimal = re.compile(r"^-?[0-9]\d*(\.\d+)?$")
     for field in int_fields:
         kwargs[field] = int(non_decimal.sub("", kwargs[field]))
     for field in float_fields:
