@@ -111,8 +111,8 @@ with open("i_", "w") as f:
     pass
 
 energy.show()
-userE = energy.get_energy()
+userE = energy.get_energy()["USER"]
 print(userE)
 
-assert np.isclose(U, userE, atol=1e-4)
+assert np.isclose(U.squeeze(), userE, atol=1e-4)
 print("Success")
