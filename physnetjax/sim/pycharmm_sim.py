@@ -101,6 +101,8 @@ charge = 0
 Model = get_pyc(params, model, atoms)
 
 print(dir(Model))
+print(Model)
+
 Z = np.array(Z)
 print(Z)
 print(ml_selection)
