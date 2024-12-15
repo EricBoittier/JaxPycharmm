@@ -96,3 +96,5 @@ I
 physnetjax/utils/utils.py,c/4/c4a1676995880fdb56f32dc35464a284502dddf9
 T
 $physnetjax/sim/do_test_load_model.py,8/b/8b06b9753f22c436744c93949a15a935a5103c9f
+I
+physnetjax/sim/ase_sim.py,3/4/344ceeb3ae859e7584eb9478a9777fb05ca336a7
