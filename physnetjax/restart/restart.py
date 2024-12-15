@@ -6,6 +6,7 @@ from datetime import datetime
 import orbax
 
 from physnetjax.models.model import EF
+from physnetjax.utils.utils import get_files
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
