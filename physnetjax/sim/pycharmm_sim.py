@@ -117,6 +117,213 @@ def run_minimization(output_pdb):
     write.coor_pdb(output_pdb)
 
 
+def get_base_dynamics_dict():
+    """Return the base dictionary for dynamics simulations."""
+    return {
+        "leap": False,
+        "verlet": True,
+        "cpt": False,
+        "new": False,
+        "langevin": False,
+        "nsavv": 0,
+        "inbfrq": 10,
+        "ihbfrq": 0,
+        "iunldm": -1,
+        "ilap": -1,
+        "ilaf": -1,
+        "TEMINC": 10,
+        "TWINDH": 10,
+        "TWINDL": -10,
+        "iasors": 1,
+        "iasvel": 1,
+        "ichecw": 0,
+    }
+
+
+def setup_charmm_files(prefix, phase):
+    """Setup CHARMM files for different simulation phases."""
+    files = {}
+    if phase == "heating":
+        files["res"] = pycharmm.CharmmFile(
+            file_name=f"{prefix}.res", file_unit=2, formatted=True, read_only=False
+        )
+        files["dcd"] = pycharmm.CharmmFile(
+            file_name=f"{prefix}.dcd", file_unit=1, formatted=False, read_only=False
+        )
+    else:
+        files["str"] = pycharmm.CharmmFile(
+            file_name=f"{prefix}.{phase}.res",
+            file_unit=3,
+            formatted=True,
+            read_only=False,
+        )
+        files["res"] = pycharmm.CharmmFile(
+            file_name=f"{prefix}.{phase}.res",
+            file_unit=2,
+            formatted=True,
+            read_only=False,
+        )
+        files["dcd"] = pycharmm.CharmmFile(
+            file_name=f"{prefix}.{phase}.dcd",
+            file_unit=1,
+            formatted=False,
+            read_only=False,
+        )
+    return files
+
+
+def run_heating(
+    timestep=0.001,
+    tottime=5.0,
+    savetime=0.10,
+    initial_temp=10,
+    final_temp=300,
+    prefix="restart",
+    nprint=10,
+):
+    """
+    Run the heating phase of molecular dynamics.
+
+    Args:
+        timestep (float): Timestep in ps (default: 0.001 = 0.5 fs)
+        tottime (float): Total simulation time in ps (default: 5.0 = 10 ps)
+        savetime (float): Save frequency in ps (default: 0.10 = 100 fs)
+        initial_temp (float): Initial temperature in K (default: 10)
+        final_temp (float): Final temperature in K (default: 300)
+        prefix (str): Prefix for output files (default: "restart")
+        nprint (int): Print frequency (default: 10)
+    """
+    files = setup_charmm_files(prefix, "heating")
+    nstep = int(tottime / timestep)
+    nsavc = int(savetime / timestep)
+
+    dynamics_dict = get_base_dynamics_dict()
+    dynamics_dict.update(
+        {
+            "timestep": timestep,
+            "start": True,
+            "nstep": nstep,
+            "nsavc": nsavc,
+            "ilbfrq": 50,
+            "imgfrq": 0,
+            "ixtfrq": 0,
+            "iunrea": -1,
+            "iunwri": files["res"].file_unit,
+            "iuncrd": files["dcd"].file_unit,
+            "nsavl": 0,
+            "nprint": nprint,
+            "iprfrq": 1000,
+            "isvfrq": 1000,
+            "ntrfrq": 0,
+            "ihtfrq": 500,
+            "ieqfrq": 100,
+            "firstt": initial_temp,
+            "finalt": final_temp,
+            "echeck": -1,
+        }
+    )
+
+    dyn_heat = pycharmm.DynamicsScript(**dynamics_dict)
+    dyn_heat.run()
+    write.coor_pdb(f"{prefix}.pdb")
+
+    for file in files.values():
+        file.close()
+
+
+def run_equilibration(
+    timestep=0.001, tottime=5.0, savetime=0.01, temp=300, prefix="mm"
+):
+    """
+    Run the equilibration phase of molecular dynamics.
+
+    Args:
+        timestep (float): Timestep in ps (default: 0.001 = 0.2 fs)
+        tottime (float): Total simulation time in ps (default: 5.0 = 50 ps)
+        savetime (float): Save frequency in ps (default: 0.01 = 10 fs)
+        temp (float): Temperature in K (default: 300)
+        prefix (str): Prefix for output files (default: "mm")
+    """
+    files = setup_charmm_files(prefix, "equi")
+    nstep = int(tottime / timestep)
+    nsavc = int(savetime / timestep)
+
+    dynamics_dict = get_base_dynamics_dict()
+    dynamics_dict.update(
+        {
+            "timestep": timestep,
+            "start": False,
+            "restart": True,
+            "nstep": nstep,
+            "nsavc": nsavc,
+            "imgfrq": 10,
+            "iunrea": files["str"].file_unit,
+            "iunwri": files["res"].file_unit,
+            "iuncrd": files["dcd"].file_unit,
+            "nsavl": 0,
+            "nprint": 10,
+            "iprfrq": 100,
+            "ieqfrq": 100,
+            "firstt": temp,
+            "finalt": temp,
+        }
+    )
+
+    dyn_equi = pycharmm.DynamicsScript(**dynamics_dict)
+    dyn_equi.run()
+
+    for file in files.values():
+        file.close()
+
+    write.coor_pdb(f"{prefix}.equi.pdb")
+    write.coor_card(f"{prefix}.equi.cor")
+    write.psf_card(f"{prefix}.equi.psf")
+
+
+def run_production(timestep=0.001, nsteps=1000000, temp=300, prefix="mm"):
+    """
+    Run the production phase of molecular dynamics.
+
+    Args:
+        timestep (float): Timestep in ps (default: 0.001 = 0.2 fs)
+        nsteps (int): Number of simulation steps (default: 1000000)
+        temp (float): Temperature in K (default: 300)
+        prefix (str): Prefix for output files (default: "mm")
+    """
+    files = setup_charmm_files(prefix, "dyna")
+
+    dynamics_dict = get_base_dynamics_dict()
+    dynamics_dict.update(
+        {
+            "timestep": timestep,
+            "start": False,
+            "restart": True,
+            "nstep": nsteps,
+            "nsavc": 500,
+            "imgfrq": 10,
+            "iunrea": files["str"].file_unit,
+            "iunwri": files["res"].file_unit,
+            "iuncrd": files["dcd"].file_unit,
+            "nsavl": 0,
+            "nprint": 10,
+            "iprfrq": 100,
+            "ieqfrq": 0,
+            "firstt": temp,
+            "finalt": temp,
+        }
+    )
+
+    dyn_prod = pycharmm.DynamicsScript(**dynamics_dict)
+    dyn_prod.run()
+
+    for file in files.values():
+        file.close()
+
+    write.coor_pdb(f"{prefix}.dyna.pdb")
+    write.coor_card(f"{prefix}.dyna.cor")
+    write.psf_card(f"{prefix}.dyna.psf")
+
+
 def main():
     """Main function to run the simulation."""
     print_device_info()
@@ -139,6 +346,7 @@ def main():
     else:
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
+    run_heating()
 
 
 if __name__ == "__main__":
