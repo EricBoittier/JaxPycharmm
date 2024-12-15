@@ -172,6 +172,38 @@ def setup_charmm_files(prefix, phase):
     return files
 
 
+def change_integrator(dynamics_dict, integrator):
+    if integrator == "langevin":
+        dynamics_dict.update(
+            {
+                "leap": False,
+                "verlet": False,
+                "cpt": False,
+                "new": False,
+                "langevin": True,
+                "iasors": 1,
+                "iasvel": 1,
+                "ichecw": 0,
+            }
+        )
+    elif integrator == "verlet":
+        dynamics_dict.update(
+            {
+                "leap": False,
+                "verlet": True,
+                "cpt": False,
+                "new": False,
+                "langevin": False,
+                "iasors": 1,
+                "iasvel": 1,
+                "ichecw": 0,
+            }
+        )
+    else:
+        raise ValueError(f"Integrator {integrator} not supported.")
+    return dynamics_dict
+
+
 def run_heating(
     timestep=0.0005,
     tottime=5.0,
@@ -180,6 +212,7 @@ def run_heating(
     final_temp=300,
     prefix="restart",
     nprint=100,
+    integrator="langevin",
 ):
     """
     Run the heating phase of molecular dynamics.
@@ -226,7 +259,7 @@ def run_heating(
             "echeck": 1000,
         }
     )
-
+    dynamics_dict = change_integrator(dynamics_dict, integrator)
     dyn_heat = pycharmm.DynamicsScript(**dynamics_dict)
     dyn_heat.run()
     write.coor_pdb(f"{prefix}.pdb")
@@ -236,7 +269,7 @@ def run_heating(
 
 
 def run_equilibration(
-    timestep=0.001, tottime=5.0, savetime=0.01, temp=300, prefix="mm"
+    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="mm"
 ):
     """
     Run the equilibration phase of molecular dynamics.
@@ -284,7 +317,7 @@ def run_equilibration(
     write.psf_card(f"{prefix}.equi.psf")
 
 
-def run_production(timestep=0.001, nsteps=1000000, temp=300, prefix="mm"):
+def run_production(timestep=0.0005, nsteps=1000000, temp=300, prefix="mm"):
     """
     Run the production phase of molecular dynamics.
 
