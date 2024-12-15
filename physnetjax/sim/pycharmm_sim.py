@@ -140,7 +140,7 @@ def get_base_dynamics_dict():
     }
 
 
-def setup_charmm_files(prefix, phase):
+def setup_charmm_files(prefix, phase, restart=False):
     """Setup CHARMM files for different simulation phases."""
     files = {}
     if phase == "heating":
@@ -157,6 +157,10 @@ def setup_charmm_files(prefix, phase):
             formatted=True,
             read_only=False,
         )
+        if restart:
+            files["res_old"] = pycharmm.CharmmFile(
+                file_name=restart, file_unit=2, formatted=True, read_only=True
+            )
         files["res"] = pycharmm.CharmmFile(
             file_name=f"{prefix}.{phase}.res",
             file_unit=2,
@@ -274,7 +278,8 @@ def run_heating(
 
 
 def run_equilibration(
-    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet"
+    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
+        restart=False
 ):
     """
     Run the equilibration phase of molecular dynamics.
@@ -286,7 +291,7 @@ def run_equilibration(
         temp (float): Temperature in K (default: 300)
         prefix (str): Prefix for output files (default: "mm")
     """
-    files = setup_charmm_files(prefix, "equi")
+    files = setup_charmm_files(prefix, "equi", restart=restart)
     nstep = int(tottime / timestep)
     nsavc = int(savetime / timestep)
 
@@ -392,7 +397,7 @@ def main():
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
     run_heating(integrator="verlet")
-    run_equilibration(integrator="langevin")
+    run_equilibration(integrator="langevin", restart="restart.res")
 
 
 if __name__ == "__main__":
