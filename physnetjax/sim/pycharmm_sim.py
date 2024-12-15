@@ -46,7 +46,6 @@ from physnetjax.restart.restart import get_params_model_with_ase
 
 pdb_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb"
 atoms = io.read(pdb_file)
-print(atoms)
 pkl_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
 model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
 
@@ -75,8 +74,7 @@ coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
 # set the segment ID
 
 stats = coor.stat()
-print(stats)
-minimize.run_sd(**{"nstep": 2000, "tolenr": 1e-5, "tolgrd": 1e-5})
+minimize.run_sd(**{"nstep": 1, "tolenr": 1e-5, "tolgrd": 1e-5})
 stream.charmm_script("print coor")
 
 ##########################
@@ -91,23 +89,16 @@ calculator = get_ase_calc(params, model, atoms)
 atoms.calc = calculator
 atoms1 = atoms.copy()
 ml_selection = pycharmm.SelectAtoms().by_res_id("1")
-print("ml_selection", list(ml_selection))
-
 
 energy.show()
 U = atoms.get_potential_energy() / (units.kcal / units.mol)
-print(U)
 stream.charmm_script(f"echo {U}")
 charge = 0
-print(model)
 Model = get_pyc(params, model, atoms)
 
-print(dir(Model))
-print(Model)
 
 Z = np.array(Z)
-print(Z)
-print(ml_selection)
+
 # Initialize PhysNet calculator
 _ = pycharmm.MLpot(
     Model,
@@ -117,7 +108,6 @@ _ = pycharmm.MLpot(
 )
 
 with open("i_", "w") as f:
-    print("...")
-print(_)
+    pass
 
 energy.show()
