@@ -113,11 +113,13 @@ with open("i_", "w") as f:
 energy.show()
 userE = energy.get_energy()["USER"]
 print(userE)
+atol = 1e-4
+assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
+print(f"Success! energies are close, within {atol} kcal/mol")
 
-assert np.isclose(float(U.squeeze()), float(userE), atol=1e-4)
-print("Success")
-
-minimize.run_sd(**{"nstep": 1000, "tolenr": 1e-5, "tolgrd": 1e-5})
+minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+energy.show()
+minimize.run_abnr(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
 energy.show()
 stream.charmm_script("print coor")
 # write the final coordinates to a pdb file
