@@ -1,6 +1,8 @@
 # Basics
 import os
 
+import ase
+
 # os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count=8'
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
@@ -41,6 +43,7 @@ import pycharmm.lingo as stream
 import pandas as pd
 pdb_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb"
 atoms = io.read(pdb_file)
+print(atoms)
 pkl_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
 model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
 
@@ -70,3 +73,48 @@ read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
 
 stats = coor.stat()
 print(stats)
+
+##########################
+
+Z = atoms.get_atomic_numbers()
+Z = [_ if _ < 9 else 6 for _ in Z]
+stream.charmm_script(f"echo {Z}")
+R = atoms.get_positions()
+
+atoms = ase.Atoms(Z, R)
+
+from physnetjax.calc.helper_mlp import get_ase_calc, get_pyc
+
+calculator = get_ase_calc(params, model, atoms)
+atoms.set_calculator(calculator)
+atoms1 = atoms.copy()
+
+ml_selection = pycharmm.SelectAtoms(seg_id="PEPT")
+print(ml_selection)
+
+energy.show()
+U = atoms.get_potential_energy() / (units.kcal / units.mol)
+print(U)
+stream.charmm_script(f"echo {U}")
+
+charge = 1
+
+Model = get_pyc(params, model, atoms)
+
+print(dir(Model))
+
+# Initialize PhysNet calculator
+_ = pycharmm.MLpot(
+    Model,
+    Z,
+    ml_selection,
+    ml_fq=False,
+)
+
+with open("i_", "w") as f:
+    print("...")
+print(_)
+
+
+energy.show()
+
