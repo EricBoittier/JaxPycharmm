@@ -1,126 +1,140 @@
-# Basics
 import os
-import numpy as np
-import ase
 
-# os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count=8'
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
-# ASE
-from ase import io
-
-# PyCHARMM
 os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
 os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cmake"
 
-# from pycharmm_calculator import PyCharmm_Calculator
 
-import jax
-
-devices = jax.local_devices()
-print(devices)
-print(jax.default_backend())
-print(jax.devices())
-
-# os.sleep(1)
-# with open("i_", "w") as f:
-#     print("...")
-
-# ASE
-from ase import io
+import ase
 import ase.units as units
-
-# PyCHARMM
+import jax
+import numpy as np
+import pandas as pd
 import pycharmm
 import pycharmm.coor as coor
 import pycharmm.energy as energy
+import pycharmm.lingo as stream
 import pycharmm.minimize as minimize
 import pycharmm.read as read
-import pycharmm.write as write
 import pycharmm.settings as settings
-import pycharmm.lingo as stream
+import pycharmm.write as write
 
-import pandas as pd
 from physnetjax.calc.helper_mlp import get_ase_calc, get_pyc
 from physnetjax.restart.restart import get_params_model_with_ase
 
-pdb_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb"
-atoms = io.read(pdb_file)
-pkl_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
-model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
+# Environment settings
 
 
-params, model = get_params_model_with_ase(pkl_path, model_path, atoms)
+def print_device_info():
+    """Print JAX device information."""
+    devices = jax.local_devices()
+    print(devices)
+    print(jax.default_backend())
+    print(jax.devices())
 
-# Read in the topology (rtf) and parameter file (prm) for proteins
-# equivalent to the CHARMM scripting command: read rtf card name toppar/top_all36_prot.rtf
-read.rtf("/pchem-data/meuwly/boittier/home/charmm/toppar/top_all36_prot.rtf")
-# equivalent to the CHARMM scripting command: read param card flexible name toppar/par_all36m_prot.prm
-read.prm(
-    "/pchem-data/meuwly/boittier/home/charmm/toppar/par_all36m_prot.prm", flex=True
-)
-pycharmm.lingo.charmm_script(
-    "stream /pchem-data/meuwly/boittier/home/charmm/toppar/toppar_water_ions.str"
-)
 
-settings.set_bomb_level(-2)
-settings.set_warn_level(-1)
+def initialize_system(pdb_file, pkl_path, model_path):
+    """Initialize the system with PDB file and model parameters."""
+    atoms = io.read(pdb_file)
+    params, model = get_params_model_with_ase(pkl_path, model_path, atoms)
 
-# Set the coordinates of the atoms
-read.pdb(pdb_file, resid=True)
-read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
-# requires a pandas data frame with x,y,z as headers
-coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
-# set the segment ID
+    # Read topology and parameter files
+    read.rtf("/pchem-data/meuwly/boittier/home/charmm/toppar/top_all36_prot.rtf")
+    read.prm(
+        "/pchem-data/meuwly/boittier/home/charmm/toppar/par_all36m_prot.prm", flex=True
+    )
+    pycharmm.lingo.charmm_script(
+        "stream /pchem-data/meuwly/boittier/home/charmm/toppar/toppar_water_ions.str"
+    )
 
-stats = coor.stat()
-# minimize.run_sd(**{"nstep": 1, "tolenr": 1e-5, "tolgrd": 1e-5})
-stream.charmm_script("print coor")
+    return atoms, params, model
+
+
+def setup_coordinates(pdb_file, psf_file, atoms):
+    """Setup system coordinates and parameters."""
+    settings.set_bomb_level(-2)
+    settings.set_warn_level(-1)
+
+    read.pdb(pdb_file, resid=True)
+    read.psf_card(psf_file)
+    coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
+
+    stats = coor.stat()
+    stream.charmm_script("print coor")
+
 
 ##########################
 
-Z = atoms.get_atomic_numbers()
-Z = [_ if _ < 9 else 6 for _ in Z]
-stream.charmm_script(f"echo {Z}")
-R = atoms.get_positions()
-atoms = ase.Atoms(Z, R)
 
-calculator = get_ase_calc(params, model, atoms)
-atoms.calc = calculator
-atoms1 = atoms.copy()
-ml_selection = pycharmm.SelectAtoms().by_res_id("1")
+def setup_calculator(atoms, params, model):
+    """Setup the calculator and verify energies."""
+    Z = atoms.get_atomic_numbers()
+    Z = [_ if _ < 9 else 6 for _ in Z]
+    stream.charmm_script(f"echo {Z}")
+    R = atoms.get_positions()
+    atoms = ase.Atoms(Z, R)
 
-energy.show()
-U = atoms.get_potential_energy() / (units.kcal / units.mol)
-stream.charmm_script(f"echo {U}")
-charge = 0
-Model = get_pyc(params, model, atoms)
+    calculator = get_ase_calc(params, model, atoms)
+    atoms.calc = calculator
+    ml_selection = pycharmm.SelectAtoms().by_res_id("1")
+
+    energy.show()
+    U = atoms.get_potential_energy() / (units.kcal / units.mol)
+    stream.charmm_script(f"echo {U}")
+
+    Model = get_pyc(params, model, atoms)
+    Z = np.array(Z)
+
+    # Initialize PhysNet calculator
+    _ = pycharmm.MLpot(
+        Model,
+        Z,
+        ml_selection,
+        ml_fq=False,
+    )
+
+    return verify_energy(U)
 
 
-Z = np.array(Z)
+def verify_energy(U, atol=1e-4):
+    """Verify that energies match within tolerance."""
+    energy.show()
+    userE = energy.get_energy()["USER"]
+    print(userE)
+    assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
+    print(f"Success! energies are close, within {atol} kcal/mol")
+    return True
 
-# Initialize PhysNet calculator
-_ = pycharmm.MLpot(
-    Model,
-    Z,
-    ml_selection,
-    ml_fq=False,
-)
 
-# with open("i_", "w") as f:
-#     pass
+def run_minimization(output_pdb):
+    """Run energy minimization and save results."""
+    minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    energy.show()
+    minimize.run_abnr(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    energy.show()
+    stream.charmm_script("print coor")
+    write.coor_pdb(output_pdb)
 
-energy.show()
-userE = energy.get_energy()["USER"]
-print(userE)
-atol = 1e-4
-assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
-print(f"Success! energies are close, within {atol} kcal/mol")
-minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
-energy.show()
-minimize.run_abnr(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
-energy.show()
-stream.charmm_script("print coor")
-# write the final coordinates to a pdb file
-write.coor_pdb("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp_min.pdb")
 
+def main():
+    """Main function to run the simulation."""
+    print_device_info()
+
+    # File paths
+    pdb_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb"
+    psf_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf"
+    pkl_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
+    model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
+    output_pdb = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp_min.pdb"
+
+    # Initialize and setup
+    atoms, params, model = initialize_system(pdb_file, pkl_path, model_path)
+    setup_coordinates(pdb_file, psf_file, atoms)
+
+    # Setup calculator and run minimization
+    if setup_calculator(atoms, params, model):
+        run_minimization(output_pdb)
+
+
+if __name__ == "__main__":
+    main()
