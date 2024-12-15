@@ -235,7 +235,7 @@ def run_heating(
     files = setup_charmm_files(prefix, "heating")
     nstep = int(tottime / timestep)
     nsavc = int(savetime / timestep)
-
+    nstep = 1000
     print(f"nstep: {nstep}, nsavc: {nsavc}")
 
     energy.show()
