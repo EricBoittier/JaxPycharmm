@@ -74,6 +74,8 @@ def get_pyc(params, model, ase_mol, conversion=conversion):
             dst_idx=jax.numpy.array(batch["dst_idx"]),
             src_idx=jax.numpy.array(batch["src_idx"]),
         )
+        output["energy"] = output["energy"].squeeze()
+        output["forces"] = output["forces"].squeeze()
         output["energy"] *= conversion["energy"]
         output["forces"] *= conversion["forces"]
         return output
