@@ -387,7 +387,8 @@ def main():
     else:
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
-    run_heating()
+    run_heating(integrator="verlet")
+    run_equilibration(integrator="langevin")
 
 
 if __name__ == "__main__":
