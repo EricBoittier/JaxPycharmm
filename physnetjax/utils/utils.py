@@ -9,8 +9,11 @@ import orbax
 import physnetjax
 from physnetjax.models.model import EF
 
+
+
 DTYPE = jnp.float32
-orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
+
+from physnetjax.restart.restart import orbax_checkpointer
 
 
 def create_checkpoint_dir(name: str, base: Path) -> Path:
