@@ -151,15 +151,12 @@ def setup_charmm_files(prefix, phase, restart=False):
             file_name=f"{prefix}.dcd", file_unit=1, formatted=False, read_only=False
         )
     else:
-        files["str"] = pycharmm.CharmmFile(
-            file_name=f"{prefix}.{phase}.res",
-            file_unit=3,
-            formatted=True,
-            read_only=False,
-        )
         if restart:
-            files["res_old"] = pycharmm.CharmmFile(
-                file_name=restart, file_unit=2, formatted=True, read_only=True
+            files["str"] = pycharmm.CharmmFile(
+                file_name=restart,
+                file_unit=3,
+                formatted=True,
+                read_only=False,
             )
         files["res"] = pycharmm.CharmmFile(
             file_name=f"{prefix}.{phase}.res",
@@ -173,6 +170,7 @@ def setup_charmm_files(prefix, phase, restart=False):
             formatted=False,
             read_only=False,
         )
+
     return files
 
 
@@ -276,6 +274,8 @@ def run_heating(
     for file in files.values():
         file.close()
 
+    return files
+
 
 def run_equilibration(
     timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
@@ -329,6 +329,7 @@ def run_equilibration(
     write.coor_card(f"{prefix}.equi.cor")
     write.psf_card(f"{prefix}.equi.psf")
 
+    return files
 
 def run_production(timestep=0.0005, nsteps=1000000, temp=300, prefix="mm"):
     """
@@ -373,6 +374,8 @@ def run_production(timestep=0.0005, nsteps=1000000, temp=300, prefix="mm"):
     write.coor_card(f"{prefix}.dyna.cor")
     write.psf_card(f"{prefix}.dyna.psf")
 
+    return files
+
 
 def main():
     """Main function to run the simulation."""
@@ -396,8 +399,8 @@ def main():
     else:
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
-    run_heating(integrator="verlet")
-    run_equilibration(integrator="langevin", restart="restart.res")
+    files = run_heating(integrator="verlet")
+    files = run_equilibration(integrator="langevin", restart=files["res"].file_name)
 
 
 if __name__ == "__main__":
