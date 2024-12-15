@@ -16,11 +16,11 @@ os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cm
 # from pycharmm_calculator import PyCharmm_Calculator
 
 import jax
+
 devices = jax.local_devices()
 print(devices)
 print(jax.default_backend())
 print(jax.devices())
-
 
 # os.sleep(1)
 with open("i_", "w") as f:
@@ -41,17 +41,17 @@ import pycharmm.settings as settings
 import pycharmm.lingo as stream
 
 import pandas as pd
+from physnetjax.calc.helper_mlp import get_ase_calc, get_pyc
+from physnetjax.restart.restart import get_params_model_with_ase
+
 pdb_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb"
 atoms = io.read(pdb_file)
 print(atoms)
 pkl_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
 model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
 
-from physnetjax.restart.restart import get_params_model_with_ase
 
-params, model = get_params_model_with_ase(
-    pkl_path, model_path, atoms
-)
+params, model = get_params_model_with_ase(pkl_path, model_path, atoms)
 
 # Read in the topology (rtf) and parameter file (prm) for proteins
 # equivalent to the CHARMM scripting command: read rtf card name toppar/top_all36_prot.rtf
@@ -83,12 +83,10 @@ R = atoms.get_positions()
 
 atoms = ase.Atoms(Z, R)
 
-from physnetjax.calc.helper_mlp import get_ase_calc, get_pyc
 
 calculator = get_ase_calc(params, model, atoms)
-atoms.set_calculator(calculator)
+atoms.calc = calculator
 atoms1 = atoms.copy()
-
 ml_selection = pycharmm.SelectAtoms(seg_id="PEPT")
 print(ml_selection)
 
@@ -96,9 +94,7 @@ energy.show()
 U = atoms.get_potential_energy() / (units.kcal / units.mol)
 print(U)
 stream.charmm_script(f"echo {U}")
-
-charge = 1
-
+charge = 0
 Model = get_pyc(params, model, atoms)
 
 print(dir(Model))
@@ -115,6 +111,4 @@ with open("i_", "w") as f:
     print("...")
 print(_)
 
-
 energy.show()
-

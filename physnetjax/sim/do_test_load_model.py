@@ -1,4 +1,3 @@
-
 import pandas as pd
 from physnetjax.models.model import EF
 from physnetjax.utils.utils import _process_model_attributes
@@ -14,5 +13,3 @@ model_kwargs = _process_model_attributes(model_kwargs)
 model = EF(**model_kwargs)
 
 print(model)
-
-

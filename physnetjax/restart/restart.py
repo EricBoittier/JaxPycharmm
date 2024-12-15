@@ -8,6 +8,7 @@ import orbax
 from physnetjax.models.model import EF
 from physnetjax.utils.utils import get_files
 import orbax.checkpoint
+
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 
@@ -95,6 +96,7 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
         CKPT_DIR,
         state,
     )
+
 
 def get_params_model_with_ase(pkl_path, model_path, atoms):
     import pandas as pd
