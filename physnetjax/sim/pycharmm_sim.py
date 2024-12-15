@@ -73,6 +73,8 @@ read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
 
 stats = coor.stat()
 print(stats)
+minimize.run_sd(**{"nstep": 2000, "tolenr": 1e-5, "tolgrd": 1e-5})
+stream.charmm_script("print coor")
 
 ##########################
 
