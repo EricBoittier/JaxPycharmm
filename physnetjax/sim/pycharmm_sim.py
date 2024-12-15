@@ -196,6 +196,7 @@ def run_heating(
     files = setup_charmm_files(prefix, "heating")
     nstep = int(tottime / timestep)
     nsavc = int(savetime / timestep)
+    nstep = 1000
 
     dynamics_dict = get_base_dynamics_dict()
     dynamics_dict.update(
@@ -219,7 +220,7 @@ def run_heating(
             "ieqfrq": 100,
             "firstt": initial_temp,
             "finalt": final_temp,
-            "echeck": -1,
+            "echeck": 100,
         }
     )
 
