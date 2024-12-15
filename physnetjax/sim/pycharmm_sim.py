@@ -224,7 +224,7 @@ def run_heating(
             "ieqfrq": 100,
             "firstt": initial_temp,
             "finalt": final_temp,
-            "echeck": 100,
+            "echeck": 1000,
         }
     )
 
