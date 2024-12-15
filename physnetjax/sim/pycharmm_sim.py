@@ -72,7 +72,9 @@ read.pdb(pdb_file, resid=True)
 read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
 # requires a pandas data frame with x,y,z as headers
 coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
-# coor.set_positions()
+# set the segment ID
+coor.set_seg_id("PEPT")
+
 
 stats = coor.stat()
 print(stats)
@@ -85,9 +87,7 @@ Z = atoms.get_atomic_numbers()
 Z = [_ if _ < 9 else 6 for _ in Z]
 stream.charmm_script(f"echo {Z}")
 R = atoms.get_positions()
-
 atoms = ase.Atoms(Z, R)
-
 
 calculator = get_ase_calc(params, model, atoms)
 atoms.calc = calculator
