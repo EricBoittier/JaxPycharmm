@@ -75,6 +75,8 @@ def _process_model_attributes(
             kwargs[field] = int(non_decimal.sub("", _))
         elif isinstance(_, int):
             kwargs[field] = int(_)
+        elif _ is None:
+            pass
         else:
             raise ValueError(f"Field {field} is not an int or string")
     for field in float_fields:
@@ -84,6 +86,8 @@ def _process_model_attributes(
             kwargs[field] = float(non_decimal.sub("", _))
         elif isinstance(_, float):
             kwargs[field] = float(_)
+        elif _ is None:
+            pass
         else:
             raise ValueError(f"Field {field} is not a float or string")
     for field in bool_fields:
