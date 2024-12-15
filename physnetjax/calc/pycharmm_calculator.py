@@ -222,7 +222,7 @@ class PyCharmm_Calculator:
             return 0
         for prop in self.implemented_properties:
             self.results[prop] = results[prop]
-        self.results["energy"] = self.results["energy"][0]
+        self.results["energy"] = self.results["energy"]
         # Apply dtype conversion
         E = self.results["energy"]
         ml_F = np.array(self.results["forces"])
