@@ -82,7 +82,7 @@ def get_pyc(params, model, ase_mol, conversion=conversion):
         model_calc,
         ml_atom_indices=np.arange(model.natoms),
         ml_atomic_numbers=Z,
-        ml_charge=Z,
+        ml_charge=None,
         # ml_fluctuating_charges = model.charges
     )
 
