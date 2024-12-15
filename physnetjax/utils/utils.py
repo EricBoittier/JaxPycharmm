@@ -70,6 +70,7 @@ def _process_model_attributes(
     non_decimal = re.compile(r"^-?[0-9]\d*(\.\d+)?$")
     for field in int_fields:
         _ = kwargs[field]
+        print(_)
         if isinstance(_, str):
             kwargs[field] = int(non_decimal.sub("", _))
         elif isinstance(_, int):
