@@ -68,5 +68,5 @@ settings.set_warn_level(-1)
 read.pdb(pdb_file)
 read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
 
-stats = coor.get_stats()
+stats = coor.stat()
 print(stats)
