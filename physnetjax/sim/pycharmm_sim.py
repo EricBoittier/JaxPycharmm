@@ -1,6 +1,6 @@
 # Basics
 import os
-
+import numpy as np
 import ase
 
 # os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count=8'
@@ -70,7 +70,7 @@ settings.set_warn_level(-1)
 # Set the coordinates of the atoms
 read.pdb(pdb_file, resid=True)
 read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
-coor.set_positions(atoms.get_positions())
+coor.set_positions(np.array(atoms.get_positions()))
 
 stats = coor.stat()
 print(stats)
