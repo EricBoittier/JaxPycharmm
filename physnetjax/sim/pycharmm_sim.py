@@ -332,7 +332,8 @@ def run_equilibration(
 
     return files
 
-def run_production(timestep=0.0005, integrator="verlet", tottime=5.0, savetime=0.01, temp=300, prefix="mm"):
+def run_production(timestep=0.0005, integrator="verlet", tottime=5.0, savetime=0.01,
+                   temp=300, prefix="mm", restart=False):
     """
     Run the production phase of molecular dynamics.
 
@@ -342,7 +343,7 @@ def run_production(timestep=0.0005, integrator="verlet", tottime=5.0, savetime=0
         temp (float): Temperature in K (default: 300)
         prefix (str): Prefix for output files (default: "mm")
     """
-    files = setup_charmm_files(prefix, "dyna")
+    files = setup_charmm_files(prefix, "dyna", restart=restart)
     nsteps = int(tottime / timestep)
     nsavc = int(savetime / timestep)
 
@@ -406,7 +407,7 @@ def main():
     run_minimization(output_pdb)
     files = run_heating(integrator="verlet")
     files = run_equilibration(integrator="langevin", prefix="equi", restart=files["res"].file_name)
-    files = run_production(integrator="verlet", prefix="dyna", tottime=1000)
+    files = run_production(integrator="verlet", prefix="dyna", tottime=1000, restart=files["res"].file_name)
 
 
 if __name__ == "__main__":
