@@ -23,8 +23,8 @@ print(jax.default_backend())
 print(jax.devices())
 
 # os.sleep(1)
-with open("i_", "w") as f:
-    print("...")
+# with open("i_", "w") as f:
+#     print("...")
 
 # ASE
 from ase import io
@@ -107,8 +107,8 @@ _ = pycharmm.MLpot(
     ml_fq=False,
 )
 
-with open("i_", "w") as f:
-    pass
+# with open("i_", "w") as f:
+#     pass
 
 energy.show()
 userE = energy.get_energy()["USER"]
@@ -116,7 +116,6 @@ print(userE)
 atol = 1e-4
 assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
 print(f"Success! energies are close, within {atol} kcal/mol")
-
 minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
 energy.show()
 minimize.run_abnr(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
