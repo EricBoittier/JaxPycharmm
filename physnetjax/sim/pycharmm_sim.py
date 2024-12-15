@@ -235,7 +235,7 @@ def run_heating(
     files = setup_charmm_files(prefix, "heating")
     nstep = int(tottime / timestep)
     nsavc = int(savetime / timestep)
-    nstep = 1000
+
     print(f"nstep: {nstep}, nsavc: {nsavc}")
 
     energy.show()
@@ -294,6 +294,7 @@ def run_equilibration(
     files = setup_charmm_files(prefix, "equi", restart=restart)
     nstep = int(tottime / timestep)
     nsavc = int(savetime / timestep)
+    print(f"nstep: {nstep}, nsavc: {nsavc}")
 
     dynamics_dict = get_base_dynamics_dict()
     dynamics_dict.update(
