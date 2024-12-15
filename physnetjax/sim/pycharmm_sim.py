@@ -134,7 +134,10 @@ def main():
 
     # Setup calculator and run minimization
     if setup_calculator(atoms, params, model):
-        run_minimization(output_pdb)
+        pass
+    else:
+        print("Error in setting up calculator.")
+    run_minimization(output_pdb)
 
 
 if __name__ == "__main__":
