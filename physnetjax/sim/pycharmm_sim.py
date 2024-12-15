@@ -6,6 +6,7 @@ os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cm
 
 
 import ase
+import ase.io as io
 import ase.units as units
 import jax
 import numpy as np
