@@ -73,8 +73,6 @@ read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
 # requires a pandas data frame with x,y,z as headers
 coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
 # set the segment ID
-coor.set_seg_id("PEPT")
-
 
 stats = coor.stat()
 print(stats)
@@ -92,7 +90,7 @@ atoms = ase.Atoms(Z, R)
 calculator = get_ase_calc(params, model, atoms)
 atoms.calc = calculator
 atoms1 = atoms.copy()
-ml_selection = pycharmm.SelectAtoms(seg_id="PEPT")
+ml_selection = pycharmm.SelectAtoms("all")
 print(ml_selection)
 
 energy.show()
