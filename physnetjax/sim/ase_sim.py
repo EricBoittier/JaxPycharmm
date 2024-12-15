@@ -2,17 +2,26 @@ import io
 import ase
 import ase.calculators.calculator as ase_calc
 import ase.io as ase_io
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary, ZeroRotation
+from ase.md.velocitydistribution import (
+    MaxwellBoltzmannDistribution,
+    Stationary,
+    ZeroRotation,
+)
 from ase.md.verlet import VelocityVerlet
 import ase.optimize as ase_opt
 import matplotlib.pyplot as plt
 import py3Dmol
-import  numpy as np
+import numpy as np
 
 
-
-def NVT(atoms, temperature=300.0, timestep_fs=0.1, num_steps=100_0,
-        htfreq=1000, printfreq=1000):
+def NVT(
+    atoms,
+    temperature=300.0,
+    timestep_fs=0.1,
+    num_steps=100_0,
+    htfreq=1000,
+    printfreq=1000,
+):
     # Draw initial momenta.
     MaxwellBoltzmannDistribution(atoms, temperature_K=temperature)
     Stationary(atoms)  # Remove center of mass translation
@@ -37,7 +46,7 @@ def NVT(atoms, temperature=300.0, timestep_fs=0.1, num_steps=100_0,
         total_energy[i] = atoms.get_total_energy()
         dipoles[i] = atoms.get_dipole_moment()
         # Occasionally print progress.q
-        if  i % htfreq == 0:
+        if i % htfreq == 0:
             MaxwellBoltzmannDistribution(atoms, temperature_K=temperature)
         if i % printfreq == 0:
             print(

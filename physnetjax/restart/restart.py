@@ -10,6 +10,7 @@ from physnetjax.utils.utils import get_files
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
+
 def get_last(path: str) -> Path:
     """Get the last checkpoint directory."""
     dirs = get_files(path)

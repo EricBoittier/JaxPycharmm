@@ -15,6 +15,7 @@ from physnetjax.training.loss import (
 
 DTYPE = jnp.float32
 
+
 @functools.partial(
     jax.jit,
     static_argnames=(
@@ -72,7 +73,12 @@ def train_step(
                 total_charge_weight=charges_weight,
                 atomic_mask=batch["atom_mask"],
             )
-            return loss, (output["energy"], output["forces"], output["charges"], output["dipoles"])
+            return loss, (
+                output["energy"],
+                output["forces"],
+                output["charges"],
+                output["dipoles"],
+            )
 
     else:
 

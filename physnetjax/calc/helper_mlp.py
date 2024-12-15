@@ -13,13 +13,12 @@ import e3x
 import numpy as np
 
 
-
-
 conversion = {
     "energy": 1,
     "forces": 1,
     "dipole": 1,
 }
+
 
 def get_ase_calc(params, model, ase_mol, conversion=conversion):
 
@@ -37,6 +36,7 @@ def get_ase_calc(params, model, ase_mol, conversion=conversion):
 
     class MessagePassingCalculator(ase_calc.Calculator):
         implemented_properties = ["energy", "forces", "dipole"]
+
         def calculate(
             self,
             atoms,
@@ -53,12 +53,8 @@ def get_ase_calc(params, model, ase_mol, conversion=conversion):
             )
             if model.charges:
                 self.results["dipole"] = output["dipoles"] * conversion["dipole"]
-            self.results["energy"] = output[
-                "energy"
-            ].squeeze() * conversion["energy"]
-            self.results["forces"] = output[
-                "forces"
-            ] * conversion["forces"]
+            self.results["energy"] = output["energy"].squeeze() * conversion["energy"]
+            self.results["forces"] = output["forces"] * conversion["forces"]
 
     return MessagePassingCalculator()
 

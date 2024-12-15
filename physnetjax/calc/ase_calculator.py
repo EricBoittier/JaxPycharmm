@@ -9,6 +9,7 @@ import ase.io as ase_io
 import e3x
 import numpy as np
 
+
 @jax.jit
 def evaluate_energies_and_forces(atomic_numbers, positions, dst_idx, src_idx):
     return model.apply(

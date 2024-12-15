@@ -47,8 +47,6 @@ def get_files(path: str) -> List[Path]:
     return [_ for _ in dirs if "tmp" not in str(_)]
 
 
-
-
 def _process_model_attributes(
     attrs: Dict[str, Any], natoms: int = None
 ) -> Dict[str, Any]:
