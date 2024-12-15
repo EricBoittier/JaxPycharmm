@@ -71,10 +71,12 @@ def _process_model_attributes(
     for field in int_fields:
         _ = kwargs[field]
         print(_)
+        _ = str(_)
         kwargs[field] = int(non_decimal.sub("", _))
     for field in float_fields:
         _ = kwargs[field]
         print(_)
+        _ = str(_)
         kwargs[field] = float(non_decimal.sub("", kwargs[field]))
     for field in bool_fields:
         kwargs[field] = bool(str(kwargs[field]))
