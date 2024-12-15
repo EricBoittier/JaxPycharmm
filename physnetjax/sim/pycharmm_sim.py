@@ -39,8 +39,8 @@ import pycharmm.settings as settings
 import pycharmm.lingo as stream
 
 import pandas as pd
-
-atoms = io.read("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb")
+pdb_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb"
+atoms = io.read(pdb_file)
 pkl_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
 model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
 
@@ -50,4 +50,23 @@ params, model = get_params_model_with_ase(
     pkl_path, model_path, atoms
 )
 
-print(params, model)
+# Read in the topology (rtf) and parameter file (prm) for proteins
+# equivalent to the CHARMM scripting command: read rtf card name toppar/top_all36_prot.rtf
+read.rtf("/pchem-data/meuwly/boittier/home/charmm/toppar/top_all36_prot.rtf")
+# equivalent to the CHARMM scripting command: read param card flexible name toppar/par_all36m_prot.prm
+read.prm(
+    "/pchem-data/meuwly/boittier/home/charmm/toppar/par_all36m_prot.prm", flex=True
+)
+pycharmm.lingo.charmm_script(
+    "stream /pchem-data/meuwly/boittier/home/charmm/toppar/toppar_water_ions.str"
+)
+
+settings.set_bomb_level(-2)
+settings.set_warn_level(-1)
+
+# Set the coordinates of the atoms
+read.pdb(pdb_file)
+read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
+
+stats = coor.get_stats()
+print(stats)
