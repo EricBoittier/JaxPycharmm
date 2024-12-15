@@ -83,7 +83,12 @@ def _process_model_attributes(
         _ = kwargs[field]
         print(field, _)
         if isinstance(_, str):
-            kwargs[field] = float(non_decimal.sub("", _))
+            try:
+                kwargs[field] = float(non_decimal.sub("", _))
+            except ValueError:
+                print(f"Could not convert {field} to float")
+                print(f"Setting {field} to 0.0")
+                kwargs[field] = 0.0
         elif isinstance(_, float):
             kwargs[field] = float(_)
         elif _ is None:
