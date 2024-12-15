@@ -8,6 +8,7 @@ model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2
 
 params = pd.read_pickle(pkl_path)
 model_kwargs = pd.read_pickle(model_path)
+print(model_kwargs)
 model_kwargs = _process_model_attributes(model_kwargs)
 
 model = EF(**model_kwargs)
