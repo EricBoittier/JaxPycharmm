@@ -70,14 +70,20 @@ def _process_model_attributes(
     non_decimal = re.compile(r"^-?[0-9]\d*(\.\d+)?$")
     for field in int_fields:
         _ = kwargs[field]
-        print(_)
-        _ = str(_)
-        kwargs[field] = int(non_decimal.sub("", _))
+        if isinstance(_, str):
+            kwargs[field] = int(non_decimal.sub("", _))
+        elif isinstance(_, int):
+            kwargs[field] = int(_)
+        else:
+            raise ValueError(f"Field {field} is not an int or string")
     for field in float_fields:
         _ = kwargs[field]
-        print(_)
-        _ = str(_)
-        kwargs[field] = float(non_decimal.sub("", kwargs[field]))
+        if isinstance(_, str):
+            kwargs[field] = float(non_decimal.sub("", _))
+        elif isinstance(_, float):
+            kwargs[field] = float(_)
+        else:
+            raise ValueError(f"Field {field} is not a float or string")
     for field in bool_fields:
         kwargs[field] = bool(str(kwargs[field]))
 
