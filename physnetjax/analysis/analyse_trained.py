@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from physnetjax.analysis.analysis import count_params, plot_stats
-from physnetjax.restart.restart import get_params_model
+from physnetjax.restart.restart import get_params_model, get_last
 
 
 def save_pickle(params, location):
@@ -48,8 +48,7 @@ if __name__ == "__main__":
     from physnetjax.data.data import prepare_batches, prepare_datasets
 
     data_key, train_key = jax.random.split(jax.random.PRNGKey(43), 2)
-    # NATOMS = 8
-    # files = ["/pchem-data/meuwly/boittier/home/cf3criegee_27887.npz"]
+
     NATOMS = 37
     files = ["/pchem-data/meuwly/boittier/home/jaxeq/notebooks/ala-esp-dip-0.npz"]
     train_data, valid_data = prepare_datasets(
@@ -59,6 +58,9 @@ if __name__ == "__main__":
         Path("/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/")
         / "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a"
     )
+    restart = get_last(restart)
+    print(restart)
+
     data_keys = ("R", "Z", "F", "E", "D", "N", "dst_idx", "src_idx", "batch_segments")
     ntest = len(valid_data["E"]) // 2
     print(ntest)
