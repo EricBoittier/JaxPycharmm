@@ -101,6 +101,7 @@ charge = 0
 Model = get_pyc(params, model, atoms)
 
 print(dir(Model))
+Z = np.array(Z)
 print(Z)
 print(ml_selection)
 # Initialize PhysNet calculator
