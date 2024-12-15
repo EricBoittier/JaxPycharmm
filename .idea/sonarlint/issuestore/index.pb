@@ -84,3 +84,7 @@ M
 physnetjax/restart/restart.py,b/f/bfd728c94af474e33e69c0da0385299f5de62cd3
 V
 &physnetjax/calc/pycharmm_calculator.py,8/3/83eb032f8cd05a78bf48e34cf27737f37651bc68
+M
+physnetjax/calc/helper_mlp.py,6/b/6b2dd338a0907c6cac349be72a13a32aaea4317f
+Q
+!physnetjax/calc/ase_calculator.py,0/a/0aaebb3b89a0d49b439af2ac0e35d39928a8573f

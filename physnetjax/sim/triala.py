@@ -20,7 +20,7 @@ print(devices)
 print(jax.default_backend())
 print(jax.devices())
 
-from physnetjax.sim.helper_mlp import *
+from physnetjax.calc.helper_mlp import *
 
 # from helper_mlp import Model
 
@@ -116,7 +116,7 @@ stream.charmm_script(f"echo {Z}")
 
 atoms = ase.Atoms(Z, R)
 
-from physnetjax.sim.helper_mlp import get_ase_calc
+from physnetjax.calc.helper_mlp import get_ase_calc
 
 calculator = get_ase_calc(params, model, atoms)
 atoms.set_calculator(calculator)

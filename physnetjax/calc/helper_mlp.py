@@ -1,9 +1,5 @@
 import jax
 
-devices = jax.local_devices()
-print(devices)
-print(jax.default_backend())
-print(jax.devices())
 # from jax import config
 # config.update('jax_enable_x64', True)
 import ase
@@ -17,87 +13,18 @@ import e3x
 import numpy as np
 
 
-@jax.jit
-def evaluate_energies_and_forces(atomic_numbers, positions, dst_idx, src_idx):
-    return model.apply(
-        params,
-        atomic_numbers=atomic_numbers,
-        positions=positions,
-        dst_idx=dst_idx,
-        src_idx=src_idx,
-    )
 
-
-class MessagePassingCalculator(ase_calc.Calculator):
-    implemented_properties = ["energy", "forces", "dipole"]
-
-    def calculate(
-        self, atoms, properties, system_changes=ase.calculators.calculator.all_changes
-    ):
-        ase_calc.Calculator.calculate(self, atoms, properties, system_changes)
-        dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(len(atoms))
-        output = evaluate_energies_and_forces(
-            atomic_numbers=atoms.get_atomic_numbers(),
-            positions=atoms.get_positions(),
-            dst_idx=dst_idx,
-            src_idx=src_idx,
-        )
-        if model.charges:
-            dipole = dipole_calc(
-                atoms.get_positions(),
-                atoms.get_atomic_numbers(),
-                output["charges"],
-                np.zeros_like(atoms.get_atomic_numbers()),
-                1,
-            )
-            self.results["dipole"] = dipole
-        self.results["energy"] = output[
-            "energy"
-        ].squeeze()  # * (ase.units.kcal/ase.units.mol)
-        self.results["forces"] = output[
-            "forces"
-        ]  # * (ase.units.kcal/ase.units.mol) #/ase.units.Angstrom
-
-
-# params = pd.read_pickle("checkpoints/test.pkl")
-# params = pd.read_pickle("checkpoints/test2.pkl")
-# #print(params)
-
-# model = EF(
-#     # attributes
-#     features = 32,
-#     max_degree = 4,
-#     num_iterations = 2,
-#     num_basis_functions = 16,
-#     cutoff = 6.0,
-#     max_atomic_number = 32,
-# )
-
-# model = EF(
-#     # attributes
-#     features = 128,
-#     max_degree = 1,
-#     num_iterations = 2,
-#     num_basis_functions = 32,
-#     cutoff = 6.0,
-#     max_atomic_number = 32,
-# )
-
-# ase_mol = ase.io.read("input/ala_-154.0_26.0.pdb")
-ase_mol = ase.io.read("aaa.pdb")
-Z = ase_mol.get_atomic_numbers()
-Z = [_ if _ < 9 else 6 for _ in Z]
-R = ase_mol.get_positions()
-atoms = ase.Atoms(Z, R)
-NATOMS = len(Z)
 
 conversion = {
-    "energy": 1 / (ase.units.kcal / ase.units.mol),
-    "forces": 1 / (ase.units.kcal / ase.units.mol),
+    "energy": 1,
+    "forces": 1,
+    "dipole": 1,
 }
 
-
 def get_ase_calc(params, model, ase_mol, conversion=conversion):
+
+    assert model.natoms == len(ase_mol.get_atomic_numbers())
+
     @jax.jit
     def evaluate_energies_and_forces(atomic_numbers, positions, dst_idx, src_idx):
         return model.apply(
@@ -110,7 +37,6 @@ def get_ase_calc(params, model, ase_mol, conversion=conversion):
 
     class MessagePassingCalculator(ase_calc.Calculator):
         implemented_properties = ["energy", "forces", "dipole"]
-
         def calculate(
             self,
             atoms,
@@ -126,20 +52,13 @@ def get_ase_calc(params, model, ase_mol, conversion=conversion):
                 src_idx=src_idx,
             )
             if model.charges:
-                dipole = dipole_calc(
-                    atoms.get_positions(),
-                    atoms.get_atomic_numbers(),
-                    output["charges"],
-                    np.zeros_like(atoms.get_atomic_numbers()),
-                    1,
-                )
-                self.results["dipole"] = dipole
+                self.results["dipole"] = output["dipoles"] * conversion["dipole"]
             self.results["energy"] = output[
                 "energy"
-            ].squeeze()  # * (ase.units.kcal/ase.units.mol)
+            ].squeeze() * conversion["energy"]
             self.results["forces"] = output[
                 "forces"
-            ]  # * (ase.units.kcal/ase.units.mol) #/ase.units.Angstrom
+            ] * conversion["forces"]
 
     return MessagePassingCalculator()
 
@@ -147,10 +66,8 @@ def get_ase_calc(params, model, ase_mol, conversion=conversion):
 def get_pyc(params, model, ase_mol, conversion=conversion):
     Z = ase_mol.get_atomic_numbers()
     Z = [_ if _ < 9 else 6 for _ in Z]
-    R = ase_mol.get_positions()
-    atoms = ase.Atoms(Z, R)
     NATOMS = len(Z)
-    print(atoms)
+    assert model.natoms == NATOMS
 
     @jax.jit
     def model_calc(batch):
