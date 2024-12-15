@@ -101,7 +101,8 @@ charge = 0
 Model = get_pyc(params, model, atoms)
 
 print(dir(Model))
-
+print(Z)
+print(ml_selection)
 # Initialize PhysNet calculator
 _ = pycharmm.MLpot(
     Model,
