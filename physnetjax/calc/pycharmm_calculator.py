@@ -3,18 +3,6 @@ from typing import List, Optional
 import numpy as np
 import jax
 
-# from model import EF
-
-# model = EF(
-#     # attributes
-#     features=32,
-#     max_degree=2,
-#     num_iterations=2,
-#     num_basis_functions=32,
-#     cutoff=6.0,
-#     max_atomic_number=32,
-# )
-
 
 __all__ = ["PyCharmm_Calculator"]
 

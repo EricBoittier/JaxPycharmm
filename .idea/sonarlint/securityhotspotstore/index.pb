@@ -88,3 +88,7 @@ M
 physnetjax/calc/helper_mlp.py,6/b/6b2dd338a0907c6cac349be72a13a32aaea4317f
 Q
 !physnetjax/calc/ase_calculator.py,0/a/0aaebb3b89a0d49b439af2ac0e35d39928a8573f
+H
+physnetjax/sim/triala.py,b/a/bada70758cf3b88a25c6a38de0ca90cdabbb4c30
+V
+&physnetjax/analysis/analyse_trained.py,f/c/fca5301467128b9e1134efa2db6b229aa1da46f4
