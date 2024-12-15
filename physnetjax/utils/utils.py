@@ -54,36 +54,6 @@ def get_files(path: str) -> List[Path]:
     return [_ for _ in dirs if "tmp" not in str(_)]
 
 
-def get_last(path: str) -> Path:
-    """Get the last checkpoint directory."""
-    dirs = get_files(path)
-    if "tmp" in str(dirs[-1]):
-        dirs.pop()
-    return dirs[-1]
-
-
-def get_params_model(restart: str, natoms: int = None):
-    """Load parameters and model from checkpoint."""
-    restored = orbax_checkpointer.restore(restart)
-    # print(f"Restoring from {restart}")
-    modification_time = os.path.getmtime(restart)
-    modification_date = datetime.fromtimestamp(modification_time)
-    # print(f"The file was last modified on: {modification_date}")
-    # print("Restored keys:", restored.keys())
-
-    params = restored["params"]
-    print(restored["model"].keys())
-    if "model_attributes" not in restored.keys():
-        return params, None
-
-    # kwargs = _process_model_attributes(restored["model_attributes"], natoms)
-    kwargs = restored["model_attributes"]
-    # print(kwargs)
-    model = EF(**kwargs)
-    model.natoms = natoms
-    model.zbl = bool(kwargs["zbl"]) if "zbl" in kwargs.keys() else False
-    # print(model)
-    return params, model
 
 
 def _process_model_attributes(
