@@ -3,16 +3,15 @@ import functools
 import jax
 import jax.numpy as jnp
 import optax
+from optax import tree_utils as otu
 
 # from jax import config
 # config.update('jax_enable_x64', True)
 from physnetjax.training.loss import (
-    dipole_calc,
     mean_absolute_error,
     mean_squared_loss,
     mean_squared_loss_QD,
 )
-from physnetjax.models.model import EF
 
 DTYPE = jnp.float32
 
@@ -73,7 +72,7 @@ def train_step(
                 total_charge_weight=charges_weight,
                 atomic_mask=batch["atom_mask"],
             )
-            return loss, (output["energy"], output["forces"], output["charges"], dipole)
+            return loss, (output["energy"], output["forces"], output["charges"], output["dipoles"])
 
     else:
 
@@ -108,11 +107,8 @@ def train_step(
         )
 
     updates, opt_state = optimizer_update(grad, opt_state, params)
-    # update the reduce on plateau
-    # updates = otu.tree_scalar_mul(transform_state.scale, updates)
-    # check for nans in the updates
-    # if debug:
-    #     jax.debug.print("updates {updates}", updates=updates)
+    # update "reduce on plateau" state
+    updates = otu.tree_scalar_mul(transform_state.scale, updates)
     params = optax.apply_updates(params, updates)
 
     energy_mae = mean_absolute_error(
