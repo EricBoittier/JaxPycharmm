@@ -98,6 +98,7 @@ U = atoms.get_potential_energy() / (units.kcal / units.mol)
 print(U)
 stream.charmm_script(f"echo {U}")
 charge = 0
+print(model)
 Model = get_pyc(params, model, atoms)
 
 print(dir(Model))
