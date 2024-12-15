@@ -21,6 +21,8 @@ def analyse_trained(
     if save_pickle:
         print(f"Saving pickle to {restart_dir / 'params'}.pkl")
         _save_pickle(params, restart_dir / "params.pkl")
+        model_kwargs = model.return_attributes()
+        _save_pickle(model_kwargs, restart_dir / "model_kwargs.pkl")
 
     model.natoms = natoms
     model.zbl = False
