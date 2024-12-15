@@ -20,7 +20,7 @@ def analyse_trained(
 
     if save_pickle:
         print(f"Saving pickle to {restart_dir / 'params'}.pkl")
-        save_pickle(params, restart_dir / "params.pkl")
+        _save_pickle(params, restart_dir / "params.pkl")
 
     model.natoms = natoms
     model.zbl = False
