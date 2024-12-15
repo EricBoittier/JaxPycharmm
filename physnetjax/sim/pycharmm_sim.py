@@ -198,6 +198,10 @@ def run_heating(
     nsavc = int(savetime / timestep)
     nstep = 1000
     nprint = 1
+    nsavc = 1
+
+    energy.show()
+
     dynamics_dict = get_base_dynamics_dict()
     dynamics_dict.update(
         {
