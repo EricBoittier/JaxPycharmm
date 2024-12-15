@@ -179,7 +179,7 @@ def run_heating(
     initial_temp=10,
     final_temp=300,
     prefix="restart",
-    nprint=10,
+    nprint=100,
 ):
     """
     Run the heating phase of molecular dynamics.
@@ -196,9 +196,8 @@ def run_heating(
     files = setup_charmm_files(prefix, "heating")
     nstep = int(tottime / timestep)
     nsavc = int(savetime / timestep)
-    nstep = 1000
-    nprint = 1
-    nsavc = 1
+
+    print(f"nstep: {nstep}, nsavc: {nsavc}")
 
     energy.show()
 
