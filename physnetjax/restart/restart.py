@@ -95,3 +95,17 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
         CKPT_DIR,
         state,
     )
+
+def get_params_model_with_ase(pkl_path, model_path, atoms):
+    import pandas as pd
+    from physnetjax.models.model import EF
+    from physnetjax.utils.utils import _process_model_attributes
+
+    params = pd.read_pickle(pkl_path)
+    model_kwargs = pd.read_pickle(model_path)
+    print(model_kwargs)
+    model_kwargs = _process_model_attributes(model_kwargs)
+    model_kwargs["natoms"] = len(atoms)
+    model = EF(**model_kwargs)
+    print(model)
+    return params, model
