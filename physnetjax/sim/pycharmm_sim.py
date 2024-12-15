@@ -257,6 +257,7 @@ def run_heating(
             "firstt": initial_temp,
             "finalt": final_temp,
             "echeck": 1000,
+            "tbath": final_temp,
         }
     )
     dynamics_dict = change_integrator(dynamics_dict, integrator)
@@ -269,7 +270,7 @@ def run_heating(
 
 
 def run_equilibration(
-    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="mm"
+    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="mm", integrator="verlet"
 ):
     """
     Run the equilibration phase of molecular dynamics.
@@ -303,8 +304,11 @@ def run_equilibration(
             "ieqfrq": 100,
             "firstt": temp,
             "finalt": temp,
+            "tbath": temp,
+            "echeck": 1000,
         }
     )
+    dynamics_dict = change_integrator(dynamics_dict, integrator)
 
     dyn_equi = pycharmm.DynamicsScript(**dynamics_dict)
     dyn_equi.run()
