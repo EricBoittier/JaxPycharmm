@@ -96,7 +96,11 @@ def _process_model_attributes(
         else:
             raise ValueError(f"Field {field} is not a float or string")
     for field in bool_fields:
-        kwargs[field] = bool(str(kwargs[field]))
+        if field in kwargs.keys():
+            kwargs[field] = bool(str(kwargs[field]))
+        else:
+            print(f"Field {field} not found in model attributes")
+            kwargs[field] = False
 
     kwargs["debug"] = []
     if natoms is not None:
