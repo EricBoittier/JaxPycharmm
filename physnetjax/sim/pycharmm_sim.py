@@ -274,7 +274,7 @@ def run_heating(
 
 
 def run_equilibration(
-    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="mm", integrator="verlet"
+    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet"
 ):
     """
     Run the equilibration phase of molecular dynamics.
