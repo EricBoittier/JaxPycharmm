@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from physnetjax.analysis.analysis import count_params, plot_stats
-from physnetjax.utils.utils import get_params_model
+from physnetjax.restart.restart import get_params_model
 
 
 def save_pickle(params, location):
