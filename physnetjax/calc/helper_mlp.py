@@ -59,7 +59,14 @@ def get_ase_calc(params, model, ase_mol, conversion=conversion):
     return MessagePassingCalculator()
 
 
-def get_pyc(params, model, ase_mol, conversion=conversion):
+pycharmm_conversion = {
+    "energy": 1/(ase.units.kcal / ase.units.mol),
+    "forces": 1/(ase.units.kcal / ase.units.mol),
+    "charge": 1,
+}
+
+
+def get_pyc(params, model, ase_mol, conversion=pycharmm_conversion):
     Z = ase_mol.get_atomic_numbers()
     Z = [_ if _ < 9 else 6 for _ in Z]
     NATOMS = len(Z)
