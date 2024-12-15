@@ -401,7 +401,7 @@ def main():
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
     files = run_heating(integrator="verlet")
-    files = run_equilibration(integrator="langevin", restart=files["res"].file_name)
+    files = run_equilibration(integrator="langevin", prefix="equi", restart=files["res"].file_name)
 
 
 if __name__ == "__main__":
