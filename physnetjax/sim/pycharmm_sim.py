@@ -90,8 +90,8 @@ atoms = ase.Atoms(Z, R)
 calculator = get_ase_calc(params, model, atoms)
 atoms.calc = calculator
 atoms1 = atoms.copy()
-ml_selection = pycharmm.SelectAtoms("all")
-print(ml_selection)
+ml_selection = pycharmm.SelectAtoms().by_resid("1:1")
+print("ml_selection", ml_selection)
 
 energy.show()
 U = atoms.get_potential_energy() / (units.kcal / units.mol)
