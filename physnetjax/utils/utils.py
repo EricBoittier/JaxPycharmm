@@ -69,9 +69,13 @@ def _process_model_attributes(
 
     non_decimal = re.compile(r"^-?[0-9]\d*(\.\d+)?$")
     for field in int_fields:
-        kwargs[field] = int(non_decimal.sub("", str(kwargs[field])))
+        _ = kwargs[field]
+        print(_)
+        kwargs[field] = int(non_decimal.sub("", _))
     for field in float_fields:
-        kwargs[field] = float(non_decimal.sub("", str(kwargs[field])))
+        _ = kwargs[field]
+        print(_)
+        kwargs[field] = float(non_decimal.sub("", kwargs[field]))
     for field in bool_fields:
         kwargs[field] = bool(str(kwargs[field]))
 
