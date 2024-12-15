@@ -74,7 +74,7 @@ coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
 # set the segment ID
 
 stats = coor.stat()
-minimize.run_sd(**{"nstep": 1, "tolenr": 1e-5, "tolgrd": 1e-5})
+# minimize.run_sd(**{"nstep": 1, "tolenr": 1e-5, "tolgrd": 1e-5})
 stream.charmm_script("print coor")
 
 ##########################
@@ -114,5 +114,9 @@ energy.show()
 userE = energy.get_energy()["USER"]
 print(userE)
 
-assert np.isclose(U.squeeze(), userE, atol=1e-4)
+assert np.isclose(float(U.squeeze()), float(userE), atol=1e-4)
 print("Success")
+
+minimize.run_sd(**{"nstep": 1000, "tolenr": 1e-5, "tolgrd": 1e-5})
+energy.show()
+stream.charmm_script("print coor")
