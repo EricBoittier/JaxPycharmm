@@ -70,7 +70,9 @@ settings.set_warn_level(-1)
 # Set the coordinates of the atoms
 read.pdb(pdb_file, resid=True)
 read.psf_card("/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf")
-coor.set_positions(np.array(atoms.get_positions()))
+# requires a pandas data frame with x,y,z as headers
+coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
+# coor.set_positions()
 
 stats = coor.stat()
 print(stats)
