@@ -241,6 +241,7 @@ def prepare_datasets(
     esp_mask=False,
     clip_esp=False,
     natoms=60,
+    verbose=False,
 ):
     """
     Prepare datasets for training and validation.
@@ -272,6 +273,7 @@ def prepare_datasets(
         natoms=natoms,
         clip_esp=clip_esp,
         esp_mask=esp_mask,
+        verbose=verbose,
         # dataset_keys
     )
 
