@@ -55,33 +55,15 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     """Setup system coordinates and parameters."""
     settings.set_bomb_level(-2)
     settings.set_warn_level(-1)
-
     read.pdb(pdb_file, resid=True)
-    stats = coor.stat()
-    print(stats)
-    empty_psf_command = """generate MLP FIRST NTER LAST CTER setup
-    ic build
-    ! Write the empty PSF file
-open unit 20 write card name your_empty.psf
-write psf card unit 20
-* Empty PSF file
-*
-close unit 20
-"""
-    pycharmm.lingo.charmm_script(empty_psf_command)
-    # read.psf_card(psf_file)
-    read.psf_card("your_empty.psf")
+    read.psf_card(psf_file)
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
 
-    stats = coor.stat()
-    # stream.charmm_script("ic build")
-    stream.charmm_script("print coor")
 
 def setup_coords_seq(seq):
     """Setup system coordinates and parameters."""
     settings.set_bomb_level(-2)
     settings.set_warn_level(-1)
-
     read.sequence_string(seq)
     stream.charmm_script("GENERATE PEPT FIRST NTER LAST CTER SETUP")
 
