@@ -426,6 +426,7 @@ def _setup_sim(pdb_file: str | Path | None = None,
     initialize_system()
 
     atoms = setup_coordinates(pdb_file, psf_file, atoms)
+    print(atoms, len(atoms))
     params, model = initialize_model(pkl_path, model_path, atoms)
     # Setup calculator and run minimization
     calc_setup, _ = setup_calculator(atoms, params, model)
