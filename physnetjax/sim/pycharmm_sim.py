@@ -218,7 +218,7 @@ def change_integrator(dynamics_dict, integrator):
 
 
 def run_heating(
-        timestep=0.0005,
+        timestep=0.001,
         tottime=5.0,
         savetime=0.10,
         initial_temp=10,
@@ -231,7 +231,7 @@ def run_heating(
     Run the heating phase of molecular dynamics.
 
     Args:
-        timestep (float): Timestep in ps (default: 0.001 = 0.5 fs)
+        timestep (float): Timestep in ps (default: 0.001 = 1.0 fs)
         tottime (float): Total simulation time in ps (default: 5.0 = 10 ps)
         savetime (float): Save frequency in ps (default: 0.10 = 100 fs)
         initial_temp (float): Initial temperature in K (default: 10)
@@ -265,7 +265,7 @@ def run_heating(
             "iprfrq": 1000,
             "isvfrq": 1000,
             "ntrfrq": 0,
-            "ihtfrq": 100,
+            "ihtfrq": 50,
             "ieqfrq": 100,
             "firstt": initial_temp,
             "finalt": final_temp,
@@ -285,7 +285,7 @@ def run_heating(
 
 
 def run_equilibration(
-        timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
+        timestep=0.001, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
         restart=False
 ):
     """
@@ -340,7 +340,7 @@ def run_equilibration(
     return files
 
 
-def run_production(timestep=0.0005, integrator="verlet", tottime=5.0, savetime=0.01,
+def run_production(timestep=0.001, integrator="verlet", tottime=5.0, savetime=0.01,
                    temp=300, prefix="mm", restart=False):
     """
     Run the production phase of molecular dynamics.
@@ -409,9 +409,10 @@ def _setup_sim(pdb_file: str | Path | None = None,
     else:
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
-    files = run_heating(integrator="verlet")
-    files = run_equilibration(integrator="verlet", prefix="equi", restart=files["res"].file_name)
-    files = run_production(integrator="verlet", prefix="dyna", tottime=1000, restart=files["res"].file_name)
+    timestep = 0.001
+    files = run_heating(integrator="verlet", final_temp=400.0, timestep=timestep, tottime=100.0,)
+    files = run_equilibration(integrator="verlet", prefix="equi", temp=400.0, timestep=timestep, restart=files["res"].file_name)
+    files = run_production(integrator="verlet", prefix="dyna", tottime=1000, temp=400.0, timestep=timestep, restart=files["res"].file_name)
     return files
 
 def setup_sim(pdb_file: str | Path | None = None,
