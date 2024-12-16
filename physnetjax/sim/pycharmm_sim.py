@@ -93,14 +93,21 @@ def setup_calculator(atoms, params, model):
     R = atoms.get_positions()
     atoms = ase.Atoms(Z, R)
 
-    calculator = get_ase_calc(params, model, atoms)
+    conversion = {
+        "energy": 1 / (units.kcal / units.mol),
+        "forces": 1 / (units.kcal / units.mol),
+        "dipole": 1,
+    }
+
+    calculator = get_ase_calc(params, model, atoms, conversion=conversion)
     atoms.calc = calculator
+
     ml_selection = pycharmm.SelectAtoms().by_res_id("1")
     print(ml_selection)
     energy.show()
     U = atoms.get_potential_energy() / (units.kcal / units.mol)
 
-    F = atoms.get_forces() / (units.kcal / units.mol)
+    F = atoms.get_forces()
     Model = get_pyc(params, model, atoms)
     Z = np.array(Z)
 
