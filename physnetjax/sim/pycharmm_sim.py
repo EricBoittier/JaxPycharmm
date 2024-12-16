@@ -99,21 +99,26 @@ def setup_calculator(atoms, params, model):
     print(ml_selection)
     energy.show()
     U = atoms.get_potential_energy() / (units.kcal / units.mol)
-    stream.charmm_script(f"echo {U}")
 
+    F = atoms.get_forces() / (units.kcal / units.mol)
     Model = get_pyc(params, model, atoms)
     Z = np.array(Z)
 
     # Initialize PhysNet calculator
-    _ = pycharmm.MLpot(
+    mlp = pycharmm.MLpot(
         Model,
         Z,
         ml_selection,
         ml_fq=False,
     )
-    if verify_energy(U) and verify_forces(atoms.get_forces()):
-        return True, _
-    raise ValueError("Error in setting up calculator. CHARMM energies do not match calculators'.")
+
+    energy_verified, U2 = verify_energy(U)
+    forces_verified, F2 = verify_forces(F)
+    if energy_verified and forces_verified:
+        return True, mlp
+    raise ValueError("Error in setting up calculator. CHARMM energies do not match calculators'.\n" +
+                     "CHARMM: {}, Calculator: {}\n".format(U, U2) +
+                     "CHARMM: {}, Calculator: {}\n".format(F, F2))
 
 
 def verify_energy(U, atol=1e-4):
@@ -123,7 +128,7 @@ def verify_energy(U, atol=1e-4):
     print(userE)
     assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
     print(f"Success! energies are close, within {atol} kcal/mol")
-    return True
+    return True, userE
 
 def verify_forces(F, atol=1e-4):
     """Verify that forces match within tolerance."""
@@ -131,7 +136,7 @@ def verify_forces(F, atol=1e-4):
     print(forces)
     assert np.allclose(F, forces, atol=atol)
     print(f"Success! forces are close, within {atol} kcal/mol/Ang")
-    return True
+    return True, forces
 
 
 def run_minimization(output_pdb):
