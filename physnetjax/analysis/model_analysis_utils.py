@@ -249,7 +249,7 @@ def main():
     """
     args = parse_args()
     from physnetjax.utils.pretty_printer import print_dict_as_table
-    print_dict_as_table(args, "args", plot=True)
+    print_dict_as_table(dict(args), "args", plot=True)
 
     # Parse inputs from args
     restart_path = Path(args.restart)
