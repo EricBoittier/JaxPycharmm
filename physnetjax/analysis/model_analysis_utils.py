@@ -248,6 +248,8 @@ def main():
     Main entry point for the script. Handles loading of data, configuration, and analysis.
     """
     args = parse_args()
+    from physnetjax.utils.pretty_printer import print_dict_as_table
+    print_dict_as_table(args, "args")
 
     # Parse inputs from args
     restart_path = Path(args.restart)
