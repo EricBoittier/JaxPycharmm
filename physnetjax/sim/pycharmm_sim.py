@@ -415,7 +415,7 @@ def _setup_sim(pdb_file: str | Path | None = None,
     else:
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
-    timestep = 0.001
+    timestep = 0.0075
     files = run_heating(integrator="verlet", final_temp=400.0, timestep=timestep, tottime=10.0,)
     files = run_equilibration(integrator="verlet", prefix="equi", temp=400.0, timestep=timestep, restart=files["res"].file_name)
     files = run_production(integrator="verlet", prefix="dyna", tottime=1000, temp=400.0, timestep=timestep, restart=files["res"].file_name)
