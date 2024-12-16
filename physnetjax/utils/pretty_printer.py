@@ -144,6 +144,17 @@ styles = [
     "light_yellow3",
     "bright_cyan",
     "bright_magenta",
+    "medium_orchid3",
+    "spring_green3",
+    "dark_goldenrod",
+    "bright_cyan",
+    "bright_magenta",
+    "medium_orchid3",
+    "spring_green3",
+    "dark_goldenrod",
+    "bright_cyan",
+    "bright_magenta",
+
 ]
 
 
