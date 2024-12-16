@@ -274,9 +274,7 @@ def prepare_datasets(
         esp_mask=esp_mask,
         # dataset_keys
     )
-    print(data[0].shape)
-    print(keys)
-    print(len(data[0]))
+
     train_choice, valid_choice = get_choices(
         key, len(data[0]), int(num_train), int(num_valid)
     )
