@@ -348,7 +348,7 @@ def make_dicts(data, keys, train_choice, valid_choice):
     train_data, valid_data = dict(), dict()
 
     for i, k in enumerate(keys):
-        print(i, k, len(data[i]), data[i].shape)
+        # print(i, k, len(data[i]), data[i].shape)
         train_data[k] = data[i][train_choice]
         valid_data[k] = data[i][valid_choice]
 
