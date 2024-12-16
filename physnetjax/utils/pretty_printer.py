@@ -147,7 +147,7 @@ styles = [
 ]
 
 
-def print_dict_as_table(dictionary: dict[], title="Dictionary", plot=False):
+def print_dict_as_table(dictionary: dict, title="Dictionary", plot=False):
     table = Table(title=title)
     for i, (key, value) in enumerate(dictionary.items()):
         table.add_column(key, style=styles[i], no_wrap=True)
