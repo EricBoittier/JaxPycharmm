@@ -106,6 +106,11 @@ def setup_calculator(atoms, params, model):
     print(ml_selection)
     energy.show()
     U = atoms.get_potential_energy()
+    conversion = {
+        "energy": 1 / (units.kcal / units.mol),
+        "forces": 1 #/ (units.kcal / units.mol),
+        "dipole": 1,
+    }
 
     F = atoms.get_forces()
     Model = get_pyc(params, model, atoms, conversion=conversion)
