@@ -108,7 +108,7 @@ def setup_calculator(atoms, params, model):
     U = atoms.get_potential_energy()
 
     F = atoms.get_forces()
-    Model = get_pyc(params, model, atoms)
+    Model = get_pyc(params, model, atoms, conversion=conversion)
     Z = np.array(Z)
 
     # Initialize PhysNet calculator
