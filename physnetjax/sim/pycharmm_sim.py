@@ -108,7 +108,7 @@ def setup_calculator(atoms, params, model):
     U = atoms.get_potential_energy()
     conversion = {
         "energy": 1 / (units.kcal / units.mol),
-        "forces": 1, #/ (units.kcal / units.mol),
+        "forces": -1, #/ (units.kcal / units.mol),
         "dipole": 1,
     }
 
