@@ -5,6 +5,7 @@ python model_analysis_utils.py \
   --files /pchem-data/meuwly/boittier/home/jaxeq/notebooks/ala-esp-dip-0.npz \
   --num_train 8000 \
   --num_valid 1786 \
+  --num atoms 37 \
   --load_test \
   --do_plot \
   --save_results
