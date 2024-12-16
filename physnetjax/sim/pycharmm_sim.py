@@ -59,9 +59,7 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     read.pdb(pdb_file, resid=True)
     stats = coor.stat()
     print(stats)
-    empty_psf_command = """generate MLP setup
-    ! add atoms to the system
-    
+    empty_psf_command = """generate MLP FIRST NTER LAST CTER setup
     ! Write the empty PSF file
 open unit 20 write card name your_empty.psf
 write psf card unit 20
@@ -76,6 +74,14 @@ close unit 20
 
     stats = coor.stat()
     stream.charmm_script("print coor")
+
+def setup_coords_seq(seq):
+    """Setup system coordinates and parameters."""
+    settings.set_bomb_level(-2)
+    settings.set_warn_level(-1)
+
+    read.sequence_string(seq)
+    stream.charmm_script("GENERATE PEPT FIRST NTER LAST CTER SETUP")
 
 
 
