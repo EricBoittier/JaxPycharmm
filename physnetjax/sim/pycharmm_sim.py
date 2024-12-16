@@ -60,7 +60,7 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     settings.set_warn_level(-1)
     read.pdb(pdb_file, resid=True)
     read.psf_card(psf_file)
-    add_waters()
+    # add_waters()
     R = coor.get_positions().values
     import pycharmm.psf as psf
     Z = [str(_)[:1] for _ in psf.get_atype()]
