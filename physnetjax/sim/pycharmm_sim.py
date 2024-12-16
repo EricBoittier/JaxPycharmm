@@ -430,11 +430,11 @@ def main():
     print_device_info()
     base_path = Path("/pchem-data/meuwly/boittier/home/pycharmm_test")
     # File paths
-    pdb_file = "adp.pdb"
-    psf_file = "adp.psf"
-    pkl_path = "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
-    model_path = "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
-    setup_sim(pdb_file, pkl_path, model_path, psf_file, base_path)
+    pdb_file = base_path /  "adp.pdb"
+    psf_file = base_path /  "adp.psf"
+    pkl_path = base_path /  "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
+    model_path = base_path /  "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
+    setup_sim(pdb_file, pkl_path, model_path, psf_file)
 
 
 if __name__ == "__main__":

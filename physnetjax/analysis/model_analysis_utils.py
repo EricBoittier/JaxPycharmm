@@ -126,7 +126,7 @@ def analyse_trained(
         natoms: int,
         batch_size: int = DEFAULT_BATCH_SIZE,
         do_plot: bool = False,
-        save_results: bool = False,
+        save_results: bool = True,
 ) -> Dict[str, Any]:
     """
     Analyse a model with trained parameters.
