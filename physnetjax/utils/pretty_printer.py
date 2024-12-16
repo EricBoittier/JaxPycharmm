@@ -147,11 +147,11 @@ styles = [
 ]
 
 
-def print_dict_as_table(data, title="Dictionary", plot=False):
+def print_dict_as_table(dictionary: dict[], title="Dictionary", plot=False):
     table = Table(title=title)
-    for i, (key, value) in enumerate(data.items()):
+    for i, (key, value) in enumerate(dictionary.items()):
         table.add_column(key, style=styles[i], no_wrap=True)
-    table.add_row(*[str(value) for value in data.values()])
+    table.add_row(*[str(value) for value in dictionary.values()])
     if plot:
         from rich.console import Console
         console = Console()
