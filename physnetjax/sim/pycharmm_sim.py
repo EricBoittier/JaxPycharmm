@@ -432,8 +432,8 @@ def main():
     # File paths
     pdb_file = base_path /  "md" / "adp.pdb"
     psf_file = base_path / "md" /  "adp.psf"
-    pkl_path = base_path /  "ckpt" / "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
-    model_path = base_path / "ckpt" /  "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
+    pkl_path = base_path /  "ckpts" / "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
+    model_path = base_path / "ckpts" /  "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
     setup_sim(pdb_file, pkl_path, model_path, psf_file)
 
 
