@@ -295,7 +295,7 @@ def run_heating(
 def add_waters(n_waters: int = 4):
     add_water_script = f"""! Generate a water segment
 read sequence tip3 1
-generate WAT setup
+generate WAT setup angle 109.47
 ic param
 ic build
 """
