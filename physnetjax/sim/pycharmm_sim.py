@@ -36,7 +36,7 @@ def print_device_info():
 
 def initialize_model(pkl_path, model_path, atoms):
     """Initialize the model with parameters and model."""
-
+    print(atoms, len(atoms))
     params, model = get_params_model_with_ase(pkl_path, model_path, atoms)
 
     return params, model
