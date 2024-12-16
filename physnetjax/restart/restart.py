@@ -27,8 +27,6 @@ def get_params_model(restart: str, natoms: int = None):
     # print(f"Restoring from {restart}")
     modification_time = os.path.getmtime(restart)
     modification_date = datetime.fromtimestamp(modification_time)
-    # print(f"The file was last modified on: {modification_date}")
-    # print("Restored keys:", restored.keys())
 
     params = restored["params"]
     print(restored["model"].keys())
@@ -45,6 +43,9 @@ def get_params_model(restart: str, natoms: int = None):
     print_dict_as_table(kwargs, title="Model Attributes", plot=True)
     restart_dict = {
         "Checkpoint": restart,
+        "name": Path(restart).name,
+        "epoch": restored["epoch"],
+        "best_loss": restored["best_loss"],
         "Save Time": modification_date,
     }
     print_dict_as_table(restart_dict, title="Last Checkpoint", plot=True)
