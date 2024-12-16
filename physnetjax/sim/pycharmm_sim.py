@@ -105,7 +105,7 @@ def setup_calculator(atoms, params, model):
     ml_selection = pycharmm.SelectAtoms().by_res_id("1")
     print(ml_selection)
     energy.show()
-    U = atoms.get_potential_energy() / (units.kcal / units.mol)
+    U = atoms.get_potential_energy()
 
     F = atoms.get_forces()
     Model = get_pyc(params, model, atoms)
@@ -132,7 +132,7 @@ def verify_energy(U, atol=1e-4):
     """Verify that energies match within tolerance."""
     energy.show()
     userE = energy.get_energy()["USER"]
-    print(userE)
+    print(userE, U)
     assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
     print(f"Success! energies are close, within {atol} kcal/mol")
     return True, userE
