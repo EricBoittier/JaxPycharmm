@@ -350,7 +350,7 @@ def main():
         save_results=args.save_results,
     )
 
-    print("Analysis completed:", result)
+    # print("Analysis completed:", result)
 
 
 if __name__ == "__main__":

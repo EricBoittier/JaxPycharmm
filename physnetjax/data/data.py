@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import ase.data
 import e3x
 import jax
@@ -5,6 +7,8 @@ import jax.numpy as jnp
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
+
+from physnetjax.utils.pretty_printer import print_dict_as_table
 
 
 def cut_vdw(grid, xyz, elements, vdw_scale=1.4):
@@ -48,9 +52,11 @@ def prepare_multiple_datasets(
     datasets = [np.load(f) for f in filename]
     # datasets_keys() = datasets.keys()
     if verbose:
-        for dataset in datasets:
+        for i, dataset in enumerate(datasets):
+            data_shape = {}
             for k, v in dataset.items():
-                print(k, v.shape)
+                data_shape[k] = v.shape
+            print_dict_as_table(data_shape, title=Path(filename[i]).name)
 
     if "id" in datasets[0].keys():
         dataid = np.concatenate([dataset["id"] for dataset in datasets])
@@ -77,7 +83,7 @@ def prepare_multiple_datasets(
         .shape
     )
     not_failed = np.array(range(shape[0]))
-    print("shape", shape, "not failed", not_failed)
+    # print("shape", shape, "not failed", not_failed)
 
     if "id" in datasets[0].keys():
         dataid = dataid[not_failed]
@@ -215,8 +221,6 @@ def prepare_multiple_datasets(
         )
         data.append(dataESPmask)
         keys.append("espMask")
-
-    print("R", dataR.shape)
 
     assert_dataset_size(dataR.squeeze(), train_size, valid_size)
 
