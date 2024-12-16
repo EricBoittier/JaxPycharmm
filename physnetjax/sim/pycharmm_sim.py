@@ -34,11 +34,16 @@ def print_device_info():
     print(jax.devices())
 
 
-def initialize_system(pdb_file, pkl_path, model_path):
-    """Initialize the system with PDB file and model parameters."""
-    atoms = io.read(pdb_file)
+def initialize_model(pkl_path, model_path, atoms):
+    """Initialize the model with parameters and model."""
+
     params, model = get_params_model_with_ase(pkl_path, model_path, atoms)
 
+    return params, model
+
+
+def initialize_system():
+    """Initialize the system with PDB file and model parameters."""
     # Read topology and parameter files
     read.rtf("/pchem-data/meuwly/boittier/home/charmm/toppar/top_all36_prot.rtf")
     read.prm(
@@ -47,8 +52,6 @@ def initialize_system(pdb_file, pkl_path, model_path):
     pycharmm.lingo.charmm_script(
         "stream /pchem-data/meuwly/boittier/home/charmm/toppar/toppar_water_ions.str"
     )
-
-    return atoms, params, model
 
 
 def setup_coordinates(pdb_file, psf_file, atoms):
@@ -409,20 +412,17 @@ def _setup_sim(pdb_file: str | Path | None = None,
               pkl_path: str | Path | None = None, 
               model_path: str | Path | None = None,
               psf_file: str | Path | None = None,
-               swap_atoms=None):
+               atoms=None):
     output_pdb = Path(pdb_file).stem + "_min.pdb" if pdb_file is None else "output.pdb"
     if output_pdb is None:
         raise ValueError("PDB file not provided.")
     
     
     # Initialize and setup
-    atoms, params, model = initialize_system(pdb_file, pkl_path, model_path)
-
-    if swap_atoms:
-        atoms = swap_atoms
+    initialize_system()
 
     atoms = setup_coordinates(pdb_file, psf_file, atoms)
-
+    params, model = initialize_model(pkl_path, model_path, atoms)
     # Setup calculator and run minimization
     calc_setup, _ = setup_calculator(atoms, params, model)
     if calc_setup:
@@ -441,7 +441,7 @@ def setup_sim(pdb_file: str | Path | None = None,
                 pkl_path: str | Path | None = None,
                 psf_file: str | Path | None = None,
                basepath: str | Path | None = None,
-              swap_atoms=None):
+              atoms=None):
 
     if isinstance(pdb_file, Path):
         pdb_file = str(pdb_file) if basepath is None else str(basepath / pdb_file)
@@ -452,7 +452,7 @@ def setup_sim(pdb_file: str | Path | None = None,
     if isinstance(psf_file, Path):
         psf_file = str(psf_file) if basepath is None else str(basepath / psf_file)
 
-    return _setup_sim(pdb_file, model_path, pkl_path, psf_file)
+    return _setup_sim(pdb_file, model_path, pkl_path, psf_file, atoms)
 
 def main():
     """Main function to run the simulation."""
