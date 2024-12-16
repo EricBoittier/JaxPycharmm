@@ -436,7 +436,7 @@ def _setup_sim(pdb_file: str | Path | None = None,
         print("Error in setting up calculator.")
     Fcons = '1 cy 1 n 1 ca 1 c'
     Ycons = '1 n 1 ca 1 c 1 nt'
-    cons_command = "cons dihe {} force {} min {:4.2f}'".format(Fcons, 500, 120.0) # "16 14 8 6"
+    cons_command = "cons dihe {} force {} min {:4.2f}'".format(Fcons, 2, 12.0) # "16 14 8 6"
     pycharmm.lingo.charmm_script(cons_command)
     run_minimization(output_pdb)
     timestep = 0.0005
