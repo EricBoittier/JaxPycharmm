@@ -61,7 +61,7 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     add_waters()
     R = coor.get_positions().values
     import pycharmm.psf as psf
-    Z = psf.get_atype()
+    Z = [str(_)[:1] for _ in psf.get_atype()]
     atoms = ase.Atoms(Z, R)
     return atoms
 
