@@ -210,7 +210,9 @@ def analyse_trained(
     if "num_iterations" not in output.keys():
         output["num_iterations"] = model.num_iterations
 
-    print_dict_as_table(output, "Analysis Results", plot=True)
+    analyis_dict = {k:v for k,v in output.items() if k in ["E_rmse", "F_rmse", "D_rmse", "E_mae", "F_mae", "D_mae"]}
+    print_dict_as_table(analyis_dict, "Analysis Results", plot=True)
+    # print_dict_as_table(output, "Analysis Results", plot=True)
 
     # save results as pickle
     if save_results:
