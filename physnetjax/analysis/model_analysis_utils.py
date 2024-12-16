@@ -309,14 +309,13 @@ def main():
 
     file_name_dicts = {"restart": Path(dict_args["restart"]).name,
                        "files": [Path(_).name for _ in dict_args["files"]]}
-    dict_args.pop("restart")
-    dict_args.pop("files")
+    other_args = {k: v for k, v in dict_args.items() if k not in ["restart", "files"]}
     print_dict_as_table(file_name_dicts, "file names", plot=True)
-    print_dict_as_table(dict_args, "args", plot=True)
+    print_dict_as_table(other_args, "args", plot=True)
 
     # Parse inputs from args
-    restart_path = Path(file_name_dicts["restart"])
-    files = file_name_dicts["files"]
+    restart_path = Path(dict_args["restart"])
+    files = dict_args["files"]
     natoms = args.natoms
     batch_size = args.batch_size
     num_train = args.num_train
