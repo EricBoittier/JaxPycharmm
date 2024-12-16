@@ -16,7 +16,7 @@ NUM_VALID=$4
 NATOMS=$5
 
 # Execute the Python script
-python model_analysis_utils.py \
+python ../physnetjax/analysis/model_analysis_utils.py \
   --restart "$RES" \
   --files "$FILES" \
   --num_train "$NUM_TRAIN" \
