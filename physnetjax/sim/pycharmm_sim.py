@@ -300,6 +300,8 @@ generate WAT setup
 ! Define coordinates for the new water molecule
 coor set xdir 10.0 ydir 10.0 zdir 10.0 sele segid WAT .and. resid 1 end"""
     pycharmm.lingo.charmm_script(add_water_script)
+    # minimize the water segment
+    minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
 
 
 def run_equilibration(
