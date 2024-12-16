@@ -64,7 +64,7 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     R = coor.get_positions().values
     import pycharmm.psf as psf
     Z = [str(_)[:1] for _ in psf.get_atype()]
-    atoms = ase.Atoms(Z, R)
+    # atoms = ase.Atoms(Z, R)
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
     return atoms
 
