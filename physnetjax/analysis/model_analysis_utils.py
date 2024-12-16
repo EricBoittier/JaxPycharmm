@@ -307,7 +307,11 @@ def main():
     dict_args = vars(args)
     from physnetjax.utils.pretty_printer import print_dict_as_table
 
-    file_name_dicts = {"restart": dict_args["restart"].name, "files": [_.name for _ in dict_args["files"]]}
+    file_name_dicts = {"restart": Path(dict_args["restart"]).name,
+                       "files": [Path(_).name for _ in dict_args["files"]]}
+    dict_args.pop("restart")
+    dict_args.pop("files")
+    print_dict_as_table(file_name_dicts, "file names", plot=True)
     print_dict_as_table(dict_args, "args", plot=True)
 
     # Parse inputs from args
