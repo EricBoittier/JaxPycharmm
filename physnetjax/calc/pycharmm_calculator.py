@@ -169,7 +169,7 @@ class PyCharmm_Calculator:
         Return
         ------
         float
-            ML potential plus ML-MM embedding potential
+            ML potential
         """
 
         # Assign all positions

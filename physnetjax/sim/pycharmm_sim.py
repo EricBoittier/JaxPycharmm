@@ -111,8 +111,9 @@ def setup_calculator(atoms, params, model):
         ml_selection,
         ml_fq=False,
     )
-
-    return verify_energy(U), _
+    if verify_energy(U) and verify_forces(atoms.get_forces()):
+        return True, _
+    raise ValueError("Error in setting up calculator. CHARMM energies do not match calculators'.")
 
 
 def verify_energy(U, atol=1e-4):
@@ -122,6 +123,14 @@ def verify_energy(U, atol=1e-4):
     print(userE)
     assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
     print(f"Success! energies are close, within {atol} kcal/mol")
+    return True
+
+def verify_forces(F, atol=1e-4):
+    """Verify that forces match within tolerance."""
+    forces = coor.get_forces().values
+    print(forces)
+    assert np.allclose(F, forces, atol=atol)
+    print(f"Success! forces are close, within {atol} kcal/mol/Ang")
     return True
 
 

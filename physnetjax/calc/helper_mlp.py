@@ -96,7 +96,7 @@ def get_pyc(params, model, ase_mol, conversion=pycharmm_conversion):
     )
 
     blah = np.array(list(range(NATOMS)))
-    blah1 = np.array(list(range(3200)))
+    blah1 = np.array(list(range(1000)))
     blah2 = np.arange(NATOMS) * 1.0
     print("...", dir(pyc)), pyc, "pyc?"
     _ = pyc.calculate_charmm(
@@ -120,7 +120,6 @@ def get_pyc(params, model, ase_mol, conversion=pycharmm_conversion):
         idxup=blah,
         idxvp=blah,
     )
-    print("_", _)
 
     class pyCModel:
         def __init__():
@@ -136,6 +135,7 @@ def get_pyc(params, model, ase_mol, conversion=pycharmm_conversion):
             mlmm_cuton=None,
             **kwargs
         ):
+            """Dummy function to return the PyCharmm_Calculator object"""
             return pyc
 
     return pyCModel
