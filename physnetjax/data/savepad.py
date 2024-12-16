@@ -50,7 +50,7 @@ def get_input_files(data_path: str) -> List[Path]:
     Returns:
         Sorted list of Path objects
     """
-    files = list(Path(data_path).glob("*opt*npz"))
+    files = list(Path(data_path).glob("*npz"))
     files.sort(key=sort_func)
     return files
 
@@ -138,6 +138,7 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
             raise ValueError("Invalid NPZ file, missing required keys R and Z")
 
         R = load["R"]
+        print("R.shape", R.shape)
         n_atoms = len(np.nonzero(R.sum(axis=1))[0])
 
         if int(len(R)) != n_atoms:
@@ -209,6 +210,7 @@ def process_dataset(
 
     for filepath in tqdm(files):
         result, n_atoms = process_npz_file(filepath)
+        print(result, n_atoms)
         if result is not None and 3 < n_atoms < MAX_N_ATOMS:
             # Store molecule ID
             molecule_ids.append(str(filepath).split("/")[-2])
@@ -360,3 +362,15 @@ def process_in_memory(data: List[Dict], max_atoms=None):
         output[k_new] = output.pop(k_old)
 
     return output
+
+if __name__ == "__main__":
+#    files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*"))
+    files = [Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz')]
+    print(files)
+    process_dataset(files)
+
+

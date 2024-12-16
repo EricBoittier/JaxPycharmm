@@ -290,9 +290,6 @@ def train_model(
                 save_time = time.strftime("%H:%M:%S", time.gmtime(save_time))
                 # print("Saving checkpoint at", save_time)
                 ckp = CKPT_DIR / f"epoch-{epoch}"
-                orbax_checkpointer.save(
-                    CKPT_DIR / f"epoch-{epoch}", ckpt, save_args=save_args
-                )
                 # update best loss
                 best_loss = obj_res[objective]
                 model_attributes = model.return_attributes()
@@ -310,6 +307,9 @@ def train_model(
                     "objectives": obj_res,
                 }
                 save_args = orbax_utils.save_args_from_target(ckpt)
+                orbax_checkpointer.save(
+                    CKPT_DIR / f"epoch-{epoch}", ckpt, save_args=save_args
+                )
 
                 best_ = True
 
