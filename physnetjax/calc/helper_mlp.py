@@ -60,8 +60,8 @@ def get_ase_calc(params, model, ase_mol, conversion=conversion):
 
 
 pycharmm_conversion = {
-    "energy": 1/(ase.units.kcal / ase.units.mol),
-    "forces": 1/(ase.units.kcal / ase.units.mol),
+    "energy": 1 / (ase.units.kcal / ase.units.mol),
+    "forces": 1 / (ase.units.kcal / ase.units.mol),
     "charge": 1,
 }
 

@@ -4,14 +4,16 @@ from pathlib import Path
 from tabnanny import verbose
 
 import matplotlib.pyplot as plt
+
 # Set environment variables
-import  os
+import os
 
 from physnetjax.directories import ANALYSIS_PATH
 
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import jax
+
 # from jax import
 import jax
 from physnetjax.analysis.analysis import count_params, plot_stats
@@ -24,7 +26,15 @@ DEFAULT_BATCH_SIZE = 100
 DEFAULT_NATOMS = 47
 DEFAULT_PRNG = 43
 DEFAULT_DATA_KEYS = (
-    "R", "Z", "F", "E", "D", "N", "dst_idx", "src_idx", "batch_segments"
+    "R",
+    "Z",
+    "F",
+    "E",
+    "D",
+    "N",
+    "dst_idx",
+    "src_idx",
+    "batch_segments",
 )
 
 
@@ -49,16 +59,16 @@ def load_restart(restart_path: Path) -> Path:
 
 
 def load_data(
-        NATOMS: int,
-        PRNG: int = DEFAULT_PRNG,
-        files: List[str] = None,
-        num_train: int = 8000,
-        num_valid: int = 1786,
-        data_keys: tuple = DEFAULT_DATA_KEYS,
-        batch_size: int = DEFAULT_BATCH_SIZE,
-        load_test: bool = True,
-        load_train: bool = False,
-        load_validation: bool = False,
+    NATOMS: int,
+    PRNG: int = DEFAULT_PRNG,
+    files: List[str] = None,
+    num_train: int = 8000,
+    num_valid: int = 1786,
+    data_keys: tuple = DEFAULT_DATA_KEYS,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    load_test: bool = True,
+    load_train: bool = False,
+    load_validation: bool = False,
 ) -> Dict[str, Any]:
     """
     Prepares specified batches (test, train, validation) from dataset files.
@@ -86,8 +96,14 @@ def load_data(
 
     # Prepare the datasets
     train_data, valid_data = prepare_datasets(
-        data_key, num_train, num_valid, files, clip_esp=False, natoms=NATOMS, clean=False,
-        verbose=True
+        data_key,
+        num_train,
+        num_valid,
+        files,
+        clip_esp=False,
+        natoms=NATOMS,
+        clean=False,
+        verbose=True,
     )
     ntest = len(valid_data["E"]) // 2
 
@@ -121,12 +137,12 @@ def load_data(
 
 
 def analyse_trained(
-        restart: Path,
-        data: Dict[str, Any],
-        natoms: int,
-        batch_size: int = DEFAULT_BATCH_SIZE,
-        do_plot: bool = False,
-        save_results: bool = True,
+    restart: Path,
+    data: Dict[str, Any],
+    natoms: int,
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    do_plot: bool = False,
+    save_results: bool = True,
 ) -> Dict[str, Any]:
     """
     Analyse a model with trained parameters.
@@ -175,22 +191,25 @@ def analyse_trained(
 
     # print results as rich table
     from physnetjax.utils.pretty_printer import print_dict_as_table
-    output_keys = ['E_rmse',
- 'E_mae',
- 'F_rmse',
- 'F_mae',
- 'D_rmse',
- 'D_mae',
- 'n_params',
- 'features',
- 'max_degree',
- 'num_iterations',
- 'num_basis_functions',
- 'cutoff',
- 'max_atomic_number',
- 'natoms',
- 'total_charge',
- 'n_res']
+
+    output_keys = [
+        "E_rmse",
+        "E_mae",
+        "F_rmse",
+        "F_mae",
+        "D_rmse",
+        "D_mae",
+        "n_params",
+        "features",
+        "max_degree",
+        "num_iterations",
+        "num_basis_functions",
+        "cutoff",
+        "max_atomic_number",
+        "natoms",
+        "total_charge",
+        "n_res",
+    ]
     output = {k: v for k, v in output.items() if k in output_keys}
     if "n_parms" not in output.keys():
         output["n_params"] = total_params
@@ -213,18 +232,23 @@ def analyse_trained(
     if "num_iterations" not in output.keys():
         output["num_iterations"] = model.num_iterations
 
-    analyis_dict = {k:v for k,v in output.items() if k in ["E_rmse", "F_rmse", "D_rmse", "E_mae", "F_mae", "D_mae"]}
+    analyis_dict = {
+        k: v
+        for k, v in output.items()
+        if k in ["E_rmse", "F_rmse", "D_rmse", "E_mae", "F_mae", "D_mae"]
+    }
     print_dict_as_table(analyis_dict, "Analysis Results", plot=True)
     # print_dict_as_table(output, "Analysis Results", plot=True)
 
     # save results as pickle
     if save_results:
-        save_pickle(output, restart_dir /  f"{restart_dir.name}_analysis_results.pkl")
+        save_pickle(output, restart_dir / f"{restart_dir.name}_analysis_results.pkl")
 
     return output
 
 
 # --- ARGPARSE ---
+
 
 def parse_args():
     """Parses command-line arguments for the script."""
@@ -312,8 +336,10 @@ def main():
     dict_args = vars(args)
     from physnetjax.utils.pretty_printer import print_dict_as_table
 
-    file_name_dicts = {"restart": Path(dict_args["restart"]).name,
-                       "files": [Path(_).name for _ in dict_args["files"]]}
+    file_name_dicts = {
+        "restart": Path(dict_args["restart"]).name,
+        "files": [Path(_).name for _ in dict_args["files"]],
+    }
     other_args = {k: v for k, v in dict_args.items() if k not in ["restart", "files"]}
     print_dict_as_table(file_name_dicts, "file names", plot=True)
     print_dict_as_table(other_args, "args", plot=True)

@@ -179,7 +179,6 @@ class PyCharmm_Calculator:
         else:
             mlmm_R = np.array([x[:Natom], y[:Natom], z[:Natom]]).T
             mlmm_idxp = idxp[:Natom]
-        # Note: JAX equivalent of requires_grad_ will be handled differently
 
         # Assign indices
         # ML-ML pair indices
@@ -227,47 +226,11 @@ class PyCharmm_Calculator:
         E = self.results["energy"]
         ml_F = np.array(self.results["forces"])
 
-        # jax.debug.print("{x}", x=E)
-        # print(ml_F)
-        # assert ml_F is not None
-
         # Add forces to CHARMM derivative arrays
         for ai in self.ml_atom_indices:
             for ai, force in zip(self.ml_atom_indices, ml_F):
                 dx[ai] -= force[0]
                 dy[ai] -= force[1]
                 dz[ai] -= force[2]
-
-        # # Calculate electrostatic energy and force contribution
-        # if self.electrostatics_calc is not None:
-
-        #     mlmm_Eele, mlmm_gradient = self.electrostatics_calc.run(
-        #         mlmm_R,
-        #         self.results["atomic_charges"],
-        #         mlmm_idxu,
-        #         mlmm_idxv,
-        #         mlmm_idxup,
-        #         mlmm_idxvp,
-        #     )
-
-        #     # Add electrostatic interaction potential to ML energy
-        #     E += (
-        #         mlmm_Eele
-        #         # * self.mlmm_lambda
-        #         # * self.model2charmm_unit_conversion["energy"]
-        #     )
-
-        #     # Apply dtype conversion
-        #     mlmm_F = (
-        #         -mlmm_gradient
-        #         # * self.mlmm_lambda
-        #         # * self.model2charmm_unit_conversion["forces"]
-        #     )
-
-        #     # Add electrostatic forces to CHARMM derivative arrays
-        #     for ia, ai in enumerate(mlmm_idxp):
-        #         dx[ai] -= mlmm_F[ia, 0]
-        #         dy[ai] -= mlmm_F[ia, 1]
-        #         dz[ai] -= mlmm_F[ia, 2]
 
         return E

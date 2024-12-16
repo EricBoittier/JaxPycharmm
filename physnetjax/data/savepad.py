@@ -363,14 +363,25 @@ def process_in_memory(data: List[Dict], max_atoms=None):
 
     return output
 
+
 if __name__ == "__main__":
-#    files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*"))
-    files = [Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz')]
+    #    files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*"))
+    files = [
+        Path(
+            "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz"
+        ),
+        Path(
+            "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz"
+        ),
+        Path(
+            "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz"
+        ),
+        Path(
+            "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz"
+        ),
+        Path(
+            "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz"
+        ),
+    ]
     print(files)
     process_dataset(files)
-
-

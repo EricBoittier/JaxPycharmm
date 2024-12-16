@@ -154,7 +154,6 @@ styles = [
     "dark_goldenrod",
     "bright_cyan",
     "bright_magenta",
-
 ]
 
 
@@ -165,6 +164,7 @@ def print_dict_as_table(dictionary: dict, title="Dictionary", plot=False):
     table.add_row(*[str(value) for value in dictionary.values()])
     if plot:
         from rich.console import Console
+
         console = Console()
         console.print(table)
     return table

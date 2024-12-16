@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
 os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cmake"
@@ -64,6 +65,7 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     # add_waters()
     # R = coor.get_positions().values
     import pycharmm.psf as psf
+
     Z = [str(_)[:1] for _ in psf.get_atype()]
     atoms = ase.Atoms(Z, atoms.get_positions())
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
@@ -77,8 +79,6 @@ def setup_coords_seq(seq):
     settings.set_warn_level(-1)
     read.sequence_string(seq)
     stream.charmm_script("GENERATE PEPT FIRST NTER LAST CTER SETUP")
-
-
 
 
 ##########################
@@ -227,14 +227,14 @@ def change_integrator(dynamics_dict, integrator):
 
 
 def run_heating(
-        timestep=0.001,
-        tottime=5.0,
-        savetime=0.10,
-        initial_temp=10,
-        final_temp=300,
-        prefix="restart",
-        nprint=100,
-        integrator="verlet",
+    timestep=0.001,
+    tottime=5.0,
+    savetime=0.10,
+    initial_temp=10,
+    final_temp=300,
+    prefix="restart",
+    nprint=100,
+    integrator="verlet",
 ):
     """
     Run the heating phase of molecular dynamics.
@@ -294,6 +294,7 @@ def run_heating(
 
     return files
 
+
 def add_waters(n_waters: int = 4):
     add_water_script = f"""! Generate a water segment
 read sequence tip3 1
@@ -307,8 +308,13 @@ ic build
 
 
 def run_equilibration(
-        timestep=0.001, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
-        restart=False
+    timestep=0.001,
+    tottime=5.0,
+    savetime=0.01,
+    temp=300,
+    prefix="",
+    integrator="verlet",
+    restart=False,
 ):
     """
     Run the equilibration phase of molecular dynamics.
@@ -362,8 +368,15 @@ def run_equilibration(
     return files
 
 
-def run_production(timestep=0.001, integrator="verlet", tottime=5.0, savetime=0.01,
-                   temp=300, prefix="mm", restart=False):
+def run_production(
+    timestep=0.001,
+    integrator="verlet",
+    tottime=5.0,
+    savetime=0.01,
+    temp=300,
+    prefix="mm",
+    restart=False,
+):
     """
     Run the production phase of molecular dynamics.
 
@@ -412,16 +425,18 @@ def run_production(timestep=0.001, integrator="verlet", tottime=5.0, savetime=0.
 
     return files
 
-def _setup_sim(pdb_file: str | Path | None = None,
-              pkl_path: str | Path | None = None, 
-              model_path: str | Path | None = None,
-              psf_file: str | Path | None = None,
-               atoms=None):
+
+def _setup_sim(
+    pdb_file: str | Path | None = None,
+    pkl_path: str | Path | None = None,
+    model_path: str | Path | None = None,
+    psf_file: str | Path | None = None,
+    atoms=None,
+):
     output_pdb = Path(pdb_file).stem + "_min.pdb" if pdb_file is None else "output.pdb"
     if output_pdb is None:
         raise ValueError("PDB file not provided.")
-    
-    
+
     # Initialize and setup
     initialize_system()
 
@@ -434,23 +449,46 @@ def _setup_sim(pdb_file: str | Path | None = None,
         pass
     else:
         print("Error in setting up calculator.")
-    Fcons = '1 cy 1 n 1 ca 1 c'
-    Ycons = '1 n 1 ca 1 c 1 nt'
-    cons_command = "cons dihe {} force {} min {:4.2f}'".format(Fcons, 2, -100.0) # "16 14 8 6"
+    Fcons = "1 cy 1 n 1 ca 1 c"
+    Ycons = "1 n 1 ca 1 c 1 nt"
+    cons_command = "cons dihe {} force {} min {:4.2f}'".format(
+        Fcons, 2, -100.0
+    )  # "16 14 8 6"
     pycharmm.lingo.charmm_script(cons_command)
     run_minimization(output_pdb)
     timestep = 0.0005
-    files = run_heating(integrator="verlet", final_temp=400.0, timestep=timestep, tottime=10.0,)
-    files = run_equilibration(integrator="verlet", prefix="equi", temp=400.0, timestep=timestep, restart=files["res"].file_name)
-    files = run_production(integrator="verlet", prefix="dyna", tottime=1000, temp=400.0, timestep=timestep, restart=files["res"].file_name)
+    files = run_heating(
+        integrator="verlet",
+        final_temp=400.0,
+        timestep=timestep,
+        tottime=10.0,
+    )
+    files = run_equilibration(
+        integrator="verlet",
+        prefix="equi",
+        temp=400.0,
+        timestep=timestep,
+        restart=files["res"].file_name,
+    )
+    files = run_production(
+        integrator="verlet",
+        prefix="dyna",
+        tottime=1000,
+        temp=400.0,
+        timestep=timestep,
+        restart=files["res"].file_name,
+    )
     return files
 
-def setup_sim(pdb_file: str | Path | None = None,
-               model_path: str | Path | None = None,
-                pkl_path: str | Path | None = None,
-                psf_file: str | Path | None = None,
-               basepath: str | Path | None = None,
-              atoms=None):
+
+def setup_sim(
+    pdb_file: str | Path | None = None,
+    model_path: str | Path | None = None,
+    pkl_path: str | Path | None = None,
+    psf_file: str | Path | None = None,
+    basepath: str | Path | None = None,
+    atoms=None,
+):
 
     if isinstance(pdb_file, Path):
         pdb_file = str(pdb_file) if basepath is None else str(basepath / pdb_file)
@@ -463,17 +501,18 @@ def setup_sim(pdb_file: str | Path | None = None,
 
     return _setup_sim(pdb_file, model_path, pkl_path, psf_file, atoms)
 
+
 def main():
     """Main function to run the simulation."""
     print_device_info()
     base_path = Path("/pchem-data/meuwly/boittier/home/pycharmm_test")
     # File paths
-    pdb_file = base_path /  "md" / "adp.pdb"
-    psf_file = base_path / "md" /  "adp.psf"
+    pdb_file = base_path / "md" / "adp.pdb"
+    psf_file = base_path / "md" / "adp.psf"
     restart_name = "cf3all-ecbb2297-d619-4bcf-9607-df23dfbce0dc"
     # "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a"
-    pkl_path = base_path /  "ckpts" / restart_name / "params.pkl"
-    model_path = base_path / "ckpts" /  restart_name / "model_kwargs.pkl"
+    pkl_path = base_path / "ckpts" / restart_name / "params.pkl"
+    model_path = base_path / "ckpts" / restart_name / "model_kwargs.pkl"
 
     swap_atoms = None
 
