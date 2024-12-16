@@ -446,8 +446,10 @@ def main():
     # File paths
     pdb_file = base_path /  "md" / "adp.pdb"
     psf_file = base_path / "md" /  "adp.psf"
-    pkl_path = base_path /  "ckpts" / "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
-    model_path = base_path / "ckpts" /  "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
+    restart_name = "cf3all-ecbb2297-d619-4bcf-9607-df23dfbce0dc"
+    # "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a"
+    pkl_path = base_path /  "ckpts" / restart_name / "params.pkl"
+    model_path = base_path / "ckpts" /  restart_name / "model_kwargs.pkl"
 
     swap_atoms = None
 
