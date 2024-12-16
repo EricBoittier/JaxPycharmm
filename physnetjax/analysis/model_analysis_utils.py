@@ -315,8 +315,8 @@ def main():
     print_dict_as_table(dict_args, "args", plot=True)
 
     # Parse inputs from args
-    restart_path = Path(args.restart)
-    files = args.files
+    restart_path = Path(file_name_dicts["restart"])
+    files = file_name_dicts["files"]
     natoms = args.natoms
     batch_size = args.batch_size
     num_train = args.num_train
