@@ -468,7 +468,7 @@ def main():
 
     swap_atoms = None
 
-    setup_sim(pdb_file, pkl_path, model_path, psf_file, swap_atoms=swap_atoms)
+    setup_sim(pdb_file, pkl_path, model_path, psf_file, atoms=swap_atoms)
 
 
 if __name__ == "__main__":
