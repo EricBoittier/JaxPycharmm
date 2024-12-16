@@ -57,6 +57,8 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     settings.set_warn_level(-1)
 
     read.pdb(pdb_file, resid=True)
+    empty_psf_command = """generate MLP setup"""
+    pycharmm.lingo.charmm_script(empty_psf_command)
     # read.psf_card(psf_file)
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
 
