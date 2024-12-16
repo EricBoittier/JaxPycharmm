@@ -150,7 +150,7 @@ styles = [
 def print_dict_as_table(dictionary: dict, title="Dictionary", plot=False):
     table = Table(title=title)
     for i, (key, value) in enumerate(dictionary.items()):
-        table.add_column(key, style=styles[i], no_wrap=True)
+        table.add_column(key, style=styles[i], no_wrap=False)
     table.add_row(*[str(value) for value in dictionary.values()])
     if plot:
         from rich.console import Console

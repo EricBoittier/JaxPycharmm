@@ -167,7 +167,7 @@ def analyse_trained(
         do_plot=do_plot,
     )
     if do_plot:
-        plt.savefig(ANALYSIS_PATH / "{restart_dir.name}_test.pdf", bbox_inches="tight")
+        plt.savefig(ANALYSIS_PATH / f"{restart_dir.name}_test.pdf", bbox_inches="tight")
         plt.show()
 
     # print results as rich tables
@@ -215,7 +215,7 @@ def analyse_trained(
 
     # save results as pickle
     if save_results:
-        save_pickle(output, restart_dir / "analysis_results.pkl")
+        save_pickle(output, restart_dir /  f"{restart_dir.name}_analysis_results.pkl")
 
     return output
 
