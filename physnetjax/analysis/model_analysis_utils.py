@@ -4,6 +4,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 # Set environment variables
 import  os
+
+from physnetjax.directories import ANALYSIS_PATH
+
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import jax
@@ -164,8 +167,55 @@ def analyse_trained(
         do_plot=do_plot,
     )
     if do_plot:
-        plt.savefig(f"analysis/{restart_dir.name}_test.pdf", bbox_inches="tight")
+        plt.savefig(ANALYSIS_PATH / "{restart_dir.name}_test.pdf", bbox_inches="tight")
         plt.show()
+
+    # print results as rich tables
+    output = output._asdict()
+    from physnetjax.utils.pretty_printer import print_dict_as_table
+    output_keys = ['E_rmse',
+ 'E_mae',
+ 'F_rmse',
+ 'F_mae',
+ 'D_rmse',
+ 'D_mae',
+ 'n_params',
+ 'features',
+ 'max_degree',
+ 'num_iterations',
+ 'num_basis_functions',
+ 'cutoff',
+ 'max_atomic_number',
+ 'natoms',
+ 'total_charge',
+ 'n_res']
+    output = {k: v for k, v in output.items() if k in output_keys}
+    if "n_parms" not in output.keys():
+        output["n_params"] = total_params
+    if "natoms" not in output.keys():
+        output["natoms"] = natoms
+    if "total_charge" not in output.keys():
+        output["total_charge"] = 0.0
+    if "n_res" not in output.keys():
+        output["n_res"] = model.n_res
+    if "max_atomic_number" not in output.keys():
+        output["max_atomic_number"] = model.max_atomic_number
+    if "cutoff" not in output.keys():
+        output["cutoff"] = model.cutoff
+    if "num_basis_functions" not in output.keys():
+        output["num_basis_functions"] = model.num_basis
+    if "features" not in output.keys():
+        output["features"] = model.features
+    if "max_degree" not in output.keys():
+        output["max_degree"] = model.max_degree
+    if "num_iterations" not in output.keys():
+        output["num_iterations"] = model.num_iterations
+
+    print_dict_as_table(output, "Analysis Results", plot=True)
+
+    # save results as pickle
+    if save_results:
+        save_pickle(output, restart_dir / "analysis_results.pkl")
 
     return output
 
