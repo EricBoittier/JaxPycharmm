@@ -60,6 +60,7 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     stats = coor.stat()
     print(stats)
     empty_psf_command = """generate MLP FIRST NTER LAST CTER setup
+    ic build
     ! Write the empty PSF file
 open unit 20 write card name your_empty.psf
 write psf card unit 20
@@ -73,6 +74,7 @@ close unit 20
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
 
     stats = coor.stat()
+    # stream.charmm_script("ic build")
     stream.charmm_script("print coor")
 
 def setup_coords_seq(seq):
