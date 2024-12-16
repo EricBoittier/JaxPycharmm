@@ -115,7 +115,7 @@ def eval(batches, model, params, batch_size=500):
         predFs.append(_predf)
         charges.append(output["charges"])
         Eeles.append(output["electrostatics"])
-        print("predF.shape", _predf.shape)
+        # print("predF.shape", _predf.shape)
     Es = np.array(Es).flatten()
     Eeles = np.array(Eeles).flatten()
     predEs = np.array(predEs).flatten()
