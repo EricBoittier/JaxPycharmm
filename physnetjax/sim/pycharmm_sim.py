@@ -58,8 +58,10 @@ def setup_coordinates(pdb_file, psf_file, atoms):
 
     read.pdb(pdb_file, resid=True)
     stats = coor.stat()
-    # print(stats)
+    print(stats)
     empty_psf_command = """generate MLP setup
+    ! add atoms to the system
+    
     ! Write the empty PSF file
 open unit 20 write card name your_empty.psf
 write psf card unit 20
@@ -68,11 +70,14 @@ write psf card unit 20
 close unit 20
 """
     pycharmm.lingo.charmm_script(empty_psf_command)
-    read.psf_card(psf_file)
+    # read.psf_card(psf_file)
+    read.psf_card("your_empty.psf")
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
 
     stats = coor.stat()
     stream.charmm_script("print coor")
+
+
 
 
 ##########################
