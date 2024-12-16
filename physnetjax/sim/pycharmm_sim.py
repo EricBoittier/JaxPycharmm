@@ -60,7 +60,7 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
     add_waters()
     R = coor.get_positions().values
-    Z = coor.get_atomic_numbers().values
+    Z = coor.get_atypes().values
     atoms = ase.Atoms(Z, R)
     return atoms
 
