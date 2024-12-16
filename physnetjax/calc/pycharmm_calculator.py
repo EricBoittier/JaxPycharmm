@@ -84,11 +84,11 @@ class PyCharmm_Calculator:
         self.model_ensemble = False
         self.model_calculator_list = None
         self.model_calculator_num = 1
-        self.model2charmm_unit_conversion = {
-            "energy": 1.0,
-            "forces": 1.0,
-            "charge": 1.0,
-        }
+        # self.model2charmm_unit_conversion = {
+        #     "energy": 1.0,
+        #     "forces": 1.0,
+        #     "charge": 1.0,
+        # }
         self.implemented_properties = ["energy", "forces"]
         self.electrostatics_calc = None
         self.results = {}
@@ -221,9 +221,7 @@ class PyCharmm_Calculator:
             return 0
         for prop in self.implemented_properties:
             self.results[prop] = results[prop]
-        self.results["energy"] = self.results["energy"]
         # Apply dtype conversion
-        E = self.results["energy"]
         ml_F = np.array(self.results["forces"])
 
         # Add forces to CHARMM derivative arrays
@@ -233,4 +231,4 @@ class PyCharmm_Calculator:
                 dy[ai] -= force[1]
                 dz[ai] -= force[2]
 
-        return E
+        return self.results["energy"]
