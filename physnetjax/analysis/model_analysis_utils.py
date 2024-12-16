@@ -170,8 +170,7 @@ def analyse_trained(
         plt.savefig(ANALYSIS_PATH / f"{restart_dir.name}_test.pdf", bbox_inches="tight")
         plt.show()
 
-    # print results as rich tables
-    output = output._asdict()
+    # print results as rich table
     from physnetjax.utils.pretty_printer import print_dict_as_table
     output_keys = ['E_rmse',
  'E_mae',
@@ -210,7 +209,7 @@ def analyse_trained(
         output["max_degree"] = model.max_degree
     if "num_iterations" not in output.keys():
         output["num_iterations"] = model.num_iterations
-
+    file_name_dicts = {"restart": restart_dir.name, "files": [_.name for _ in ]}
     print_dict_as_table(output, "Analysis Results", plot=True)
 
     # save results as pickle
