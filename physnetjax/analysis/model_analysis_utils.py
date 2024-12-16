@@ -2,6 +2,12 @@ import argparse
 import pickle
 from pathlib import Path
 import matplotlib.pyplot as plt
+# Set environment variables
+import  os
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+import jax
+# from jax import
 import jax
 from physnetjax.analysis.analysis import count_params, plot_stats
 from physnetjax.restart.restart import get_params_model, get_last
