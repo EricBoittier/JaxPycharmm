@@ -58,6 +58,11 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     read.pdb(pdb_file, resid=True)
     read.psf_card(psf_file)
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
+    add_waters()
+    R = coor.get_positions().values
+    Z = coor.get_atomic_numbers().values
+    atoms = ase.Atoms(Z, R)
+    return atoms
 
 
 def setup_coords_seq(seq):
@@ -283,6 +288,15 @@ def run_heating(
 
     return files
 
+def add_waters(n_waters: int = 4):
+    add_water_script = f"""! Generate a water segment
+read sequence tip3 1
+generate WAT setup
+
+! Define coordinates for the new water molecule
+coor set xdir 10.0 ydir 10.0 zdir 10.0 sele segid WAT .and. resid 1 end"""
+    pycharmm.lingo.charmm_script(add_water_script)
+
 
 def run_equilibration(
         timestep=0.001, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
@@ -406,7 +420,7 @@ def _setup_sim(pdb_file: str | Path | None = None,
     if swap_atoms:
         atoms = swap_atoms
 
-    setup_coordinates(pdb_file, psf_file, atoms)
+    atoms = setup_coordinates(pdb_file, psf_file, atoms)
 
     # Setup calculator and run minimization
     calc_setup, _ = setup_calculator(atoms, params, model)
