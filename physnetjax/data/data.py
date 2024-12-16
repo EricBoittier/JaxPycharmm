@@ -56,7 +56,7 @@ def prepare_multiple_datasets(
             data_shape = {}
             for k, v in dataset.items():
                 data_shape[k] = v.shape
-            print_dict_as_table(data_shape, title=Path(filename[i]).name)
+            print_dict_as_table(data_shape, title=Path(filename[i]).name, plot=True)
 
     if "id" in datasets[0].keys():
         dataid = np.concatenate([dataset["id"] for dataset in datasets])
