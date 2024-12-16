@@ -393,7 +393,8 @@ def run_production(timestep=0.001, integrator="verlet", tottime=5.0, savetime=0.
 def _setup_sim(pdb_file: str | Path | None = None,
               pkl_path: str | Path | None = None, 
               model_path: str | Path | None = None,
-              psf_file: str | Path | None = None,):
+              psf_file: str | Path | None = None,
+               swap_atoms=None):
     output_pdb = Path(pdb_file).stem + "_min.pdb" if pdb_file is None else "output.pdb"
     if output_pdb is None:
         raise ValueError("PDB file not provided.")
@@ -401,7 +402,12 @@ def _setup_sim(pdb_file: str | Path | None = None,
     
     # Initialize and setup
     atoms, params, model = initialize_system(pdb_file, pkl_path, model_path)
+
+    if swap_atoms:
+        atoms = swap_atoms
+
     setup_coordinates(pdb_file, psf_file, atoms)
+
     # Setup calculator and run minimization
     calc_setup, _ = setup_calculator(atoms, params, model)
     if calc_setup:
@@ -409,7 +415,7 @@ def _setup_sim(pdb_file: str | Path | None = None,
     else:
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
-    timestep = 0.0005
+    timestep = 0.001
     files = run_heating(integrator="verlet", final_temp=400.0, timestep=timestep, tottime=10.0,)
     files = run_equilibration(integrator="verlet", prefix="equi", temp=400.0, timestep=timestep, restart=files["res"].file_name)
     files = run_production(integrator="verlet", prefix="dyna", tottime=1000, temp=400.0, timestep=timestep, restart=files["res"].file_name)
@@ -419,7 +425,8 @@ def setup_sim(pdb_file: str | Path | None = None,
                model_path: str | Path | None = None,
                 pkl_path: str | Path | None = None,
                 psf_file: str | Path | None = None,
-               basepath: str | Path | None = None):
+               basepath: str | Path | None = None,
+              swap_atoms=None):
 
     if isinstance(pdb_file, Path):
         pdb_file = str(pdb_file) if basepath is None else str(basepath / pdb_file)
@@ -441,7 +448,10 @@ def main():
     psf_file = base_path / "md" /  "adp.psf"
     pkl_path = base_path /  "ckpts" / "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
     model_path = base_path / "ckpts" /  "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
-    setup_sim(pdb_file, pkl_path, model_path, psf_file)
+
+    swap_atoms = None
+
+    setup_sim(pdb_file, pkl_path, model_path, psf_file, swap_atoms=swap_atoms)
 
 
 if __name__ == "__main__":
