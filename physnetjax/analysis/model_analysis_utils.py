@@ -1,6 +1,8 @@
 import argparse
 import pickle
 from pathlib import Path
+from tabnanny import verbose
+
 import matplotlib.pyplot as plt
 # Set environment variables
 import  os
@@ -84,7 +86,8 @@ def load_data(
 
     # Prepare the datasets
     train_data, valid_data = prepare_datasets(
-        data_key, num_train, num_valid, files, clip_esp=False, natoms=NATOMS, clean=False
+        data_key, num_train, num_valid, files, clip_esp=False, natoms=NATOMS, clean=False,
+        verbose=True
     )
     ntest = len(valid_data["E"]) // 2
 
@@ -110,7 +113,7 @@ def load_data(
         )
         combined_batches["validation"] = valid_batches
 
-    print(f"Loaded data batches: {list(combined_batches.keys())}")
+    # print(f"Loaded data batches: {list(combined_batches.keys())}")
     return combined_batches
 
 
