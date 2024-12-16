@@ -217,10 +217,8 @@ def change_integrator(dynamics_dict, integrator):
                 "new": False,
                 "langevin": False,
                 "iasors": 0,
-                "iasvel": 1,
-                "ichecw": 0,
-                "twindh": 10,
-                "twindl": -10,
+                "iasvel": 0,
+                "ichecw": 1,
             }
         )
     else:
@@ -282,6 +280,8 @@ def run_heating(
             "finalt": final_temp,
             "echeck": 1000,
             "tbath": final_temp,
+            "twindh": 10,
+            "twindl": -10,
         }
     )
     dynamics_dict = change_integrator(dynamics_dict, integrator)
@@ -436,8 +436,7 @@ def _setup_sim(pdb_file: str | Path | None = None,
         print("Error in setting up calculator.")
     Fcons = '1 cy 1 n 1 ca 1 c'
     Ycons = '1 n 1 ca 1 c 1 nt'
-    cons_command = "cons dihe {} force {} min {:4.2f}'".format(Fcons, 500, 120.0)
-    # "16 14 8 6"
+    cons_command = "cons dihe {} force {} min {:4.2f}'".format(Fcons, 500, 120.0) # "16 14 8 6"
     pycharmm.lingo.charmm_script(cons_command)
     run_minimization(output_pdb)
     timestep = 0.0005
