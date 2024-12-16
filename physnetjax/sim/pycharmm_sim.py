@@ -134,6 +134,7 @@ def verify_forces(F, atol=1e-4):
     """Verify that forces match within tolerance."""
     forces = coor.get_forces().values
     print(forces)
+    print(F)
     assert np.allclose(F, forces, atol=atol)
     print(f"Success! forces are close, within {atol} kcal/mol/Ang")
     return True, forces
