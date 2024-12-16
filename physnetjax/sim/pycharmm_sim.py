@@ -1,9 +1,8 @@
 import os
-
+from pathlib import Path
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
 os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cmake"
-
 
 import ase
 import ase.io as io
@@ -22,6 +21,7 @@ import pycharmm.write as write
 
 from physnetjax.calc.helper_mlp import get_ase_calc, get_pyc
 from physnetjax.restart.restart import get_params_model_with_ase
+
 
 # Environment settings
 
@@ -70,8 +70,9 @@ def setup_coordinates(pdb_file, psf_file, atoms):
 def setup_calculator(atoms, params, model):
     """Setup the calculator and verify energies."""
     Z = atoms.get_atomic_numbers()
+    # hack to make sure the pdb atom names are not mistaken for atomic numbers
+    # todo: fix this in the future
     Z = [_ if _ < 9 else 6 for _ in Z]
-    stream.charmm_script(f"echo {Z}")
     R = atoms.get_positions()
     atoms = ase.Atoms(Z, R)
 
@@ -211,14 +212,14 @@ def change_integrator(dynamics_dict, integrator):
 
 
 def run_heating(
-    timestep=0.0005,
-    tottime=5.0,
-    savetime=0.10,
-    initial_temp=10,
-    final_temp=300,
-    prefix="restart",
-    nprint=100,
-    integrator="langevin",
+        timestep=0.0005,
+        tottime=5.0,
+        savetime=0.10,
+        initial_temp=10,
+        final_temp=300,
+        prefix="restart",
+        nprint=100,
+        integrator="verlet",
 ):
     """
     Run the heating phase of molecular dynamics.
@@ -278,7 +279,7 @@ def run_heating(
 
 
 def run_equilibration(
-    timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
+        timestep=0.0005, tottime=5.0, savetime=0.01, temp=300, prefix="", integrator="verlet",
         restart=False
 ):
     """
@@ -332,6 +333,7 @@ def run_equilibration(
 
     return files
 
+
 def run_production(timestep=0.0005, integrator="verlet", tottime=5.0, savetime=0.01,
                    temp=300, prefix="mm", restart=False):
     """
@@ -382,22 +384,18 @@ def run_production(timestep=0.0005, integrator="verlet", tottime=5.0, savetime=0
 
     return files
 
-
-def main():
-    """Main function to run the simulation."""
-    print_device_info()
-
-    # File paths
-    pdb_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.pdb"
-    psf_file = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp.psf"
-    pkl_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
-    model_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
-    output_pdb = "/pchem-data/meuwly/boittier/home/pycharmm_test/md/adp_min.pdb"
-
+def _setup_sim(pdb_file: str | Path | None = None,
+              pkl_path: str | Path | None = None, 
+              model_path: str | Path | None = None,
+              psf_file: str | Path | None = None,):
+    output_pdb = Path(pdb_file).stem + "_min.pdb" if pdb_file is None else "output.pdb"
+    if output_pdb is None:
+        raise ValueError("PDB file not provided.")
+    
+    
     # Initialize and setup
     atoms, params, model = initialize_system(pdb_file, pkl_path, model_path)
     setup_coordinates(pdb_file, psf_file, atoms)
-
     # Setup calculator and run minimization
     calc_setup, _ = setup_calculator(atoms, params, model)
     if calc_setup:
@@ -406,8 +404,37 @@ def main():
         print("Error in setting up calculator.")
     run_minimization(output_pdb)
     files = run_heating(integrator="verlet")
-    files = run_equilibration(integrator="langevin", prefix="equi", restart=files["res"].file_name)
+    files = run_equilibration(integrator="verlet", prefix="equi", restart=files["res"].file_name)
     files = run_production(integrator="verlet", prefix="dyna", tottime=1000, restart=files["res"].file_name)
+    return files
+
+def setup_sim(pdb_file: str | Path | None = None,
+               model_path: str | Path | None = None,
+                pkl_path: str | Path | None = None,
+                psf_file: str | Path | None = None,
+               basepath: str | Path | None = None):
+
+    if isinstance(pdb_file, Path):
+        pdb_file = str(pdb_file) if basepath is None else str(basepath / pdb_file)
+    if isinstance(model_path, Path):
+        model_path = str(model_path) if basepath is None else str(basepath / model_path)
+    if isinstance(pkl_path, Path):
+        pkl_path = str(pkl_path) if basepath is None else str(basepath / pkl_path)
+    if isinstance(psf_file, Path):
+        psf_file = str(psf_file) if basepath is None else str(basepath / psf_file)
+
+    return _setup_sim(pdb_file, model_path, pkl_path, psf_file)
+
+def main():
+    """Main function to run the simulation."""
+    print_device_info()
+    base_path = Path("/pchem-data/meuwly/boittier/home/pycharmm_test")
+    # File paths
+    pdb_file = "adp.pdb"
+    psf_file = "adp.psf"
+    pkl_path = "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/params.pkl"
+    model_path = "cf3all-d069b2ca-0c5a-4fcd-b597-f8b28933693a/model_kwargs.pkl"
+    setup_sim(pdb_file, pkl_path, model_path, psf_file, base_path)
 
 
 if __name__ == "__main__":
