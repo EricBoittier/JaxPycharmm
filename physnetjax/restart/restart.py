@@ -7,6 +7,7 @@ import orbax
 
 from physnetjax.models.model import EF
 from physnetjax.utils.utils import get_files
+from physnetjax.utils.pretty_printer import print_dict_as_table
 import orbax.checkpoint
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
@@ -40,6 +41,14 @@ def get_params_model(restart: str, natoms: int = None):
     model = EF(**kwargs)
     model.natoms = natoms
     model.zbl = bool(kwargs["zbl"]) if "zbl" in kwargs.keys() else False
+
+    print_dict_as_table(kwargs, title="Model Attributes", plot=True)
+    restart_dict = {
+        "Checkpoint": restart,
+        "Save Time": modification_date,
+    }
+    print_dict_as_table(restart_dict, title="Last Checkpoint", plot=True)
+
     # print(model)
     return params, model
 
