@@ -209,7 +209,7 @@ def analyse_trained(
         output["max_degree"] = model.max_degree
     if "num_iterations" not in output.keys():
         output["num_iterations"] = model.num_iterations
-    file_name_dicts = {"restart": restart_dir.name, "files": [_.name for _ in ]}
+
     print_dict_as_table(output, "Analysis Results", plot=True)
 
     # save results as pickle
@@ -306,6 +306,8 @@ def main():
     # convert args to dict and print
     dict_args = vars(args)
     from physnetjax.utils.pretty_printer import print_dict_as_table
+
+    file_name_dicts = {"restart": dict_args["restart"].name, "files": [_.name for _ in dict_args["files"]]}
     print_dict_as_table(dict_args, "args", plot=True)
 
     # Parse inputs from args
