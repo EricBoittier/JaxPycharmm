@@ -95,7 +95,7 @@ def setup_calculator(atoms, params, model):
 
     calculator = get_ase_calc(params, model, atoms)
     atoms.calc = calculator
-    ml_selection = pycharmm.SelectAtoms() #.by_res_id("1")
+    ml_selection = pycharmm.SelectAtoms().by_res_id("1")
     print(ml_selection)
     energy.show()
     U = atoms.get_potential_energy() / (units.kcal / units.mol)
