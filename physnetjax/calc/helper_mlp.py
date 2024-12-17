@@ -96,7 +96,7 @@ def get_pyc(params, model, ase_mol, conversion=pycharmm_conversion):
     )
 
     blah = np.array(list(range(NATOMS)))
-    blah1 = np.array(list(range(1000)))
+    blah1 = np.array(list(range(10000)))
     blah2 = np.arange(NATOMS) * 1.0
     print("...", dir(pyc)), pyc, "pyc?"
     _ = pyc.calculate_charmm(
