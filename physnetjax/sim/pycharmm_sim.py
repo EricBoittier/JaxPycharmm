@@ -516,17 +516,17 @@ def _setup_sim(
     )  # "16 14 8 6"
     # pycharmm.lingo.charmm_script(cons_command)
     run_minimization(output_pdb)
-    timestep = 0.001
+    timestep = 0.0005
     files = run_heating(
         integrator="verlet",
-        final_temp=400.0,
+        final_temp=300.0,
         timestep=timestep,
         tottime=0.1,
     )
     files = run_equilibration(
         integrator="verlet",
         prefix="equi",
-        temp=400.0,
+        temp=300.0,
         tottime=1000,
         timestep=timestep,
         restart=files["res"].file_name,
