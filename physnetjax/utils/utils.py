@@ -63,7 +63,7 @@ def _process_model_attributes(
         "max_atomic_number",
     ]
     float_fields = ["cutoff", "total_charge"]
-    bool_fields = ["charges", "zbl"]
+    bool_fields = ["charges", "zbl", "efa", "charges"]
 
     import re
 
