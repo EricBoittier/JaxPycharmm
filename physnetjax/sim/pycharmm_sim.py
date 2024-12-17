@@ -83,7 +83,7 @@ def setup_coords_seq(seq):
     stream.charmm_script("ic seed 1 CAY 1 CY 1 N  ")
     stream.charmm_script("ic build")
     # minmize the system
-    minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    minimize.run_sd(**{"nstep": 100, "tolenr": 1e-5, "tolgrd": 1e-5})
     coor.show()
     write.coor_pdb("output.pdb")
     atoms = ase.io.read("output.pdb")
@@ -97,7 +97,7 @@ def setup_coords_seq(seq):
     atoms = ase.Atoms(Z, atoms.get_positions())
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
     coor.show()
-    minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    minimize.run_sd(**{"nstep": 10, "tolenr": 1e-5, "tolgrd": 1e-5})
     print(atoms)
     return atoms
 
