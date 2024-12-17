@@ -65,6 +65,16 @@ class EF(nn.Module):
                 cutoff=self.cutoff,
                 trainable=True,
             )
+        if self.efa:
+            b_max = 4 * jnp.pi
+            # We now initialize an EFA module.
+            self.efa_final = EFA(
+                lebedev_num=50,
+                parametrized=False,
+                epe_max_frequency=b_max,
+                epe_max_length=self.natoms * 3,
+                tensor_integration=False
+            )
 
     def return_attributes(self) -> Dict:
         """Return model attributes for checkpointing."""
@@ -239,16 +249,7 @@ class EF(nn.Module):
             dense_bias_init=jax.nn.initializers.zeros,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
         if self.efa:
-            b_max = 4 * jnp.pi
-            # We now initialize an EFA module.
-            efa = EFA(
-                lebedev_num=50,
-                parametrized=False,
-                epe_max_frequency=b_max,
-                epe_max_length=jnp.max(basis),
-                tensor_integration=False
-            )
-            x1 = efa(x, positions, batch_segments, graph_mask)
+            x1 = self.efa_final(x, positions, batch_segments, graph_mask)
             x = e3x.nn.add(x, x1)
         return x
 
