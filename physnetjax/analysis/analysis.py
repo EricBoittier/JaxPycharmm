@@ -101,9 +101,11 @@ def eval(batches, model, params, batch_size=500):
             Ds.append(batch["D"])
             D = output["dipoles"]
             predDs.append(D)
+            charges.append(output["charges"])
         else:
             Ds.append(0)
             predDs.append(0)
+            charges.append(0)
 
         # print(D,batch["D"])
         Es.append(batch["E"])
@@ -112,7 +114,7 @@ def eval(batches, model, params, batch_size=500):
         _predf = output["forces"].flatten()
         Fs.append(_f)
         predFs.append(_predf)
-        charges.append(output["charges"])
+
         Eeles.append(output["electrostatics"])
         # print("predF.shape", _predf.shape)
     Es = np.array(Es).flatten()
