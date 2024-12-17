@@ -58,7 +58,8 @@ def render_povray(atoms, pov_name,
     _z = atoms.get_atomic_numbers()
     idx_onh = ((_z == 8) | (_z == 1) | (_z == 7))
     print(idx_onh)
-    atoms_onh = Atoms(_pos[idx_onh], _z[idx_onh])
+    idxs = np.where(idx_onh)[0]
+    atoms_onh = Atoms(_pos[idxs], _z[idxs])
     bondpairs_onh = get_bondpairs(atoms_onh, radius=2.0)
     for _ in bondpairs_onh:
         if (_[0], _[1]) not in good_bond_keys:
