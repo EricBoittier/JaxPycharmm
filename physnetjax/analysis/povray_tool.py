@@ -50,6 +50,7 @@ def render_povray(atoms, pov_name,
         #  remove the Cl-Cl bonds
         if not (atoms[_[0]].symbol == "Cl" and atoms[_[1]].symbol == "Cl"):
             good_bonds.append(_)
+            print(_)
             good_bond_keys.append((_[0], _[1]))
             good_bond_keys.append((_[1], _[0]))
 
