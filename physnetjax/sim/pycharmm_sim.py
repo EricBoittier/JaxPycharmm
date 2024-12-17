@@ -502,7 +502,7 @@ def _setup_sim(
     initialize_system()
 
     # atoms = setup_coordinates(pdb_file, psf_file, atoms)
-    atoms = setup_coords_seq("ALA ALA ALA ALA")
+    atoms = setup_coords_seq("ALA ALA")
     print(atoms, len(atoms))
     params, model = initialize_model(pkl_path, model_path, atoms)
     # Setup calculator and run minimization
@@ -518,7 +518,7 @@ def _setup_sim(
     )  # "16 14 8 6"
     # pycharmm.lingo.charmm_script(cons_command)
     run_minimization(output_pdb)
-    timestep = 0.0001
+    timestep = 0.0005
     files = run_heating(
         integrator="verlet",
         final_temp=300.0,
