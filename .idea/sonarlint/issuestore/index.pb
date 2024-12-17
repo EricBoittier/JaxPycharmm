@@ -23,9 +23,6 @@ O
 physnetjax/training/training.py,0/f/0fc0836c4e6e35469adb116238a76a4ea8c4cac1
 J
 physnetjax/models/model.py,9/a/9a906a4436ff4e847dcf0bb7ead89a25c7d951c2
-:
-
-.gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
 K
 physnetjax/training/loss.py,1/3/13e192a4ab8ad2a73ef33b2ec8c77377455db154
 P

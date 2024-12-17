@@ -18,6 +18,4 @@ pip install -e .
 
 ## Usage
 
-# Todo
--
 

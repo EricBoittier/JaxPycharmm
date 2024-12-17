@@ -29,8 +29,7 @@ default_color_dict = {
 def render_povray(atoms, pov_name,
                   rotation='0x, 0y, 0z',
                   radius_scale=0.40, color_dict=None):
-    # print("Rendering POV-Ray image...")
-    # print("path: ", pov_name)
+
     if color_dict is None:
         color_dict = default_color_dict
 

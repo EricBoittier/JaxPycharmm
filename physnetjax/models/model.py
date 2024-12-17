@@ -209,14 +209,14 @@ class EF(nn.Module):
                 max_degree=0,
                 include_pseudotensors=False,
                 dense_kernel_init=jax.nn.initializers.he_uniform(),
-                dense_bias_init=jax.nn.initializers.he_uniform(),
+                dense_bias_init=jax.nn.initializers.zeros,
             )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
             return x
 
         return e3x.nn.MessagePass(
             include_pseudotensors=False,
             dense_kernel_init=jax.nn.initializers.he_normal(),
-            dense_bias_init=jax.nn.initializers.he_normal(),
+            dense_bias_init=jax.nn.initializers.zeros,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
@@ -366,7 +366,7 @@ class EF(nn.Module):
             (self.max_atomic_number + 1),
         )
         atomic_energies = nn.Dense(
-            1, use_bias=False, kernel_init=jax.nn.initializers.ones, dtype=DTYPE
+            1, use_bias=False, kernel_init=jax.nn.initializers.zeros, dtype=DTYPE
         )(x)
         atomic_energies += energy_bias[atomic_numbers][..., None, None, None]
         atomic_energies *= atom_mask[..., None, None, None]

@@ -20,6 +20,7 @@ ckpts/
 
 # Ignore Jupyter Notebook checkpoints
 notebooks/.ipynb_checkpoints/
+.ipynb_checkpoints/
 
 # Ignore logs and debug files
 *.log
@@ -63,4 +64,6 @@ dist/
 slurm/analysis/*
 slurm/slurm*out
 
+# Ignore files related to uv
+.venv/
 
