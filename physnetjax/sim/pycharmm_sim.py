@@ -358,6 +358,15 @@ def run_equilibration(
     nsavc = int(savetime / timestep)
     print(f"nstep: {nstep}, nsavc: {nsavc}")
 
+    adaptive_umbrella_script = """
+    ! define the phi and chi1 dihedral angle as the two umbrella coordinates
+umbrella dihe nresol 36 trig  6 poly 1 pept 1 N  pept 1 CA pept 1 CB pept 1 OG1
+umbrella dihe nresol 36 trig  6 poly 1 pept 1 CY  pept 1 N pept 1 CA pept 1 C
+
+umbrella init nsim 100 update 10000 equi 1000 thresh 10 temp 300 -
+              ucun 10 wuni 11"""
+    pycharmm.lingo.charmm_script(adaptive_umbrella_script)
+
     dynamics_dict = get_base_dynamics_dict()
     dynamics_dict.update(
         {
@@ -488,12 +497,13 @@ def _setup_sim(
         integrator="verlet",
         final_temp=400.0,
         timestep=timestep,
-        tottime=10.0,
+        tottime=1.0,
     )
     files = run_equilibration(
         integrator="verlet",
         prefix="equi",
         temp=400.0,
+        tottime=1000,
         timestep=timestep,
         restart=files["res"].file_name,
     )
