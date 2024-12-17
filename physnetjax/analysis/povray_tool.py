@@ -43,7 +43,7 @@ def render_povray(atoms, pov_name,
 
     colors = np.array([color_dict[atom.symbol] for atom in atoms]) / 255
 
-    bondpairs = get_bondpairs(atoms, radius=1.0)
+    bondpairs = get_bondpairs(atoms, radius=0.9)
     good_bonds = []
     good_bond_keys = []
     for _ in bondpairs:
