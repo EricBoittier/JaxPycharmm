@@ -56,7 +56,7 @@ def render_povray(atoms, pov_name,
     # create hydrogen bonds
     _pos = atoms.get_positions()
     _z = atoms.get_atomic_numbers()
-    idx_onh = np.where(_z == 8)[0] or np.where(_z == 1)[0] or np.where(_z == 7)[0]
+    idx_onh = (np.where(_z == 8)[0] | np.where(_z == 1)[0]) | np.where(_z == 7)[0]
     atoms_onh = Atoms(_pos[idx_onh], _z[idx_onh])
     bondpairs_onh = get_bondpairs(atoms_onh, radius=2.0)
     for _ in bondpairs_onh:
