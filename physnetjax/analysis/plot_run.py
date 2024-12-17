@@ -2,7 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def plot_run(base_df, ax, hue, label):
+def plot_run(base_df, ax, hue, label, log=False):
     base_df = base_df[::100]
     # base_df = base_df.to_pandas()
     # Define all the metrics to plot
@@ -39,7 +39,19 @@ def plot_run(base_df, ax, hue, label):
         #
         # ax[row][col].set_xlim(1000)
         if ycol != "lr":
-            ax[row][col].set_ylim(base_df[ycol].min() * 0.5, base_df[ycol].median() + base_df[ycol].std())
+            ymin = base_df[ycol].min() * 0.5
+            ymax = base_df[ycol].median()
+            std = base_df[ycol].std()
+            if isinstance(ymin, float) and isinstance(ymax, float) and isinstance(std, float):
+                ax[row][col].set_ylim(ymin, ymax + std)
+            elif isinstance(ymin, float) and isinstance(ymax, float):
+                ax[row][col].set_ylim(ymin, ymax)
+            elif isinstance(ymax, float) and isinstance(std, float):
+                ax[row][col].set_ylim(0.0, ymax + std)
+            else:
+                # do nothing
+                pass
+        if log:
             ax[row][col].set_yscale("log")
         ax[row][col].set_xlabel("Epoch")
         ax[row][col].set_ylabel(ycol)
