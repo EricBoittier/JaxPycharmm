@@ -30,6 +30,14 @@ def render_povray(atoms, pov_name,
                   rotation='0x, 0y, 0z',
                   radius_scale=0.25, color_dict=None):
 
+    # align the molecule to the principal axes
+    pca = PCA(n_components=3)
+    pca.fit(atoms.get_positions())
+    atoms.set_positions(pca.transform(atoms.get_positions()))
+
+
+
+
     if color_dict is None:
         color_dict = default_color_dict
 
@@ -50,7 +58,6 @@ def render_povray(atoms, pov_name,
         #  remove the Cl-Cl bonds
         if not (atoms[_[0]].symbol == "Cl" and atoms[_[1]].symbol == "Cl"):
             good_bonds.append(_)
-            print(_)
             good_bond_keys.append((_[0], _[1]))
             good_bond_keys.append((_[1], _[0]))
 
@@ -65,10 +72,9 @@ def render_povray(atoms, pov_name,
     map = {}
     for i, idx in enumerate(idxs):
         map[i] = idx
-    print(map)
 
     atoms_onh = Atoms( _z[idxs], _pos[idxs])
-    bondpairs_onh = get_bondpairs(atoms_onh, radius=4.0)
+    bondpairs_onh = get_bondpairs(atoms_onh, radius=2.0)
     for _ in bondpairs_onh:
         if (map[_[0]], map[_[1]]) not in good_bond_keys:
             distance = np.linalg.norm(_pos[_[0]] - _pos[_[1]])
