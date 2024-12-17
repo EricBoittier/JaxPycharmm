@@ -17,7 +17,7 @@ from jax import Array
 
 from physnetjax.models.zbl import ZBLRepulsion
 from physnetjax.models.euclidean_fast_attention import fast_attention as efa
-from efa import EuclideanFastAttention as EFA
+EFA = efa.EuclideanFastAttention
 import ase.data
 
 # Constants
