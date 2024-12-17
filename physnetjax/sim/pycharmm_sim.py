@@ -497,7 +497,7 @@ def _setup_sim(
         integrator="verlet",
         final_temp=400.0,
         timestep=timestep,
-        tottime=1.0,
+        tottime=0.1,
     )
     files = run_equilibration(
         integrator="verlet",
