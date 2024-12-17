@@ -22,7 +22,7 @@ acp_colors = ["\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m",
               "\033[35m", "\033[36m", "\033[37m", "\033[39m",  "\033[90m",
               "\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"]
 
-def get_acp_plot(data, keys, title, log=False):
+def get_acp_plot(data, keys, title="", log=False):
     if log:
         data = np.log(data)
     _min = min([min(data[key]) for key in keys])
