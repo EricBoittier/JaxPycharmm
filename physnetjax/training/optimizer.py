@@ -67,6 +67,14 @@ def get_optimizer(
             schedule_fn = optax.schedules.cosine_decay_schedule(
                 init_value=learning_rate, decay_steps=5000, alpha=0.3
             )
+        elif schedule_fn == "warmup_cosine":
+            schedule_fn = optax.schedules.warmup_cosine_decay_schedule(
+                init_value=learning_rate,
+                peak_value=learning_rate * 1.5,
+                end_value=learning_rate * 0.1,
+                warmup_steps=100,
+                decay_steps=5000,
+            )
         elif schedule_fn == "constant":
             schedule_fn = optax.schedules.constant_schedule(learning_rate)
         else:
