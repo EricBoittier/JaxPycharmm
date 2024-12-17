@@ -177,8 +177,8 @@ def run_minimization(output_pdb):
     """Run energy minimization and save results."""
     minimize.run_sd(**{"nstep": 100, "tolenr": 1e-5, "tolgrd": 1e-5})
     energy.show()
-    minimize.run_abnr(**{"nstep": 100, "tolenr": 1e-5, "tolgrd": 1e-5})
-    energy.show()
+    # minimize.run_abnr(**{"nstep": 10, "tolenr": 1e-5, "tolgrd": 1e-5})
+    # energy.show()
     stream.charmm_script("print coor")
     write.coor_pdb(output_pdb)
 
@@ -326,7 +326,7 @@ def run_heating(
             "ieqfrq": 100,
             "firstt": initial_temp,
             "finalt": final_temp,
-            "echeck": 1000,
+            "echeck": 10000,
             "tbath": final_temp,
             "twindh": 10,
             "twindl": -10,
@@ -408,7 +408,7 @@ umbrella init nsim 1 update 100 equi 100 thresh 10 temp 300 -
             "firstt": temp,
             "finalt": temp,
             "tbath": temp,
-            "echeck": 1000,
+            "echeck": 10000,
         }
     )
     dynamics_dict = change_integrator(dynamics_dict, integrator)
