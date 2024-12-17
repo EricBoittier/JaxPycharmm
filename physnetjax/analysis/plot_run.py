@@ -3,7 +3,15 @@ import matplotlib.pyplot as plt
 
 
 def plot_run(base_df, ax, hue, label, log=False):
-    base_df = base_df[::]
+    if len(base_df) == 0:
+        raise ValueError("Empty DataFrame provided")
+    if len(base_df) > 1000:
+        # plot only the relevant data
+        base_df = base_df[:-10:100] + base_df[-10:]
+    elif len(base_df) > 10_000:
+        base_df = base_df[:-10:1000] + base_df[-10:]
+    else:
+        pass
     # base_df = base_df.to_pandas()
     # Define all the metrics to plot
     metrics = [
