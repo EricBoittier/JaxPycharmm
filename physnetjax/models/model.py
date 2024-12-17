@@ -117,7 +117,7 @@ class EF(nn.Module):
             positions, dst_idx, src_idx
         )
 
-        graph_mask = jnp.ones(batch_size, dtype=bool)
+        graph_mask = jnp.ones(batch_size)
 
         # Embed and process atomic features
         x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx,
