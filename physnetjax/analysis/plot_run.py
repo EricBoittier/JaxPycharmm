@@ -1,6 +1,12 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from physnetjax.utils.pretty_printer import get_panel
+
+def get_acp_plot(base_df, title="plot", log=False):
+    if log:
+        base_df = np.log(base_df)
+    return get_panel(base_df, title)
 
 def plot_run(base_df, ax, hue, label, log=False):
     if len(base_df) == 0:
@@ -21,6 +27,9 @@ def plot_run(base_df, ax, hue, label, log=False):
         # "train_dipole_mae", "valid_dipole_mae",
         "lr"
     ]
+    from physnetjax.utils.pretty_printer import get_acp_plot
+    get_acp_plot(base_df, ["train_loss", "valid_loss"], log=log)
+
 
     # Plot each metric
     for i, ycol in enumerate(metrics):

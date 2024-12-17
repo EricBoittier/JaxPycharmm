@@ -13,9 +13,35 @@ from rich.columns import Columns
 def get_panel(data, title):
     return Panel(
         acp.plot(data),
-        expand=False,
+        expand=True,
         title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
     )
+
+
+acp_colors = ["\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m",
+              "\033[35m", "\033[36m", "\033[37m", "\033[39m",  "\033[90m",
+              "\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"]
+
+def get_acp_plot(data, keys, title, log=False):
+    if log:
+        data = np.log(data)
+    _min = min([min(data[key]) for key in keys])
+    _max = max([max(data[key]) for key in keys])
+    config = {
+        "min": _min,
+        "max": _max,
+        "height": 20,
+        "colors": [acp_colors[i] for i in range(len(keys))],
+    }
+    p = Panel(
+        acp.plot([data[key] for key in keys], config=config),
+        expand=True,
+        title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
+    )
+    console = Console()
+    console.print(p)
+
+
 
 
 def init_table(doCharges=False):
