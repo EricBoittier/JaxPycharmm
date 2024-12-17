@@ -502,7 +502,7 @@ def _setup_sim(
     initialize_system()
 
     # atoms = setup_coordinates(pdb_file, psf_file, atoms)
-    atoms = setup_coords_seq("ALA ALA ALA")
+    atoms = setup_coords_seq("ALA ALA")
     print(atoms, len(atoms))
     params, model = initialize_model(pkl_path, model_path, atoms)
     # Setup calculator and run minimization
