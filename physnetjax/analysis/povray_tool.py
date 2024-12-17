@@ -71,9 +71,12 @@ def render_povray(atoms, pov_name,
     for _ in bondpairs_onh:
         if (map[_[0]], map[_[1]]) not in good_bond_keys:
             distance = np.linalg.norm(_pos[_[0]] - _pos[_[1]])
-            if 1.5 < distance < 3.0:
-                print(f"Adding bond between", map[_[0]], map[_[1]])
-                good_bonds.append(_)
+            # check that atom1 is H or N/O and atom2 is N/O or H
+            if (_z[_[0]] == 1 and (_z[_[1]] == 7 or _z[_[1]] == 8)) or \
+                    (_z[_[1]] == 1 and (_z[_[0]] == 7 or _z[_[0]] == 8)):
+                if 1.5 < distance < 3.0:
+                    print(f"Adding bond between", map[_[0]], map[_[1]])
+                    good_bonds.append(_)
 
     good_bonds = set_high_bondorder_pairs(good_bonds)
 
