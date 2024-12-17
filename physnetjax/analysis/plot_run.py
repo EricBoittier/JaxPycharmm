@@ -124,5 +124,5 @@ if __name__ == "__main__":
     df = process_tensorboard_logs(logs_path)
     print(df)
     fig, ax = plt.subplots(5, 2, figsize=(12, 12))
-    plot_run(df, ax, 1, "test")
+    plot_run(df, ax, 1, "test", log=True)
     plt.savefig("test.png")
