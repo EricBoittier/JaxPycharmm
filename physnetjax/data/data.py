@@ -10,6 +10,10 @@ from scipy.spatial.distance import cdist
 
 from physnetjax.utils.pretty_printer import print_dict_as_table
 
+# Atomic energies in Hartree
+ATOM_ENERGIES_HARTREE = np.array(
+    [0, -0.500273, 0, 0, 0, 0, -37.846772, -54.583861, -75.064579]
+)
 
 def cut_vdw(grid, xyz, elements, vdw_scale=1.4):
     """ """
@@ -35,6 +39,8 @@ def prepare_multiple_datasets(
     esp_mask=False,
     clip_esp=False,
     natoms=60,
+    subtract_atom_energies=False,
+    subtract_mean=False,
 ):
     """
     Prepare multiple datasets for training and validation.
@@ -109,9 +115,10 @@ def prepare_multiple_datasets(
         keys.append("F")
     if "E" in datasets[0].keys():
         dataE = np.concatenate([dataset["E"] for dataset in datasets])[not_failed]
-        # print("Subtracting mean energy:", np.mean(dataE))
-        # dataE = dataE - np.mean(dataE)
-        # print(np.mean(dataE))
+        if subtract_atom_energies:
+            dataE = dataE - ATOM_ENERGIES_HARTREE[dataZ]
+        if subtract_mean:
+            dataE = dataE - np.mean(dataE)
         data.append(dataE.reshape(shape[0], 1))
         keys.append("E")
     if "N" in datasets[0].keys():

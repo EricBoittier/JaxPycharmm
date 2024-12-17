@@ -15,10 +15,7 @@ MAX_N_ATOMS = 37
 MAX_GRID_POINTS = 10000
 BOHR_TO_ANGSTROM = 0.529177
 
-# Atomic energies in Hartree
-ATOM_ENERGIES_HARTREE = np.array(
-    [0, -0.500273, 0, 0, 0, 0, -37.846772, -54.583861, -75.064579]
-)
+from physnetjax.data.data import ATOM_ENERGIES_HARTREE
 
 
 def sort_func(filepath: Path) -> int:
