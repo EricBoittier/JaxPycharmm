@@ -52,8 +52,16 @@ def get_optimizer(
                 decay_rate=0.9999,
             )
         elif schedule_fn == "cosine_annealing":
-            schedule_fn = cycled_cosine_annealing_schedule(
-                init_lr=learning_rate,
+            cosine_dicts = [
+                {
+                    "transition_steps": 5000,
+                    "peak_value": learning_rate * 1.5,
+                    "decay_steps": 5000,
+                    "alpha": 0.3,
+                } for _ in range(5)
+            ]
+            schedule_fn = optax.schedules.sgdr_schedule(
+                init_value=learning_rate, cosine_dicts=cosine_dicts
             )
         elif schedule_fn == "exponential":
             schedule_fn = optax.schedules.exponential_decay_schedule(
