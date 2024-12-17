@@ -28,10 +28,7 @@ def get_acp_plot(data, keys, title="", log=False):
         for _ in keys:
             #  polaris apply log to data
             data = data.with_columns(
-                pl.col(_)
-                # .map_elements(lambda x: 0, return_dtype=pl.Int64)
-                .map_elements(lambda x: np.log(x), return_dtype=pl.Float64)
-                .alias(_)
+                pl.col(_).log()
             )
     print(data)
     _min = min([min(data[key]) for key in keys])
