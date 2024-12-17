@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from schnetpack.properties import position
+
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
 os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cmake"
@@ -81,12 +83,16 @@ def setup_coords_seq(seq):
     stream.charmm_script("GENERATE PEPT FIRST NTER LAST CTER SETUP")
     stream.charmm_script("ic param")
     stream.charmm_script("ic build")
+    # minmize the system
+    minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    coor.show()
     write.coor_pdb("output.pdb")
     atoms = ase.io.read("output.pdb")
 
     import pycharmm.psf as psf
     Z = [str(_)[:1] for _ in psf.get_atype()]
-    positions = coor.get_positions().values
+    # positions = coor.get_positions().values
+    positions = atoms.get_positions()
     atoms = ase.Atoms(Z, positions)
 
     atoms = ase.Atoms(Z, atoms.get_positions())
