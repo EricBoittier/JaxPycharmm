@@ -481,7 +481,7 @@ def _setup_sim(
     cons_command = "cons dihe {} force {} min {:4.2f}'".format(
         Fcons, 2, -100.0
     )  # "16 14 8 6"
-    pycharmm.lingo.charmm_script(cons_command)
+    # pycharmm.lingo.charmm_script(cons_command)
     run_minimization(output_pdb)
     timestep = 0.0005
     files = run_heating(
