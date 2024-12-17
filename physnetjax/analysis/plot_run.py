@@ -74,7 +74,9 @@ if __name__ == "__main__":
     from physnetjax.logging.tensorboard_interface import process_tensorboard_logs
     import polars as pl
 
-    logs_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-ec04d45c-33e4-415e-987a-eb3548ca0770"
+    logs_path = ("/pchem-data/meuwly/boittier/home/pycharmm_test/"
+                 "ckpts/test-ec04d45c-33e4-415e-987a-eb3548ca0770/"
+                 "tfevents/")
     df = process_tensorboard_logs(logs_path)
     print(df)
     fig, ax = plt.subplots(2, 2, figsize=(12, 12))
