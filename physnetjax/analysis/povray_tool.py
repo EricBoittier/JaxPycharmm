@@ -72,6 +72,7 @@ def render_povray(atoms, pov_name,
     for _ in bondpairs_onh:
         if (map[_[0]], map[_[1]]) not in good_bond_keys:
             good_bonds.append(_)
+            print(_)
             good_bond_keys.append((_[0], _[1]))
             good_bond_keys.append((_[1], _[0]))
 
