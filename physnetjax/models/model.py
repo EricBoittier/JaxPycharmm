@@ -245,9 +245,9 @@ class EF(nn.Module):
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
         if self.efa:
             x1 = self.efa_final(x, positions, batch_segments, graph_mask)
-            print(x1)
-            jax.debug.print("x1 shape: {x}", x=x1.shape)
-            jax.debug.print("x1  {x}", x=x1)
+            # print(x1)
+            # jax.debug.print("x1 shape: {x}", x=x1.shape)
+            # jax.debug.print("x1  {x}", x=x1)
             x = e3x.nn.add(x, x1)
         return x
 
