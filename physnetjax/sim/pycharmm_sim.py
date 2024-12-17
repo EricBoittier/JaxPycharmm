@@ -360,8 +360,8 @@ def run_equilibration(
 
     adaptive_umbrella_script = """
     ! define the phi and chi1 dihedral angle as the two umbrella coordinates
-umbrella dihe nresol 36 trig  6 poly 1 pept 1 N  pept 1 CA pept 1 CB pept 1 OG1
-umbrella dihe nresol 36 trig  6 poly 1 pept 1 CY  pept 1 N pept 1 CA pept 1 C
+umbrella dihe nresol 36 trig  6 poly 1 pept 1 C  pept 1 CA pept 1 N pept 1 CY
+umbrella dihe nresol 36 trig  6 poly 1 pept 1 NT pept 1 C  pept 1 CA pept 1 N CA  
 
 umbrella init nsim 100 update 10000 equi 1000 thresh 10 temp 300 -
               ucun 10 wuni 11"""
