@@ -134,7 +134,7 @@ def plot_stats(
     Es, Eeles, predEs, Fs, predFs, Ds, predDs, charges, outputs = eval(
         batches, model, params, batch_size=batch_size
     )
-    if model.doCharges:
+    if model.charges:
         charges = np.concatenate(charges)
     else:
         charges = np.zeros_like(Es)
