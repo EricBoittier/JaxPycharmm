@@ -78,9 +78,9 @@ def setup_coords_seq(seq):
     settings.set_bomb_level(-2)
     settings.set_warn_level(-1)
     read.sequence_string(seq)
-    stream.charmm_script("GENERATE PEPT FIRST NTER LAST CTER SETUP")
+    stream.charmm_script("GENERATE PEPT FIRST ACE LAST CT3 SETUP")
     stream.charmm_script("ic param")
-    stream.charmm_script("ic seed 1 N 1 CA 1 C 1 CL 1 CLP 1 O 1 CR 1 NR 1 OR ")
+    stream.charmm_script("ic seed 1 CAY 1 CY 1 N  ")
     stream.charmm_script("ic build")
     # minmize the system
     minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
@@ -498,7 +498,7 @@ def _setup_sim(
     initialize_system()
 
     # atoms = setup_coordinates(pdb_file, psf_file, atoms)
-    atoms = setup_coords_seq("ALAD")
+    atoms = setup_coords_seq("ALA ALA ALA")
     print(atoms, len(atoms))
     params, model = initialize_model(pkl_path, model_path, atoms)
     # Setup calculator and run minimization
