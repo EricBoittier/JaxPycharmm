@@ -17,8 +17,6 @@ V
 &example_training/test_cf3_fullbatch.py,6/c/6cb9998d350b99559c6db67ffc31cbcfd63c998c
 G
 physnetjax/utils/api.py,c/f/cf3e1c9d03ccfc38c7c3cb80e26b3b64af0a4654
-O
-physnetjax/training/training.py,0/f/0fc0836c4e6e35469adb116238a76a4ea8c4cac1
 K
 physnetjax/training/loss.py,1/3/13e192a4ab8ad2a73ef33b2ec8c77377455db154
 V

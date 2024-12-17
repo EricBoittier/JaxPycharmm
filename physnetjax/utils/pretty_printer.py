@@ -32,6 +32,7 @@ def init_table(doCharges=False):
     table.add_column("Valid Forces MAE", style="spring_green3")
     if doCharges:
         table.add_column("Train Dipoles MAE", style="medium_orchid3")
+        table.add_column("Valid Dipoles MAE", style="spring_green3")
     return table
 
 
@@ -246,6 +247,7 @@ def epoch_printer(
     ]
     if doCharges:
         rows.append(f"{train_dipoles_mae: 8.3f}")
+        rows.append(f"{valid_dipoles_mae: 8.3f}")
     table.add_row(*rows)
     return table
 
