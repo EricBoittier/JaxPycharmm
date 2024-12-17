@@ -133,7 +133,7 @@ def get_pyc(params, model, ase_mol, conversion=pycharmm_conversion):
             mlmm_atomic_charges=None,
             mlmm_cutoff=None,
             mlmm_cuton=None,
-            **kwargs
+            **kwargs,
         ):
             """Dummy function to return the PyCharmm_Calculator object"""
             return pyc

@@ -84,20 +84,27 @@ def parse_args():
         nargs="+",
         help="List of file paths to load the data.",
     )
-    parser.add_argument("--prng", type=int, default=42,
-                        help="Pseudo-random number generator seed.")
-    parser.add_argument("--natoms", type=int, required=True,
-                        help="Number of atoms in the dataset.")
-    parser.add_argument("--num-train", type=int, default=1000,
-                        help="Number of training examples.")
-    parser.add_argument("--num-valid", type=int, default=200,
-                        help="Number of validation examples.")
-    parser.add_argument("--batch-size", type=int, default=32,
-                        help="Batch size for data loading.")
-    parser.add_argument("--load-test", action="store_true",
-                        help="Flag to load test data.")
-    parser.add_argument("--load-train", action="store_true",
-                        help="Flag to load training data.")
+    parser.add_argument(
+        "--prng", type=int, default=42, help="Pseudo-random number generator seed."
+    )
+    parser.add_argument(
+        "--natoms", type=int, required=True, help="Number of atoms in the dataset."
+    )
+    parser.add_argument(
+        "--num-train", type=int, default=1000, help="Number of training examples."
+    )
+    parser.add_argument(
+        "--num-valid", type=int, default=200, help="Number of validation examples."
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=32, help="Batch size for data loading."
+    )
+    parser.add_argument(
+        "--load-test", action="store_true", help="Flag to load test data."
+    )
+    parser.add_argument(
+        "--load-train", action="store_true", help="Flag to load training data."
+    )
     parser.add_argument(
         "--load-validation", action="store_true", help="Flag to load validation data."
     )

@@ -21,7 +21,7 @@ Integer = jaxtyping.Integer
 UInt32 = jaxtyping.UInt32
 Shape = Sequence[Union[int, Any]]
 Dtype = Any  # This could be a real type if support for that is added.
-PRNGKey = UInt32[Array, '2']
+PRNGKey = UInt32[Array, "2"]
 PrecisionLike = jax.lax.PrecisionLike
 
 default_tensor_kernel_init = initializers.tensor_lecun_normal()
@@ -57,19 +57,19 @@ class TensorIntegration(nn.Module):
 
     @nn.compact
     def __call__(
-            self,
-            inputs1: Union[
-                Float[Array, '... K 1 (max_degree1+1)**2 num_features'],
-                Float[Array, '... K 2 (max_degree1+1)**2 num_features'],
-            ],
-            inputs2: Union[
-                Float[Array, '... K 1 (max_degree2+1)**2 num_features'],
-                Float[Array, '... K 2 (max_degree2+1)**2 num_features'],
-            ],
-            integration_weights: Float[Array, 'K'],
+        self,
+        inputs1: Union[
+            Float[Array, "... K 1 (max_degree1+1)**2 num_features"],
+            Float[Array, "... K 2 (max_degree1+1)**2 num_features"],
+        ],
+        inputs2: Union[
+            Float[Array, "... K 1 (max_degree2+1)**2 num_features"],
+            Float[Array, "... K 2 (max_degree2+1)**2 num_features"],
+        ],
+        integration_weights: Float[Array, "K"],
     ) -> Union[
-        Float[Array, '... 1 (max_degree3+1)**2 num_features'],
-        Float[Array, '... 2 (max_degree3+1)**2 num_features'],
+        Float[Array, "... 1 (max_degree3+1)**2 num_features"],
+        Float[Array, "... 2 (max_degree3+1)**2 num_features"],
     ]:
         """Computes the tensor product of inputs1 and inputs2 expanded on K grid points and integrates numerically.
 
@@ -96,23 +96,23 @@ class TensorIntegration(nn.Module):
         # Check that max_degree3 is not larger than is sensible.
         if max_degree3 > max_degree1 + max_degree2:
             raise ValueError(
-                'max_degree for the tensor product of inputs with max_degree'
-                f' {max_degree1} and {max_degree2} can be at most'
-                f' {max_degree1 + max_degree2}, received max_degree={max_degree3}'
+                "max_degree for the tensor product of inputs with max_degree"
+                f" {max_degree1} and {max_degree2} can be at most"
+                f" {max_degree1 + max_degree2}, received max_degree={max_degree3}"
             )
 
         # Check that axis -1 (number of features) of both inputs matches in size.
         if inputs1.shape[-1] != inputs2.shape[-1]:
             raise ValueError(
-                'axis -1 of inputs1 and input2 must have the same size, '
-                f'received shapes {inputs1.shape} and {inputs2.shape}'
+                "axis -1 of inputs1 and input2 must have the same size, "
+                f"received shapes {inputs1.shape} and {inputs2.shape}"
             )
 
         # Check that integration grids are of equal size.
         if inputs1.shape[-4] != inputs1.shape[-4]:
             raise ValueError(
-                'number of integration points must be equal for inputs1 and inputs2, '
-                f'received shapes {inputs1.shape[-4]} and {inputs2.shape[-4]}'
+                "number of integration points must be equal for inputs1 and inputs2, "
+                f"received shapes {inputs1.shape[-4]} and {inputs2.shape[-4]}"
             )
 
         # Extract number of features from size of axis -1.
@@ -124,7 +124,7 @@ class TensorIntegration(nn.Module):
         # pseudotensor channel, regardless of whether self.include_pseudotensors is
         # True or False.
         if (inputs1.shape[-3] == inputs2.shape[-3] == 1) and (
-                max_degree1 == 0 or max_degree2 == 0 or max_degree3 == 0
+            max_degree1 == 0 or max_degree2 == 0 or max_degree3 == 0
         ):
             include_pseudotensors = False
         else:
@@ -149,15 +149,12 @@ class TensorIntegration(nn.Module):
         # Trainable kernel weights if coupling paths are parametrizable.
         if self.parametrize_coupling_paths:
             kernel = self.param(
-                'kernel', self.kernel_init, kernel_shape, self.param_dtype
+                "kernel", self.kernel_init, kernel_shape, self.param_dtype
             )
         # Otherwise constant ones.
         else:
             with jax.ensure_compile_time_eval():
-                kernel = jnp.ones(
-                    kernel_shape,
-                    dtype=self.param_dtype
-                )
+                kernel = jnp.ones(kernel_shape, dtype=self.param_dtype)
 
         (kernel,) = promote_dtype(kernel, dtype=self.dtype)
 
@@ -202,30 +199,30 @@ class TensorIntegration(nn.Module):
 
         if mixed_coupling_paths:
             return jnp.einsum(
-                'k, ...kplf,...kqmf,plqmrnf,lmn->...rnf',
+                "k, ...kplf,...kqmf,plqmrnf,lmn->...rnf",
                 integration_weights,
                 inputs1,
                 inputs2,
                 kernel,
                 cg,
                 precision=self.precision,
-                optimize='optimal',
+                optimize="optimal",
             )
         else:
             # Compute all allowed even/odd + even/odd -> even/odd coupling paths.
             def _couple_and_integrate_slices(
-                    i: int, j: int, k: int
-            ) -> Float[Array, '... (max_degree3+1)**2 num_features']:
+                i: int, j: int, k: int
+            ) -> Float[Array, "... (max_degree3+1)**2 num_features"]:
                 """Helper function for coupling slice (i, j, k)."""
                 return jnp.einsum(
-                    'k, ...klf,...kmf,lmnf,lmn->...nf',
+                    "k, ...klf,...kmf,lmnf,lmn->...nf",
                     integration_weights,
                     inputs1[..., i, :, :],
                     inputs2[..., j, :, :],
                     kernel[i, :, j, :, k, :, :],
                     cg,
                     precision=self.precision,
-                    optimize='optimal',
+                    optimize="optimal",
                 )
 
             eee = _couple_and_integrate_slices(0, 0, 0)  # even + even -> even

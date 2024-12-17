@@ -15,6 +15,7 @@ ATOM_ENERGIES_HARTREE = np.array(
     [0, -0.500273, 0, 0, 0, 0, -37.846772, -54.583861, -75.064579]
 )
 
+
 def cut_vdw(grid, xyz, elements, vdw_scale=1.4):
     """ """
     if type(elements[0]) == str:
@@ -252,8 +253,8 @@ def prepare_datasets(
     clip_esp=False,
     natoms=60,
     verbose=False,
-        subtract_atom_energies=False,
-        subtract_mean=False,
+    subtract_atom_energies=False,
+    subtract_mean=False,
 ):
     """
     Prepare datasets for training and validation.

@@ -159,12 +159,12 @@ def plot_stats(
             plot(Ds, predDs, axes[0, 2], _property="$D$", units=r"$e \AA$", kde=do_kde)
 
             plot(
-            Es - Es.mean(),
-            Eeles - Eeles.mean(),
-            axes[1, 0],
-            _property="$E$ vs $E_{\\rm ele}$",
-            kde=do_kde,
-        )
+                Es - Es.mean(),
+                Eeles - Eeles.mean(),
+                axes[1, 0],
+                _property="$E$ vs $E_{\\rm ele}$",
+                kde=do_kde,
+            )
         else:
             axes[0, 0].axis("off")
             axes[0, 2].axis("off")
@@ -384,8 +384,9 @@ def kabsch_alignment(P, Q):
 
 
 def do_alignment(coordinates):
-    frames = coordinates[:, :,
-             :]  # Replace with your list of frames (arrays of Nx3 coordinates)
+    frames = coordinates[
+        :, :, :
+    ]  # Replace with your list of frames (arrays of Nx3 coordinates)
     reference_frame = frames[0]  # First frame as the reference
 
     aligned_frames = []
@@ -405,16 +406,14 @@ def do_alignment(coordinates):
     return aligned_frames
 
 
-
 def remove_mean_from_multimodal_distribution(data, n_modes=2):
-    """
-
-    """
+    """ """
     print(data.shape)
     data = data.reshape(data.shape[0], 1)
     print(data.shape)
     # Calculate different clusters
     from sklearn.cluster import KMeans
+
     kmeans = KMeans(n_clusters=n_modes, random_state=0).fit(data)
     labels = kmeans.labels_
     centers = kmeans.cluster_centers_

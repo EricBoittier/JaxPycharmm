@@ -39,13 +39,19 @@ files = ["/pchem-data/meuwly/boittier/home/cf3criegee_27887.npz"]
 
 from pathlib import Path
 
-#files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
+# files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
 NATOMS = 30
-files = [Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz')]
+files = [
+    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz"),
+    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz"),
+    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz"),
+    Path(
+        "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz"
+    ),
+    Path(
+        "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz"
+    ),
+]
 
 
 train_data, valid_data = prepare_datasets(

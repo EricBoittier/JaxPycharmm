@@ -17,6 +17,7 @@ from jax import Array
 
 from physnetjax.models.zbl import ZBLRepulsion
 from physnetjax.models.euclidean_fast_attention import fast_attention as efa
+
 EFA = efa.EuclideanFastAttention
 import ase.data
 
@@ -73,8 +74,10 @@ class EF(nn.Module):
                 lebedev_num=194,
                 parametrized=False,
                 epe_max_frequency=b_max,
-                epe_max_length=self.natoms * self.num_basis_functions * self.num_iterations,
-                tensor_integration=False
+                epe_max_length=self.natoms
+                * self.num_basis_functions
+                * self.num_iterations,
+                tensor_integration=False,
             )
 
     def return_attributes(self) -> Dict:
@@ -131,8 +134,15 @@ class EF(nn.Module):
         graph_mask = jnp.ones(batch_size)
 
         # Embed and process atomic features
-        x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx,
-                                          positions, batch_segments, graph_mask)
+        x = self._process_atomic_features(
+            atomic_numbers,
+            basis,
+            dst_idx,
+            src_idx,
+            positions,
+            batch_segments,
+            graph_mask,
+        )
         # print(x)
         return self._calculate(
             x,
@@ -185,8 +195,9 @@ class EF(nn.Module):
             dtype=DTYPE,
         )(atomic_numbers)
         for i in range(self.num_iterations):
-            x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i,
-                                                positions, batch_segments, graph_mask)
+            x = self._message_passing_iteration(
+                x, basis, dst_idx, src_idx, i, positions, batch_segments, graph_mask
+            )
             x = self._refinement_iteration(x)
 
         basis = e3x.nn.change_max_degree_or_type(

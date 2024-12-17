@@ -1,4 +1,5 @@
 """Euclidean Rope attention."""
+
 from jax import ops
 import jax.numpy as jnp
 from typing import Optional
@@ -29,9 +30,7 @@ LEBEDEV_FREQUENCY_LOOKUP = {
 
 def apply_rotary_position_embedding(x: Array, sin: Array, cos: Array):
     """Applies rotary position embedding."""
-    if not (
-            x.shape[-1] == sin.shape[-1] == cos.shape[-1] and x.shape[-1] % 2 == 0
-    ):
+    if not (x.shape[-1] == sin.shape[-1] == cos.shape[-1] and x.shape[-1] % 2 == 0):
         raise ValueError(
             "x, sin, and cos must have the same (even) size in the last dimension,"
             f" received shapes {x.shape}, {sin.shape}, and {cos.shape}"
@@ -46,13 +45,13 @@ def apply_rotary_position_embedding(x: Array, sin: Array, cos: Array):
 def calculate_rotary_position_embedding(x: Array, theta: Array):
     """Calculates rotary position embeddings.
 
-  Args:
-    x: RoPe input, (..., N)
-    theta: RoPe frequencies, (M)
+    Args:
+      x: RoPe input, (..., N)
+      theta: RoPe frequencies, (M)
 
-  Returns: 
-    RoPe embedded input, (..., N, 2*M)
-  """
+    Returns:
+      RoPe embedded input, (..., N, 2*M)
+    """
     angle = x[..., :, None] * theta[None, :]
     sin = jnp.sin(angle)
     cos = jnp.cos(angle)
@@ -64,43 +63,45 @@ def calculate_rotary_position_embedding(x: Array, theta: Array):
 
 
 def apply(
-        q: Array,
-        k: Array,
-        v: Array,
-        pos: Array,
-        theta: Array,
-        grid_u: Array,
-        grid_w: Array,
-        batch_segments: Array,
-        graph_mask: Array,
-        include_pseudotensors_qk: Optional[bool] = None,
-        include_pseudotensors_v: Optional[bool] = None,
-        max_degree_qk: Optional[int] = None,
-        max_degree_v: Optional[int] = None,
-        do_integration: bool = True
+    q: Array,
+    k: Array,
+    v: Array,
+    pos: Array,
+    theta: Array,
+    grid_u: Array,
+    grid_w: Array,
+    batch_segments: Array,
+    graph_mask: Array,
+    include_pseudotensors_qk: Optional[bool] = None,
+    include_pseudotensors_v: Optional[bool] = None,
+    max_degree_qk: Optional[int] = None,
+    max_degree_v: Optional[int] = None,
+    do_integration: bool = True,
 ):
     """Calculate linear attention with Euclidean RoPE.
 
-  Args:
-    q: Query, following E3x convention, (N, 1 or 2, (max_degree_qk+1)**2, num_features_qk)
-    k: Key, following E3x convention, (N, 1 or 2, (max_degree_qk+1)**2, num_features_qk)
-    v: Value, following E3x convention, (N, 1 or 2, (max_degree_v+1)**2, num_features_v)
-    pos: Node positions, (N, dim)
-    theta: Frequencies, (num_features_qk/2)
-    grid_u: Lebedev grid points, (M, dim)
-    grid_w: Lebedev integration weights, (M)
-    batch_segments: Batch segments, (N)
-    graph_mask: Graph mask, (max_num_graphs)
-    include_pseudotensors_qk: Include pseudotensors from query and key.
-    include_pseudotensors_v: Include pseudotensors from value.
-    max_degree_qk: Max degree to use in query and key.
-    max_degree_v: Max degree to use in value. Changes the output degree.
-    do_integration: Already perform the integration by summing over the grid points.
+    Args:
+      q: Query, following E3x convention, (N, 1 or 2, (max_degree_qk+1)**2, num_features_qk)
+      k: Key, following E3x convention, (N, 1 or 2, (max_degree_qk+1)**2, num_features_qk)
+      v: Value, following E3x convention, (N, 1 or 2, (max_degree_v+1)**2, num_features_v)
+      pos: Node positions, (N, dim)
+      theta: Frequencies, (num_features_qk/2)
+      grid_u: Lebedev grid points, (M, dim)
+      grid_w: Lebedev integration weights, (M)
+      batch_segments: Batch segments, (N)
+      graph_mask: Graph mask, (max_num_graphs)
+      include_pseudotensors_qk: Include pseudotensors from query and key.
+      include_pseudotensors_v: Include pseudotensors from value.
+      max_degree_qk: Max degree to use in query and key.
+      max_degree_v: Max degree to use in value. Changes the output degree.
+      do_integration: Already perform the integration by summing over the grid points.
 
-  Returns:
-    Euclidean RoPe attended features.
-  """
-    assert pos.ndim == 2  # needs to be ensured, since we perform segment_sum along the 0-th axis
+    Returns:
+      Euclidean RoPe attended features.
+    """
+    assert (
+        pos.ndim == 2
+    )  # needs to be ensured, since we perform segment_sum along the 0-th axis
 
     num_parity_qk_in, num_degrees_qk_in = q.shape[-3], q.shape[-2]
     num_parity_v_in, num_degrees_v_in = v.shape[-3], v.shape[-2]
@@ -136,34 +137,28 @@ def apply(
 
     if not pseudotensors_qk_present and include_pseudotensors_qk:
         logging.warning(
-            f'include_pseudotensors_qk={include_pseudotensors_qk} in rope.apply() but query and key have no '
-            f'pseudotensors. This still gives correct results but makes computations unnecessarily expensive '
-            f'due to padding with zeros.'
+            f"include_pseudotensors_qk={include_pseudotensors_qk} in rope.apply() but query and key have no "
+            f"pseudotensors. This still gives correct results but makes computations unnecessarily expensive "
+            f"due to padding with zeros."
         )
 
     if not pseudotensors_v_present and include_pseudotensors_v:
         logging.warning(
-            f'include_pseudotensors_v={include_pseudotensors_v} in rope.apply() but value has no pseudotensors. '
-            f'This still gives correct results but makes computations unnecessarily expensive due to '
-            f'padding with zeros.'
+            f"include_pseudotensors_v={include_pseudotensors_v} in rope.apply() but value has no pseudotensors. "
+            f"This still gives correct results but makes computations unnecessarily expensive due to "
+            f"padding with zeros."
         )
 
     q = e3x.nn.change_max_degree_or_type(
-        q,
-        include_pseudotensors=include_pseudotensors_qk,
-        max_degree=max_degree_qk
+        q, include_pseudotensors=include_pseudotensors_qk, max_degree=max_degree_qk
     )
 
     k = e3x.nn.change_max_degree_or_type(
-        k,
-        include_pseudotensors=include_pseudotensors_qk,
-        max_degree=max_degree_qk
+        k, include_pseudotensors=include_pseudotensors_qk, max_degree=max_degree_qk
     )
 
     v = e3x.nn.change_max_degree_or_type(
-        v,
-        include_pseudotensors=include_pseudotensors_v,
-        max_degree=max_degree_v
+        v, include_pseudotensors=include_pseudotensors_v, max_degree=max_degree_v
     )
 
     # They might have changed compared to the input due to the application of change_max_degree_or_type.
@@ -180,9 +175,15 @@ def apply(
     k = apply_rotary_position_embedding(k, sin, cos)  # (N, M, P, L, num_features_qk)
 
     # Flatten parity, degree, and feature channels into one axis.
-    q = jnp.reshape(q, (*q.shape[:-3], -1))  # (N, M, Dqk) with Dqk=num_parity_qk*num_degrees_qk*num_features_qk
-    k = jnp.reshape(k, (*k.shape[:-3], -1))  # (N, M, Dqk) with Dqk=num_parity_qk*num_degrees_qk*num_features_qk
-    v = jnp.reshape(v, (*v.shape[:-3], -1))  # (N, Dv) with Dv=num_parity_v*num_degrees_v*num_features_v
+    q = jnp.reshape(
+        q, (*q.shape[:-3], -1)
+    )  # (N, M, Dqk) with Dqk=num_parity_qk*num_degrees_qk*num_features_qk
+    k = jnp.reshape(
+        k, (*k.shape[:-3], -1)
+    )  # (N, M, Dqk) with Dqk=num_parity_qk*num_degrees_qk*num_features_qk
+    v = jnp.reshape(
+        v, (*v.shape[:-3], -1)
+    )  # (N, Dv) with Dv=num_parity_v*num_degrees_v*num_features_v
 
     # Scale q for keeping variance of dot product in check.
     q /= jnp.sqrt(q.shape[-1])
@@ -190,11 +191,7 @@ def apply(
     if len(graph_mask) > 1:
 
         # Compute outer product of keys and values. Batch axis must be kept explicitly.
-        kv = jnp.einsum(
-            "nmk,nv->nmkv",
-            k,
-            v
-        )  # (N, M, Dqk, Dv)
+        kv = jnp.einsum("nmk,nv->nmkv", k, v)  # (N, M, Dqk, Dv)
 
         # Compute structure wise sum over nodes, and broadcast.
         kv = ops.segment_sum(kv, batch_segments, num_segments=len(graph_mask))[
@@ -203,50 +200,25 @@ def apply(
 
         if do_integration:
             # Calculate the result of the linear scaling attention operation and perform the numerical integration.
-            y = jnp.einsum(
-                'nmd,nmdv,m->nv',
-                q,
-                kv,
-                grid_w
-            )  # (N, M, Dv)
+            y = jnp.einsum("nmd,nmdv,m->nv", q, kv, grid_w)  # (N, M, Dv)
         # Calculate the result of the linear scaling attention operation and keep the evaluations per grid point.
         else:
-            y = jnp.einsum(
-                'nmd,nmdv->nmv',
-                q,
-                kv
-            )  # (N, M, Dv)
+            y = jnp.einsum("nmd,nmdv->nmv", q, kv)  # (N, M, Dv)
 
     else:
         # Compute outer product of keys and values and sum over all atoms.
-        kv = jnp.einsum(
-            "nmk,nv->mkv",
-            k,
-            v
-        )  # (M, Dqk, Dv)
+        kv = jnp.einsum("nmk,nv->mkv", k, v)  # (M, Dqk, Dv)
 
         # Calculate the result of the linear scaling attention operation and perform the numerical integration.
         if do_integration:
-            y = jnp.einsum(
-                "nmd,mdv,m->nv",
-                q,
-                kv,
-                grid_w
-            )  # (N, Dv)
+            y = jnp.einsum("nmd,mdv,m->nv", q, kv, grid_w)  # (N, Dv)
         # Calculate the result of the linear scaling attention operation and keep the evaluations per grid point.
         else:
-            y = jnp.einsum(
-                "nmd,mdv->nmv",
-                q,
-                kv
-            )  # (N, M, Dv)
+            y = jnp.einsum("nmd,mdv->nmv", q, kv)  # (N, M, Dv)
 
     num_parity_v_out = 2 if include_pseudotensors_v else 1
     # Bring back into E3x convention.
-    y = jnp.reshape(
-        y,
-        (*y.shape[:-1], num_parity_v, num_degrees_v, num_features_v)
-    )
+    y = jnp.reshape(y, (*y.shape[:-1], num_parity_v, num_degrees_v, num_features_v))
     # (N, P, L, F)    if do_integration = True
     # (N, M, P, L, F) if do_integration = False
 

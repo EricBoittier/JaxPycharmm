@@ -89,6 +89,7 @@ def setup_coords_seq(seq):
     atoms = ase.io.read("output.pdb")
 
     import pycharmm.psf as psf
+
     Z = [str(_)[:1] for _ in psf.get_atype()]
     # positions = coor.get_positions().values
     positions = atoms.get_positions()
@@ -100,6 +101,7 @@ def setup_coords_seq(seq):
     minimize.run_sd(**{"nstep": 10, "tolenr": 1e-5, "tolgrd": 1e-5})
     print(atoms)
     return atoms
+
 
 ##########################
 
@@ -129,7 +131,7 @@ def setup_calculator(atoms, params, model):
     U = atoms.get_potential_energy()
     conversion = {
         "energy": 1 / (units.kcal / units.mol),
-        "forces": 1, #/ (units.kcal / units.mol),
+        "forces": 1,  # / (units.kcal / units.mol),
         "dipole": 1,
     }
 
@@ -149,9 +151,11 @@ def setup_calculator(atoms, params, model):
     forces_verified, F2 = verify_forces(F, atol=100)
     if energy_verified and forces_verified:
         return True, mlp
-    raise ValueError("Error in setting up calculator. CHARMM energies do not match calculators'.\n" +
-                     "CHARMM: {}, Calculator: {}\n".format(U, U2) +
-                     "CHARMM: {}, Calculator: {}\n".format(F, F2))
+    raise ValueError(
+        "Error in setting up calculator. CHARMM energies do not match calculators'.\n"
+        + "CHARMM: {}, Calculator: {}\n".format(U, U2)
+        + "CHARMM: {}, Calculator: {}\n".format(F, F2)
+    )
 
 
 def verify_energy(U, atol=1e-4):
@@ -162,6 +166,7 @@ def verify_energy(U, atol=1e-4):
     assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
     print(f"Success! energies are close, within {atol} kcal/mol")
     return True, userE
+
 
 def verify_forces(F, atol=2):
     """Verify that forces match within tolerance."""
@@ -387,7 +392,6 @@ umbrella dihe nresol 36 trig  6 poly 1 pept 1 NT pept 1 C  pept 1 CA pept 1 N CA
 umbrella init nsim 1 update 100 equi 100 thresh 10 temp 300 -
               ucun 10 wuni 11
               """
-
 
     dynamics_dict = get_base_dynamics_dict()
     dynamics_dict.update(
