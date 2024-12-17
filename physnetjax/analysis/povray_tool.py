@@ -28,7 +28,7 @@ default_color_dict = {
 
 def render_povray(atoms, pov_name,
                   rotation='0x, 0y, 0z',
-                  radius_scale=0.3, color_dict=None):
+                  radius_scale=0.25, color_dict=None):
 
     if color_dict is None:
         color_dict = default_color_dict
@@ -45,10 +45,25 @@ def render_povray(atoms, pov_name,
 
     bondpairs = get_bondpairs(atoms, radius=1.0)
     good_bonds = []
+    good_bond_keys = []
     for _ in bondpairs:
         #  remove the Cl-Cl bonds
         if not (atoms[_[0]].symbol == "Cl" and atoms[_[1]].symbol == "Cl"):
             good_bonds.append(_)
+            good_bond_keys.append((_[0], _[1]))
+            good_bond_keys.append((_[1], _[0]))
+
+    # create hydrogen bonds
+    _pos = atoms.get_positions()
+    _z = atoms.get_atomic_numbers()
+    idx_onh = np.where(_z == 8)[0] or np.where(_z == 1)[0] or np.where(_z == 7)[0]
+    atoms_onh = Atoms(_pos[idx_onh], _z[idx_onh])
+    bondpairs_onh = get_bondpairs(atoms_onh, radius=2.0)
+    for _ in bondpairs_onh:
+        if (_[0], _[1]) not in good_bond_keys:
+            good_bonds.append(_)
+            good_bond_keys.append((_[0], _[1]))
+            good_bond_keys.append((_[1], _[0]))
 
     good_bonds = set_high_bondorder_pairs(good_bonds)
 
