@@ -414,7 +414,9 @@ umbrella init nsim 1 update 100 equi 100 thresh 10 temp 300 -
     dynamics_dict = change_integrator(dynamics_dict, integrator)
 
     dyn_equi = pycharmm.DynamicsScript(**dynamics_dict)
-    pycharmm.lingo.charmm_script(adaptive_umbrella_script)
+
+    # pycharmm.lingo.charmm_script(adaptive_umbrella_script)
+
     dyn_equi.run()
 
     for file in files.values():
