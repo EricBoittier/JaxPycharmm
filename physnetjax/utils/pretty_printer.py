@@ -25,7 +25,14 @@ acp_colors = ["\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m",
 def get_acp_plot(data, keys, title="", log=False):
     print(data)
     if log:
-        data = pl.DataFrame([pl.col(c).log10() for c in keys]) # polaris apply log to data
+        for _ in keys:
+            #  polaris apply log to data
+            data = data.with_columns(
+                pl.col(_)
+                # .map_elements(lambda x: 0, return_dtype=pl.Int64)
+                .map_elements(lambda x: np.log(x), return_dtype=pl.Float64)
+                .alias(_)
+            )
     print(data)
     _min = min([min(data[key]) for key in keys])
     _max = max([max(data[key]) for key in keys])
