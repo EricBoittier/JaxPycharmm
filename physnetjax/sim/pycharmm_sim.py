@@ -79,7 +79,18 @@ def setup_coords_seq(seq):
     settings.set_warn_level(-1)
     read.sequence_string(seq)
     stream.charmm_script("GENERATE PEPT FIRST NTER LAST CTER SETUP")
+    stream.charmm_script("ic param")
+    stream.charmm_script("ic build")
+    write.coor_pdb("output.pdb")
+    atoms = ase.io.read("output.pdb")
 
+    import pycharmm.psf as psf
+    atoms = ase.Atoms(Z, atoms.get_positions())
+    Z = [str(_)[:1] for _ in psf.get_atype()]
+    atoms = ase.Atoms(Z, atoms.get_positions())
+    coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
+    coor.show()
+    return atoms
 
 ##########################
 
@@ -478,7 +489,8 @@ def _setup_sim(
     # Initialize and setup
     initialize_system()
 
-    atoms = setup_coordinates(pdb_file, psf_file, atoms)
+    # atoms = setup_coordinates(pdb_file, psf_file, atoms)
+    atoms = setup_coords_seq("ALAD")
     print(atoms, len(atoms))
     params, model = initialize_model(pkl_path, model_path, atoms)
     # Setup calculator and run minimization
