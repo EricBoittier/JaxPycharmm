@@ -74,7 +74,7 @@ def render_povray(atoms, pov_name,
             # check that atom1 is H or N/O and atom2 is N/O or H
             if (_z[_[0]] == 1 and (_z[_[1]] == 7 or _z[_[1]] == 8)) or \
                     (_z[_[1]] == 1 and (_z[_[0]] == 7 or _z[_[0]] == 8)):
-                if 1.5 < distance < 3.0:
+                if 1. < distance < 3.0:
                     print(f"Adding bond between", map[_[0]], map[_[1]])
                     good_bonds.append(_)
 
