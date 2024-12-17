@@ -137,15 +137,16 @@ def plot_stats(
     if model.charges:
         charges = np.concatenate(charges)
         Eeles = Eeles / (ase.units.kcal / ase.units.mol)
+        summed_q = charges.reshape(len(batches) * batch_size, model.natoms).sum(axis=1)
     else:
         charges = np.zeros_like(Es)
         Eeles = np.zeros_like(Es)
+        summed_q = np.zeros_like(Es)
     Es = Es / (ase.units.kcal / ase.units.mol)
     predEs = predEs / (ase.units.kcal / ase.units.mol)
     Fs = Fs / (ase.units.kcal / ase.units.mol)
     predFs = predFs / (ase.units.kcal / ase.units.mol)
 
-    summed_q = charges.reshape(len(batches) * batch_size, model.natoms).sum(axis=1)
     E_rmse, E_mae = get_metrics(Es, predEs)
     F_rmse, F_mae = get_metrics(Fs, predFs)
     D_rmse, D_mae = get_metrics(Ds, predDs)
