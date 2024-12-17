@@ -1,22 +1,73 @@
-import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 
-def plot_run(base_df):
-    for ycol in ["train_loss", "valid_loss"]:
-        sns.lineplot(base_df, x="epoch", y=ycol, label=ycol)
-    plt.ylim(0, 7)
-    plt.legend()
-    plt.show()
+def plot_run(base_df, ax, hue, label):
+    base_df = base_df[::100]
+    # base_df = base_df.to_pandas()
+    # Define all the metrics to plot
+    metrics = [
+        "train_loss", "valid_loss",
+        "train_energy_mae", "valid_energy_mae",
+        "train_forces_mae", "valid_forces_mae",
+        "lr"
+    ]
 
-    for ycol in ["train_energy_mae", "valid_energy_mae"]:
-        sns.lineplot(base_df, x="epoch", y=ycol)
-    plt.ylim(0, 5)
-    plt.axhline(0.01749)
+    # Plot each metric
+    for i, ycol in enumerate(metrics):
+        row = i % 2
+        col = i // 2
+        line = sns.lineplot(
+            data=base_df,
+            x="epoch", y=ycol,
+            # hue=hue/33,
+            color=sns.color_palette("Set2", 34)[hue],
+            # style="f", size="nit",
+            ax=ax[row][col],
+            # palette="set2",
+            label=label
+            # legend=False
+        )
+        ax[row][col].legend()
+        lines, labels = [], []
+        # Capture lines and labels for the shared legend
+        for line_obj in line.get_lines():
+            lines.append(line_obj)
+        labels.append(i)
 
-    plt.show()
+        # Apply shared settings
+        #
+        # ax[row][col].set_xlim(1000)
+        if ycol != "lr":
+            ax[row][col].set_ylim(base_df[ycol].min() * 0.5, base_df[ycol].median() + base_df[ycol].std())
+            ax[row][col].set_yscale("log")
+        ax[row][col].set_xlabel("Epoch")
+        ax[row][col].set_ylabel(ycol)
+        ax[row][col].get_legend().remove()  # Remove legend from the main plot
+
+    # Adjust the legend on the separate axis
+    handles, labels = ax[row][col].get_legend_handles_labels()
+    ax[-1][-1].legend(
+        handles=handles, labels=labels,
+        loc='center', title="Metrics"
+    )
+    ax[-1][-1].axis('off')  # Turn off axis for the legend space
+
+    # plt.tight_layout()
+    # plt.show()
+    return ax
 
 
+if __name__ == "__main__":
+    from physnetjax.logging.tensorboard_interface import process_tensorboard_logs
+    import polars as pl
+
+    logs_path = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-ec04d45c-33e4-415e-987a-eb3548ca0770"
+    df = process_tensorboard_logs(logs_path)
+    print(df)
+    fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+    plot_run(df, ax, 0, "test")
+    plt.savefig("test.png")
 #
 # import altair as alt
 #
