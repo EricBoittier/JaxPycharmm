@@ -104,7 +104,7 @@ def annotate_ebc(ebc, energies, ase_atoms):
 
         cluster_members_energy = {_: float(energies[_]) for _ in cluster_members[0]}
         cm = list(cluster_members[0].copy())
-        cm.sort(key=lambda x: -cluster_members_energy[x])
+        cm.sort(key=lambda x: cluster_members_energy[x])
 
         for idx, i in enumerate(cm[:4]):
             # Use OffsetImage to embed the image into the PCA plot
