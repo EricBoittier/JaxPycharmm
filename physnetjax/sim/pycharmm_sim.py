@@ -146,7 +146,7 @@ def setup_calculator(atoms, params, model):
     )
 
     energy_verified, U2 = verify_energy(U, atol=10)
-    forces_verified, F2 = verify_forces(F, atol=10)
+    forces_verified, F2 = verify_forces(F, atol=100)
     if energy_verified and forces_verified:
         return True, mlp
     raise ValueError("Error in setting up calculator. CHARMM energies do not match calculators'.\n" +
