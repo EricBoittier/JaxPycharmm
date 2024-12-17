@@ -10,7 +10,7 @@ from io import BytesIO
 import numpy as np
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from ase import io
-from ase.io.pov import get_bondpairs
+from ase.io.pov import get_bondpairs, set_high_bondorder_pairs
 from ase.data import covalent_radii
 
 default_color_dict = {
@@ -49,6 +49,8 @@ def render_povray(atoms, pov_name,
         #  remove the Cl-Cl bonds
         if not (atoms[_[0]].symbol == "Cl" and atoms[_[1]].symbol == "Cl"):
             good_bonds.append(_)
+
+    good_bonds = set_high_bondorder_pairs(good_bonds)
 
     kwargs = {  # For povray files only
         'transparent': True,  # Transparent background
