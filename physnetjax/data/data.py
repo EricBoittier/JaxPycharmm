@@ -115,11 +115,13 @@ def prepare_multiple_datasets(
         keys.append("F")
     if "E" in datasets[0].keys():
         dataE = np.concatenate([dataset["E"] for dataset in datasets])[not_failed]
+        print("dataE", dataE.flatten()[:10])
         if subtract_atom_energies:
             tmp_ae = ATOM_ENERGIES_HARTREE[dataZ].sum(axis=1)
             dataE = dataE - tmp_ae
         if subtract_mean:
             dataE = dataE - np.mean(dataE)
+        print("dataE", dataE.flatten()[:10])
         data.append(dataE.reshape(shape[0], 1))
         keys.append("E")
     if "N" in datasets[0].keys():
