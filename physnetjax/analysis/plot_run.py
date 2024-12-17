@@ -134,12 +134,13 @@ if __name__ == "__main__":
     parser.add_argument("--logs", type=Path, required=True)
     args = parser.parse_args()
     logs_path = args.logs
+    key = logs_path.parent.name
     df = process_tensorboard_logs(logs_path)
     print(df)
     fig, ax = plt.subplots(5, 2, figsize=(12, 12))
-    plot_run(df, ax, 1, "test", log=True)
+    plot_run(df, ax, 1, key, log=True)
     # save the plot
-    save_path = LOGS_PATH / logs_path.parent.name / "tf_logs.png"
+    save_path = LOGS_PATH / key / "tf_logs.png"
     # make the directory if it does not exist
     save_path.parent.mkdir(exist_ok=True, parents=True)
     fig.savefig(save_path, bbox_inches="tight")
