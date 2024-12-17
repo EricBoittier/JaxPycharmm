@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def plot_run(base_df, ax, hue, label, log=False):
-    base_df = base_df[::100]
+    base_df = base_df[::]
     # base_df = base_df.to_pandas()
     # Define all the metrics to plot
     metrics = [
