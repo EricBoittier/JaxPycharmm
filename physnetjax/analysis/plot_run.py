@@ -10,23 +10,20 @@ def plot_run(base_df, ax, hue, label, log=False):
         "train_loss", "valid_loss",
         "train_energy_mae", "valid_energy_mae",
         "train_forces_mae", "valid_forces_mae",
+        "train_dipole_mae", "valid_dipole_mae",
         "lr"
     ]
 
     # Plot each metric
     for i, ycol in enumerate(metrics):
-        row = i % 2
-        col = i // 2
+        col = i % 2
+        row = i // 2
         line = sns.lineplot(
             data=base_df,
             x="epoch", y=ycol,
-            # hue=hue/33,
             color=sns.color_palette("Set2", 34)[hue],
-            # style="f", size="nit",
             ax=ax[row][col],
-            # palette="set2",
             label=label
-            # legend=False
         )
         ax[row][col].legend()
         lines, labels = [], []
@@ -51,6 +48,7 @@ def plot_run(base_df, ax, hue, label, log=False):
             else:
                 # do nothing
                 pass
+
         if log:
             ax[row][col].set_yscale("log")
         ax[row][col].set_xlabel("Epoch")
@@ -69,19 +67,6 @@ def plot_run(base_df, ax, hue, label, log=False):
     # plt.show()
     return ax
 
-
-if __name__ == "__main__":
-    from physnetjax.logging.tensorboard_interface import process_tensorboard_logs
-    import polars as pl
-
-    logs_path = ("/pchem-data/meuwly/boittier/home/pycharmm_test/"
-                 "ckpts/test-ec04d45c-33e4-415e-987a-eb3548ca0770/"
-                 "tfevents/")
-    df = process_tensorboard_logs(logs_path)
-    print(df)
-    fig, ax = plt.subplots(2, 4, figsize=(12, 12))
-    plot_run(df, ax, 0, "test")
-    plt.savefig("test.png")
 #
 # import altair as alt
 #
@@ -125,3 +110,19 @@ if __name__ == "__main__":
 # cs.numeric()
 #
 # scaled_df = df
+
+
+
+
+if __name__ == "__main__":
+    from physnetjax.logging.tensorboard_interface import process_tensorboard_logs
+    import polars as pl
+
+    logs_path = ("/pchem-data/meuwly/boittier/home/pycharmm_test/"
+                 "ckpts/test-ec04d45c-33e4-415e-987a-eb3548ca0770/"
+                 "tfevents/")
+    df = process_tensorboard_logs(logs_path)
+    print(df)
+    fig, ax = plt.subplots(5, 2, figsize=(12, 12))
+    plot_run(df, ax, 1, "test")
+    plt.savefig("test.png")
