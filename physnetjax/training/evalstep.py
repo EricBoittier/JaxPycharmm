@@ -65,7 +65,7 @@ def eval_step(
             batch["F"] * batch["atom_mask"][..., None],
             batch["atom_mask"].sum() * 3,
         )
-        dipole_mae = mean_absolute_error(dipole, batch["D"], batch_size)
+        dipole_mae = mean_absolute_error(output["dipole"], batch["D"], batch_size)
         return loss, energy_mae, forces_mae, dipole_mae
     else:
         output = model_apply(

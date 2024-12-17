@@ -15,8 +15,6 @@ E
 tests/test_openqdc.py,1/b/1be2a12f79e4993aaba9d3fa4690da7408c70dbe
 V
 &example_training/test_cf3_fullbatch.py,6/c/6cb9998d350b99559c6db67ffc31cbcfd63c998c
-O
-physnetjax/training/evalstep.py,8/f/8f1ff1d261cd7ce61644b61f261165272379b34f
 G
 physnetjax/utils/api.py,c/f/cf3e1c9d03ccfc38c7c3cb80e26b3b64af0a4654
 O
