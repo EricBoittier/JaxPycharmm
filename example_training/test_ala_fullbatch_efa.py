@@ -55,8 +55,8 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 # Initialize model
 model = EF(
-    features=32,
-    max_degree=1,
+    features=24,
+    max_degree=0,
     num_iterations=2,
     num_basis_functions=16,
     cutoff=10.0,
@@ -86,7 +86,7 @@ params = train_model(
     # forces_weight=100,
     schedule_fn="constant",
     optimizer="amsgrad",
-    batch_size=20,
+    batch_size=40,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     #restart=restart,

@@ -36,7 +36,7 @@ N_RES=${n_res:-1}
 DEBUG=${debug:-False}
 natoms=${natoms:-8}
 
-SCHEDULE=${schedule:-warmup}
+SCHEDULE=${schedule:-constant}
 
 # Construct conditional arguments
 RESTART_ARG=""
