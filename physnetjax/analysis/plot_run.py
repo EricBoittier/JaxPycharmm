@@ -10,7 +10,7 @@ def plot_run(base_df, ax, hue, label, log=False):
         "train_loss", "valid_loss",
         "train_energy_mae", "valid_energy_mae",
         "train_forces_mae", "valid_forces_mae",
-        "train_dipole_mae", "valid_dipole_mae",
+        # "train_dipole_mae", "valid_dipole_mae",
         "lr"
     ]
 
