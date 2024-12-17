@@ -8,7 +8,7 @@ from rich.table import Table
 import asciichartpy as acp
 import numpy as np
 from rich.columns import Columns
-
+import polars as pl
 
 def get_panel(data, title):
     return Panel(
