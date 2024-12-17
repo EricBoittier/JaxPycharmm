@@ -365,3 +365,24 @@ def kabsch_alignment(P, Q):
 
     R = np.dot(V, W)
     return R
+
+
+def remove_mean_from_multimodal_distribution(data, n_modes=2):
+    """
+
+    """
+
+    # Calculate different clusters
+    from sklearn.cluster import KMeans
+    kmeans = KMeans(n_clusters=n_modes, random_state=0).fit(data)
+    labels = kmeans.labels_
+    centers = kmeans.cluster_centers_
+    # Calculate the mean of each cluster
+    means = []
+    for i in range(n_modes):
+        means.append(data[labels == i].mean(axis=0))
+    # Remove the mean from each cluster
+    for i in range(n_modes):
+        data[labels == i] -= means[i]
+    return data
+
