@@ -123,7 +123,7 @@ def setup_calculator(atoms, params, model):
     atoms.calc = calculator
 
     ml_selection = pycharmm.SelectAtoms().by_res_id("1")
-    print(ml_selection)
+    print(list(ml_selection))
     energy.show()
     U = atoms.get_potential_energy()
     conversion = {
