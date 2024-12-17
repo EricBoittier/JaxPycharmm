@@ -124,13 +124,22 @@ def plot_run(base_df, ax, hue, label, log=False):
 
 if __name__ == "__main__":
     from physnetjax.logging.tensorboard_interface import process_tensorboard_logs
+    from physnetjax.directories import LOGS_PATH
     import polars as pl
 
-    logs_path = ("/pchem-data/meuwly/boittier/home/pycharmm_test/"
-                 "ckpts/test-ec04d45c-33e4-415e-987a-eb3548ca0770/"
-                 "tfevents/")
+    from argparse import ArgumentParser
+    from pathlib import Path
+
+    parser = ArgumentParser()
+    parser.add_argument("--logs", type=Path, required=True)
+    args = parser.parse_args()
+    logs_path = args.logs
     df = process_tensorboard_logs(logs_path)
     print(df)
     fig, ax = plt.subplots(5, 2, figsize=(12, 12))
     plot_run(df, ax, 1, "test", log=True)
-    plt.savefig("test.png")
+    # save the plot
+    save_path = LOGS_PATH / logs_path.parent.name / "tf_logs.png"
+    # make the directory if it does not exist
+    save_path.parent.mkdir(exist_ok=True, parents=True)
+    fig.savefig(save_path, bbox_inches="tight")
