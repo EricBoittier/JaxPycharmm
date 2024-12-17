@@ -82,6 +82,7 @@ def setup_coords_seq(seq):
     read.sequence_string(seq)
     stream.charmm_script("GENERATE PEPT FIRST NTER LAST CTER SETUP")
     stream.charmm_script("ic param")
+    stream.charmm_script("ic seed 1 N 1 CA 1 C")
     stream.charmm_script("ic build")
     # minmize the system
     minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
