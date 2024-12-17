@@ -98,6 +98,7 @@ def setup_coords_seq(seq):
     coor.set_positions(pd.DataFrame(atoms.get_positions(), columns=["x", "y", "z"]))
     coor.show()
     minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    print(atoms)
     return atoms
 
 ##########################
