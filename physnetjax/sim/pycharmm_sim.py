@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
 
-from schnetpack.properties import position
-
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
 os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cmake"
