@@ -363,7 +363,7 @@ def run_equilibration(
 umbrella dihe nresol 36 trig  6 poly 1 pept 1 C  pept 1 CA pept 1 N pept 1 CY
 umbrella dihe nresol 36 trig  6 poly 1 pept 1 NT pept 1 C  pept 1 CA pept 1 N CA  
 
-umbrella init nsim 100 update 10000 equi 1000 thresh 10 temp 300 -
+umbrella init nsim 1 update 1000 equi 100 thresh 10 temp 300 -
               ucun 10 wuni 11"""
     pycharmm.lingo.charmm_script(adaptive_umbrella_script)
 
