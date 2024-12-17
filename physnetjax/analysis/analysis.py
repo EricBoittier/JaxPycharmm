@@ -153,17 +153,22 @@ def plot_stats(
 
     if do_plot:
         fig, axes = plt.subplots(2, 3, figsize=(13, 7.5))
-        plot(Es, predEs, axes[0, 0], _property="$E$", s=10, kde=do_kde)
         plot(Fs, predFs, axes[0, 1], _property="$F$", kde=do_kde)
-        plot(Ds, predDs, axes[0, 2], _property="$D$", units=r"$e \AA$", kde=do_kde)
-        plot(
+        if model.charges:
+            plot(Es, predEs, axes[0, 0], _property="$E$", s=10, kde=do_kde)
+            plot(Ds, predDs, axes[0, 2], _property="$D$", units=r"$e \AA$", kde=do_kde)
+
+            plot(
             Es - Es.mean(),
             Eeles - Eeles.mean(),
             axes[1, 0],
             _property="$E$ vs $E_{\\rm ele}$",
             kde=do_kde,
         )
-        # axes[1,1].axis("off")
+        else:
+            axes[0, 0].axis("off")
+            axes[0, 2].axis("off")
+            axes[1, 0].axis("off")
 
         plot(
             predFs,
@@ -174,14 +179,18 @@ def plot_stats(
             diag=False,
         )
         q_sum_kde = "y" if do_kde else False
-        plot(
-            np.zeros_like(summed_q),
-            summed_q,
-            axes[1, 2],
-            _property="$Q$",
-            units="$e$",
-            kde=q_sum_kde,
-        )
+        if model.charges:
+            plot(
+                np.zeros_like(summed_q),
+                summed_q,
+                axes[1, 2],
+                _property="$Q$",
+                units="$e$",
+                kde=q_sum_kde,
+            )
+        else:
+            axes[1, 2].axis("off")
+
         plt.subplots_adjust(hspace=0.55)
         plt.suptitle(_set + f" (n={len(predEs.flatten())})", fontsize=20)
         # plt.show()
