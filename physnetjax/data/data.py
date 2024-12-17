@@ -119,6 +119,7 @@ def prepare_multiple_datasets(
             tmp_ae = ATOM_ENERGIES_HARTREE[dataZ].sum(axis=1)
             print("tmp_ae", tmp_ae.shape)
             print("dataE", dataE.shape)
+            print(ATOM_ENERGIES_HARTREE[dataZ])
             dataE = dataE - tmp_ae
         if subtract_mean:
             dataE = dataE - np.mean(dataE)
