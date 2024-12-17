@@ -175,9 +175,9 @@ def verify_forces(F, atol=2):
 
 def run_minimization(output_pdb):
     """Run energy minimization and save results."""
-    minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    minimize.run_sd(**{"nstep": 100, "tolenr": 1e-5, "tolgrd": 1e-5})
     energy.show()
-    minimize.run_abnr(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+    minimize.run_abnr(**{"nstep": 100, "tolenr": 1e-5, "tolgrd": 1e-5})
     energy.show()
     stream.charmm_script("print coor")
     write.coor_pdb(output_pdb)
