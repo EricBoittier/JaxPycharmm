@@ -249,6 +249,8 @@ def prepare_datasets(
     clip_esp=False,
     natoms=60,
     verbose=False,
+        subtract_atom_energies=False,
+        subtract_mean=False,
 ):
     """
     Prepare datasets for training and validation.
@@ -282,6 +284,8 @@ def prepare_datasets(
         esp_mask=esp_mask,
         verbose=verbose,
         # dataset_keys
+        subtract_atom_energies=subtract_atom_energies,
+        subtract_mean=subtract_mean,
     )
 
     train_choice, valid_choice = get_choices(
