@@ -226,6 +226,9 @@ class EF(nn.Module):
                 dense_bias_init=jax.nn.initializers.zeros,
             )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
             if self.efa:
+                jax.debug.print("{x} {y}", x=x.shape, y=positions.shape)
+                jax.debug.print("{x} {y}", x=batch_segments,
+                                y=graph_mask)
                 x1= EFA()(x, positions, batch_segments, graph_mask)
                 x = e3x.nn.add(x, x1)
             return x
