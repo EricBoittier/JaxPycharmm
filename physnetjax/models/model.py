@@ -72,7 +72,7 @@ class EF(nn.Module):
                 lebedev_num=50,
                 parametrized=False,
                 epe_max_frequency=b_max,
-                epe_max_length=self.natoms * 3,
+                epe_max_length=self.natoms * self.num_basis_functions * self.num_iterations,
                 tensor_integration=False
             )
 
