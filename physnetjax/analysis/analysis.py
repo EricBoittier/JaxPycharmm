@@ -367,6 +367,29 @@ def kabsch_alignment(P, Q):
     return R
 
 
+def do_alignment(coordinates):
+    frames = coordinates[:, :,
+             :]  # Replace with your list of frames (arrays of Nx3 coordinates)
+    reference_frame = frames[0]  # First frame as the reference
+
+    aligned_frames = []
+    for frame in frames:
+        # Center the frames around their centroid
+        centered_frame = frame - frame.mean(axis=0)
+        centered_reference = reference_frame - reference_frame.mean(axis=0)
+
+        # Calculate the optimal rotation matrix
+        R = kabsch_alignment(centered_frame, centered_reference)
+
+        # Apply the rotation to align to the reference frame
+        aligned_frame = np.dot(centered_frame, R)
+        aligned_frames.append(aligned_frame)
+
+    aligned_frames = np.array(aligned_frames)  # Aligned list of frames
+    return aligned_frames
+
+
+
 def remove_mean_from_multimodal_distribution(data, n_modes=2):
     """
 

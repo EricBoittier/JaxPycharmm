@@ -78,3 +78,62 @@ def render_povray(atoms, pov_name,
     png_name = pov_name.replace(".pov", ".png")
     shutil.move(png_name, base / png_name)
     return png_name
+
+
+def annotate_ebc(ebc, energies, ase_atoms):
+    range_ = max(max(ebc._proto_2D[:, 0].flatten()),
+                 max(ebc._proto_2D[:, 1].flatten())) - min(
+        min(ebc._proto_2D[:, 0].flatten()),
+        min(ebc._proto_2D[:, 1].flatten()))
+    range_ *= 1.5
+
+    for idk, cluster_key in enumerate(ebc._cluster_ids[:]):
+        cluster_members = ebc.get_cluster_members(cluster_key)
+        coords = ebc._proto_2D[cluster_members]
+        ccolor = ebc.cluster_colormap[idk]
+        fig, ax = plt.subplots()
+        plt.title(f"Cluster {cluster_key + 1}", color=ccolor)
+
+        ax.scatter(coords[:, 0], coords[:, 1], c=energies[cluster_members], s=1,
+                   cmap="jet", vmin=0, vmax=100)
+        ax.scatter(ebc._proto_2D[::, 0], ebc._proto_2D[::, 1], alpha=0.01, color="gray",
+                   zorder=-1)
+        ax.set_xlim(-range_ / 1.2, range_ / 1.2)
+        ax.set_ylim(-range_ / 1.2, range_ / 1.2)
+
+        plot_coords = np.array([[0.2, 0.2], [0.2, 0.8], [0.8, 0.8], [0.8, 0.2]])
+
+        cluster_members_energy = {_: float(energies[_]) for _ in cluster_members[0]}
+        cm = list(cluster_members[0].copy())
+        cm.sort(key=lambda x: -cluster_members_energy[x])
+
+        for idx, i in enumerate(cm[:4]):
+            # Use OffsetImage to embed the image into the PCA plot
+            png_name = render_povray(ase_atoms[i],
+                                     f"test-{i}-{idx}-{idk}-{cluster_key}.pov")
+            image = plt.imread(f"test-{i}-{idx}-{idk}-{cluster_key}.png")
+            offset_image = OffsetImage(image, zoom=0.1)
+            annotation = AnnotationBbox(offset_image,
+                                        (plot_coords[idx][0], plot_coords[idx][1]),
+                                        frameon=False,
+                                        boxcoords=ax.transAxes,
+                                        zorder=10,  # Relative to the axes of the plot
+                                        )
+            ax.add_artist(annotation)
+            plot_coords[idx] = plot_coords[idx] * range_ - range_ / 2
+            data_points = [ebc._proto_2D[i][0], ebc._proto_2D[i][1]]
+            linexs = np.array([plot_coords[idx][0], data_points[0]]).flatten()
+            lineys = np.array([plot_coords[idx][1], data_points[1]]).flatten()
+            ax.plot(linexs, lineys, "--", color="k")
+            del image
+        plt.show()
+        plt.clf()
+
+        # clean up povray files (.ini, .pov) and png images
+        for file in Path().rglob('*.pov'):
+            os.remove(file)
+        for file in Path().rglob('*.ini'):
+            os.remove(file)
+        for file in Path().rglob('*.png'):
+            os.remove(file)
+
