@@ -371,10 +371,12 @@ def remove_mean_from_multimodal_distribution(data, n_modes=2):
     """
 
     """
-
+    print(data.shape)
+    data = data.reshape(data.shape[0], 1)
+    print(data.shape)
     # Calculate different clusters
     from sklearn.cluster import KMeans
-    kmeans = KMeans(n_clusters=n_modes, random_state=0).fit(data.reshape(1, -1))
+    kmeans = KMeans(n_clusters=n_modes, random_state=0).fit(data)
     labels = kmeans.labels_
     centers = kmeans.cluster_centers_
     # Calculate the mean of each cluster
@@ -385,4 +387,3 @@ def remove_mean_from_multimodal_distribution(data, n_modes=2):
     for i in range(n_modes):
         data[labels == i] -= means[i]
     return data
-
