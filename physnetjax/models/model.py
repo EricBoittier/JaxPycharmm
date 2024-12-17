@@ -245,7 +245,7 @@ class EF(nn.Module):
                 lebedev_num=50,
                 parametrized=False,
                 epe_max_frequency=b_max,
-                # epe_max_length=jnp.max(x),
+                epe_max_length=jnp.max(basis),
                 tensor_integration=False
             )
             x1 = efa(x, positions, batch_segments, graph_mask)
