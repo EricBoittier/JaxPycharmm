@@ -97,16 +97,15 @@ def eval(batches, model, params, batch_size=500):
         )
         # nonzero = np.nonzero(batch["Z"])
         # print(nonzero)
-        Ds.append(batch["D"])
-        D = dipole_calc(
-            batch["R"],
-            batch["Z"],
-            output["charges"],
-            batch["batch_segments"],
-            batch_size,
-        )
+        if "D" in batch.keys():
+            Ds.append(batch["D"])
+            D = output["dipoles"]
+            predDs.append(D)
+        else:
+            Ds.append(0)
+            predDs.append(0)
+
         # print(D,batch["D"])
-        predDs.append(D)
         Es.append(batch["E"])
         predEs.append(output["energy"])
         _f = batch["F"].flatten()
