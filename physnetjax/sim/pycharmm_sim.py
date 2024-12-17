@@ -364,7 +364,17 @@ umbrella dihe nresol 36 trig  6 poly 1 pept 1 C  pept 1 CA pept 1 N pept 1 CY
 umbrella dihe nresol 36 trig  6 poly 1 pept 1 NT pept 1 C  pept 1 CA pept 1 N CA  
 
 umbrella init nsim 1 update 1000 equi 100 thresh 10 temp 300 -
-              ucun 10 wuni 11"""
+              ucun 10 wuni 11
+              
+! perform adaptive umbrella sampling md simulation
+dynamics nose tref 300 qref 20 start -
+             nstep 20000 timestep 0.001 -
+             ihbfrq 0 inbfrq 10  ilbfrq 5 -
+             iseed 12 -
+             nprint 1000  iprfreq 1000 -
+             isvfrq 1000  iunwrite -1 iunread -1 -
+             wmin 1.2
+              """
     pycharmm.lingo.charmm_script(adaptive_umbrella_script)
 
     dynamics_dict = get_base_dynamics_dict()
