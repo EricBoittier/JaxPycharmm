@@ -35,9 +35,6 @@ def render_povray(atoms, pov_name,
     pca.fit(atoms.get_positions())
     atoms.set_positions(pca.transform(atoms.get_positions()))
 
-
-
-
     if color_dict is None:
         color_dict = default_color_dict
 
@@ -141,7 +138,7 @@ def annotate_ebc(ebc, energies, ase_atoms):
 
         cluster_members_energy = {_: float(energies[_]) for _ in cluster_members[0]}
         cm = list(cluster_members[0].copy())
-        cm.sort(key=lambda x: cluster_members_energy[x])
+        cm.sort(key=lambda x: abs(cluster_members_energy[x] - cluster_members_energy.mean()))
 
         for idx, i in enumerate(cm[:4]):
             # Use OffsetImage to embed the image into the PCA plot
