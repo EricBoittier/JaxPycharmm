@@ -50,6 +50,7 @@ def render_povray(atoms, pov_name,
         #  remove the Cl-Cl bonds
         if not (atoms[_[0]].symbol == "Cl" and atoms[_[1]].symbol == "Cl"):
             good_bonds.append(_)
+            print(_)
             good_bond_keys.append((_[0], _[1]))
             good_bond_keys.append((_[1], _[0]))
 
@@ -57,10 +58,7 @@ def render_povray(atoms, pov_name,
     _pos = atoms.get_positions()
     _z = atoms.get_atomic_numbers()
     idx_onh = ((_z == 8) | (_z == 1) | (_z == 7))
-    print(idx_onh)
     idxs = np.where(idx_onh)[0]
-    print(_pos[idxs])
-    print(_z[idxs])
     atoms_onh = Atoms( _z[idxs], _pos[idxs])
     bondpairs_onh = get_bondpairs(atoms_onh, radius=2.0)
     for _ in bondpairs_onh:
