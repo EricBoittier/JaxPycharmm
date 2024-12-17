@@ -65,11 +65,12 @@ class EF(nn.Module):
                 cutoff=self.cutoff,
                 trainable=True,
             )
+        self.efa_final = None
         if self.efa:
             b_max = 4 * jnp.pi
             # We now initialize an EFA module.
             self.efa_final = EFA(
-                lebedev_num=50,
+                lebedev_num=194,
                 parametrized=False,
                 epe_max_frequency=b_max,
                 epe_max_length=self.natoms * self.num_basis_functions * self.num_iterations,
