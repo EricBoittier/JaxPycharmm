@@ -29,8 +29,8 @@ default_color_dict = {
 def render_povray(atoms, pov_name,
                   rotation='0x, 0y, 0z',
                   radius_scale=0.40, color_dict=None):
-    print("Rendering POV-Ray image...")
-    print("path: ", pov_name)
+    # print("Rendering POV-Ray image...")
+    # print("path: ", pov_name)
     if color_dict is None:
         color_dict = default_color_dict
 
@@ -127,7 +127,6 @@ def annotate_ebc(ebc, energies, ase_atoms):
             ax.plot(linexs, lineys, "--", color="k")
             del image
         plt.show()
-        plt.clf()
 
         # clean up povray files (.ini, .pov) and png images
         for file in Path().rglob('*.pov'):
@@ -137,3 +136,4 @@ def annotate_ebc(ebc, energies, ase_atoms):
         for file in Path().rglob('*.png'):
             os.remove(file)
 
+    return True
