@@ -34,35 +34,27 @@ orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
 data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 
-# files = ["/pchem-data/meuwly/boittier/home/ini.to.dioxi.npz"]
-files = ["/pchem-data/meuwly/boittier/home/cf3criegee_27887.npz"]
-
 from pathlib import Path
 
-# files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
+#files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
 NATOMS = 30
-files = [
-    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz"),
-    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz"),
-    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz"),
-    Path(
-        "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz"
-    ),
-    Path(
-        "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz"
-    ),
-]
+files = [Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz'),
+ Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz')]
 
 
 train_data, valid_data = prepare_datasets(
     data_key,
-    1000,
-    100,
+    1220,
+    20,
     files,
     clip_esp=False,
     natoms=NATOMS,
     clean=False,
-    #    data_key, 27, 20, files, clip_esp=False, natoms=NATOMS, clean=False
+    subtract_atom_energies=True,
+    verbose=True,
 )
 
 ntest = len(valid_data["E"]) // 2
@@ -71,16 +63,16 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 model = EF(
     # attributes
-    features=128,
+    features=248,
     max_degree=1,
-    num_iterations=3,
-    num_basis_functions=20,
+    num_iterations=4,
+    num_basis_functions=30,
     cutoff=6.0,
     max_atomic_number=11,
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=1,
+    n_res=3,
     zbl=False,
     debug=False,
 )
@@ -89,15 +81,15 @@ DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 
 restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-8a3035f6-3921-48bf-9730-8c220320919a/"
 restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-82ed0b7f-5f83-41d2-aba5-0a71f631fb15/"
-
+restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/basepairs-21d6f048-cc54-45a2-960d-4351aa358065/"
 params = train_model(
     train_key,
     model,
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.0001,
-    energy_weight=NATOMS,
+    learning_rate=0.001,
+    energy_weight=1,
     # charges_weight=1,
     # forces_weight=100,
     schedule_fn="constant",
@@ -105,7 +97,7 @@ params = train_model(
     batch_size=1,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-    # restart=restart,
+    restart=restart,
     name="basepairs",
     print_freq=1,
     objective="valid_loss",
