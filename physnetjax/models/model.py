@@ -16,7 +16,8 @@ import jax.numpy as jnp
 from jax import Array
 
 from physnetjax.models.zbl import ZBLRepulsion
-
+from physnetjax.models.euclidean_fast_attention import fast_attention as efa
+from efa import EuclideanFastAttention as EFA
 import ase.data
 
 # Constants
@@ -56,6 +57,7 @@ class EF(nn.Module):
     n_res: int = 3
     zbl: bool = True
     debug: bool | List[str] = False
+    efa: bool = False
 
     def setup(self) -> None:
         if self.zbl:
@@ -113,8 +115,11 @@ class EF(nn.Module):
             positions, dst_idx, src_idx
         )
 
+        graph_mask = jnp.array(["True" for i in range(max(batch_segments))])
+
         # Embed and process atomic features
-        x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx)
+        x = self._process_atomic_features(atomic_numbers, basis, dst_idx, src_idx,
+                                          positions, batch_segments, graph_mask)
         # print(x)
         return self._calculate(
             x,
@@ -156,6 +161,9 @@ class EF(nn.Module):
         basis: jnp.ndarray,
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
+        positions: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        graph_mask: jnp.ndarray,
     ) -> jnp.ndarray:
         """Process atomic features through message passing and refinement."""
         x = e3x.nn.Embed(
@@ -164,7 +172,8 @@ class EF(nn.Module):
             dtype=DTYPE,
         )(atomic_numbers)
         for i in range(self.num_iterations):
-            x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i)
+            x = self._message_passing_iteration(x, basis, dst_idx, src_idx, i,
+                                                positions, batch_segments, graph_mask)
             x = self._refinement_iteration(x)
 
         basis = e3x.nn.change_max_degree_or_type(
@@ -202,6 +211,9 @@ class EF(nn.Module):
         dst_idx: jnp.ndarray,
         src_idx: jnp.ndarray,
         iteration: int,
+        positions: jnp.ndarray,
+        batch_segments: jnp.ndarray,
+        graph_mask: jnp.ndarray,
     ) -> jnp.ndarray:
         """Perform one iteration of message passing."""
         if iteration == self.num_iterations - 1:
@@ -211,13 +223,20 @@ class EF(nn.Module):
                 dense_kernel_init=jax.nn.initializers.he_uniform(),
                 dense_bias_init=jax.nn.initializers.zeros,
             )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
+            if self.efa:
+                x1= EFA()(x, positions, batch_segments, graph_mask)
+                x = e3x.nn.add(x, x1)
             return x
 
-        return e3x.nn.MessagePass(
+        x = e3x.nn.MessagePass(
             include_pseudotensors=False,
             dense_kernel_init=jax.nn.initializers.he_normal(),
             dense_bias_init=jax.nn.initializers.zeros,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
+        if self.efa:
+            x1 = EFA()(x, positions, batch_segments, graph_mask)
+            x = e3x.nn.add(x, x1)
+        return x
 
     def _refinement_iteration(self, x: jnp.ndarray) -> jnp.ndarray:
         """Perform refinement iterations with residual connections."""
