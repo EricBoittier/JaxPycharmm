@@ -268,6 +268,8 @@ def train_model(
                 "valid_forces_mae": valid_forces_mae,
                 "train_energy_mae": train_energy_mae,
                 "train_forces_mae": train_forces_mae,
+                "train_diople_mae": train_dipoles_mae,
+                "valid_diople_mae": valid_dipoles_mae,
                 "train_loss": train_loss,
                 "valid_loss": valid_loss,
                 "lr": lr_eff,
