@@ -79,7 +79,7 @@ if __name__ == "__main__":
                  "tfevents/")
     df = process_tensorboard_logs(logs_path)
     print(df)
-    fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+    fig, ax = plt.subplots(2, 4, figsize=(12, 12))
     plot_run(df, ax, 0, "test")
     plt.savefig("test.png")
 #
