@@ -68,7 +68,7 @@ def render_povray(atoms, pov_name,
     print(map)
 
     atoms_onh = Atoms( _z[idxs], _pos[idxs])
-    bondpairs_onh = get_bondpairs(atoms_onh, radius=2.0)
+    bondpairs_onh = get_bondpairs(atoms_onh, radius=4.0)
     for _ in bondpairs_onh:
         if (map[_[0]], map[_[1]]) not in good_bond_keys:
             distance = np.linalg.norm(_pos[_[0]] - _pos[_[1]])
