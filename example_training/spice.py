@@ -37,24 +37,24 @@ def prepare_spice_dataset(dataset, subsample_size, max_atoms):
 
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
-output1 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
-output2 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
+output1 = prepare_spice_dataset(ds, subsample_size=10000, max_atoms=NATOMS)
+output2 = prepare_spice_dataset(ds, subsample_size=1000, max_atoms=NATOMS)
 
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
 
 # Model initialization
 model = EF(
-    features=8,
+    features=128,
     max_degree=0,
-    num_iterations=2,
-    num_basis_functions=8,
+    num_iterations=5,
+    num_basis_functions=20,
     cutoff=10.0,
     max_atomic_number=53,
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=1,
+    n_res=5,
     zbl=False,
 )
 
