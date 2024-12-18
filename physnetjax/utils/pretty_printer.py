@@ -14,7 +14,7 @@ import polars as pl
 def get_panel(data, title):
     return Panel(
         acp.plot(data),
-        expand=False,
+        expand=True,
         title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
     )
 
