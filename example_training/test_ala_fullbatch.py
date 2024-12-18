@@ -20,7 +20,7 @@ from physnetjax.training import train_model
 
 # Configure environment
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 # Verify JAX configuration
 print("JAX devices:", jax.local_devices())

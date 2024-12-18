@@ -47,8 +47,8 @@ files = [Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_
 
 train_data, valid_data = prepare_datasets(
     data_key,
-    1220,
-    20,
+    1100,
+    140,
     files,
     clip_esp=False,
     natoms=NATOMS,
@@ -63,10 +63,10 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 model = EF(
     # attributes
-    features=24,
+    features=64,
     max_degree=0,
     num_iterations=2,
-    num_basis_functions=16,
+    num_basis_functions=40,
     cutoff=10.0,
     max_atomic_number=11,
     efa=True,
@@ -83,23 +83,25 @@ DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-8a3035f6-3921-48bf-9730-8c220320919a/"
 restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-82ed0b7f-5f83-41d2-aba5-0a71f631fb15/"
 restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/basepairs-21d6f048-cc54-45a2-960d-4351aa358065/"
+restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/efa0basepairs-be691c53-f62f-40f8-8307-3f49a3ad484a"
+
 params = train_model(
     train_key,
     model,
     train_data,
     valid_data,
     num_epochs=int(1e6),
-    learning_rate=0.001,
+    learning_rate=0.0001,
     energy_weight=1,
     # charges_weight=1,
-    # forces_weight=100,
+    forces_weight=1000,
     schedule_fn="constant",
     optimizer="amsgrad",
     batch_size=1,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-    #restart=restart,
-    name="basepairs",
+#    restart=restart,
+    name="efa0basepairs",
     print_freq=1,
     objective="valid_loss",
     best=1e6,

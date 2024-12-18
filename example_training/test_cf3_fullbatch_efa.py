@@ -57,7 +57,7 @@ valid_data = {k: v[:ntest] for k, v in valid_data.items()}
 
 model = EF(
     # attributes
-    features=24,
+    features=128,
     max_degree=0,
     num_iterations=2,
     num_basis_functions=16,
@@ -93,6 +93,7 @@ params = train_model(
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     # restart=restart,
+    name="efa0cf3",
     print_freq=1,
     objective="valid_loss",
     best=1e6,

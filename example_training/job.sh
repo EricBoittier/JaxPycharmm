@@ -9,4 +9,6 @@
 #SBATCH --partition=gpu         # Default partition
 #SBATCH --gres=gpu:1                 # Default GPU resources
 
+hostname
+export POLARS_SKIP_CPU_CHECK="true"
 python test_ala_fullbatch_efa.py 

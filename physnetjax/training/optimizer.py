@@ -61,7 +61,7 @@ def get_optimizer(
                 } for _ in range(5)
             ]
             schedule_fn = optax.schedules.sgdr_schedule(
-                init_value=learning_rate, cosine_dicts=cosine_dicts
+                cosine_dicts=cosine_dicts
             )
         elif schedule_fn == "exponential":
             schedule_fn = optax.schedules.exponential_decay_schedule(
