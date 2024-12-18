@@ -26,9 +26,7 @@ acp_colors = ["\033[32m", "\033[33m", "\033[34m",
 def get_acp_plot(data, keys, title="", log=False, color="blue"):
     # print(data)
     if log:
-        for _ in keys:
-            #  polaris apply log to data
-            data = data.select([pl.col(c).log10() for c in data.columns if data[c].dtype in (pl.Float64, pl.Int64)])
+        data = data.select([pl.col(c).log10() for c in data.columns if data[c].dtype in (pl.Float64, pl.Int64)])
     # print(data)
     _min = min([min(data[key].drop_nulls()) for key in keys])
     _max = max([max(data[key].drop_nulls()) for key in keys])
