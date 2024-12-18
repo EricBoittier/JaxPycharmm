@@ -38,7 +38,7 @@ def get_acp_plot(data, keys, title="", log=False):
         "colors": [acp_colors[i] for i in range(len(keys))],
     }
     p = Panel(
-        acp.plot([data[key] for key in keys], cfg=config),
+        acp.plot([np.array(data[key]) for key in keys], cfg=config),
         expand=True,
         title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
     )
