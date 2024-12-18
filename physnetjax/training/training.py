@@ -34,7 +34,7 @@ schedule_fn = base_schedule_fn
 transform = base_transform
 optimizer = base_optimizer
 
-BASE_CKPT_DIR = Path("/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts")
+from physnetjax.directories import BASE_CKPT_DIR
 
 # Energy/force unit conversions
 CONVERSION = {

@@ -1,9 +1,15 @@
 import os
-from pathlib import Path
-
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
-os.environ["CHARMM_HOME"] = "/pchem-data/meuwly/boittier/home/charmm/"
-os.environ["CHARMM_LIB_DIR"] = "/pchem-data/meuwly/boittier/home/charmm/build/cmake"
+
+from pathlib import Path
+from physnetjax.directories import PYCHARMM_DIR
+
+if PYCHARMM_DIR is None:
+    raise ValueError("PYCHARMM_DIR not set. "
+                     "Please add an entry to the paths.toml file with the path to the CHARMM installation directory.")
+else:
+    os.environ["CHARMM_HOME"] = str(PYCHARMM_DIR)
+    os.environ["CHARMM_LIB_DIR"] = str(PYCHARMM_DIR / "build" / "cmake")
 
 import ase
 import ase.io as io
@@ -106,7 +112,7 @@ def setup_coords_seq(seq):
 ##########################
 
 
-def setup_calculator(atoms, params, model):
+def setup_calculator(atoms, params, model, eatol=10, fatol=10):
     """Setup the calculator and verify energies."""
     Z = atoms.get_atomic_numbers()
     # hack to make sure the pdb atom names are not mistaken for atomic numbers
@@ -147,14 +153,17 @@ def setup_calculator(atoms, params, model):
         ml_fq=False,
     )
 
-    energy_verified, U2 = verify_energy(U, atol=10)
-    forces_verified, F2 = verify_forces(F, atol=100)
+    energy_verified, U2 = verify_energy(U, atol=eatol)
+    forces_verified, F2 = verify_forces(F, atol=fatol)
     if energy_verified and forces_verified:
         return True, mlp
     raise ValueError(
         "Error in setting up calculator. CHARMM energies do not match calculators'.\n"
         + "CHARMM: {}, Calculator: {}\n".format(U, U2)
         + "CHARMM: {}, Calculator: {}\n".format(F, F2)
+        + "Energy absolute tolerance: {}, Forces absolute tolerance: {}".format(
+            eatol, fatol
+        )
     )
 
 
