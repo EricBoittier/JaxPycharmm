@@ -150,7 +150,11 @@ if __name__ == "__main__":
     logs_path = args.logs
     key = logs_path.parent.name
     df = process_tensorboard_logs(logs_path)
-    print(df)
+
+    # pretty print polars dataframe with rich
+    console = Console()
+    console.print(df)
+
     fig, ax = plt.subplots(5, 2, figsize=(12, 12))
     plot_run(df, ax, 1, key, log=True)
     # save the plot
