@@ -46,7 +46,7 @@ def get_acp_plot(data, keys, title="", log=False):
     )
     console = Console(width=100)
     console.print(p)
-    return console
+    return
 
 
 
