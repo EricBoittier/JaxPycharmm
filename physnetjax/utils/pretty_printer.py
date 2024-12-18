@@ -36,9 +36,10 @@ def get_acp_plot(data, keys, title="", log=False):
         "min": _min,
         "max": _max,
         "height": 4,
+        'format': '{:1.2e}',
         # "colors": [acp_colors[i] for i in range(len(keys))],
     }
-    skip = 0 if len(data) < 100 else len(data) // 10
+    skip = 0 if len(data) < 100 else len(data) // 30
     data_to_plot = [list(data[key].drop_nulls().to_numpy())[::skip] for key in keys]
     print(len(data_to_plot[0]))
     p = Panel(
