@@ -23,7 +23,7 @@ acp_colors = ["\033[32m", "\033[33m", "\033[34m",
               "\033[35m", "\033[36m", "\033[37m", "\033[39m",  "\033[90m",
               "\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"]
 
-def get_acp_plot(data, keys, title="", log=False):
+def get_acp_plot(data, keys, title="", log=False, color="blue"):
     # print(data)
     if log:
         for _ in keys:
@@ -39,13 +39,12 @@ def get_acp_plot(data, keys, title="", log=False):
         'format': '{:1.2e}',
         # "colors": [acp_colors[i] for i in range(len(keys))],
     }
-    skip = 0 if len(data) < 100 else len(data) // 80
+    skip = 1 if len(data) < 100 else len(data) // 80
     data_to_plot = [list(data[key].drop_nulls().to_numpy())[::skip] for key in keys]
-    print(len(data_to_plot[0]))
     p = Panel(
         acp.plot(data_to_plot, cfg=config),
         expand=False,
-        title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
+        title=f"~~ [bold][{color}]{title}[/bold][/{color}] ~~",
     )
     console = Console(width=100)
     console.print(p)
