@@ -24,12 +24,12 @@ acp_colors = ["\033[32m", "\033[33m", "\033[34m",
               "\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"]
 
 def get_acp_plot(data, keys, title="", log=False):
-    print(data)
+    # print(data)
     if log:
         for _ in keys:
             #  polaris apply log to data
             data = data.select([pl.col(c).log() for c in data.columns if data[c].dtype in (pl.Float64, pl.Int64)])
-    print(data)
+    # print(data)
     _min = min([min(data[key].drop_nulls()) for key in keys])
     _max = max([max(data[key].drop_nulls()) for key in keys])
     config = {
@@ -46,6 +46,7 @@ def get_acp_plot(data, keys, title="", log=False):
     )
     console = Console()
     console.print(p)
+    return console
 
 
 
