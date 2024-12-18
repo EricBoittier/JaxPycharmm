@@ -36,7 +36,7 @@ def get_acp_plot(data, keys, title="", log=False):
         "min": _min,
         "max": _max,
         "height": 4,
-        "colors": [acp_colors[i] for i in range(len(keys))],
+        # "colors": [acp_colors[i] for i in range(len(keys))],
     }
     skip = len(data) // 200
     data_to_plot = [list(data[key].drop_nulls().to_numpy())[::skip] for key in keys]
