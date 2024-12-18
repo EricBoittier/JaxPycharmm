@@ -19,7 +19,7 @@ from physnetjax.training.optimizer import (
     base_transform,
     get_optimizer,
 )
-from physnetjax.logging.tensorboard_logging import write_tb_log
+from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.training.trainstep import train_step
 
 from physnetjax.utils.pretty_printer import (
@@ -35,7 +35,7 @@ schedule_fn = base_schedule_fn
 transform = base_transform
 optimizer = base_optimizer
 
-from physnetjax.directories import BASE_CKPT_DIR
+from physnetjax.directories import BASE_CKPT_DIR, print_paths
 
 # Energy/force unit conversions
 CONVERSION = {
@@ -76,6 +76,7 @@ def train_model(
     console = Console(width=200, color_system="auto")
     console.print("Training Routine")
     console.print(computer)
+    print_paths()
     start_time = time.time()
     console.print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time)))
     console.print(cubes)
@@ -211,7 +212,7 @@ def train_model(
                     dipole_weight=dipole_weight,
                     charges_weight=charges_weight,
                     opt_state=opt_state,
-                    do_charges=do_charges,
+                    doCharges=do_charges,
                     params=params,
                     ema_params=ema_params,
                     debug=True,
@@ -281,7 +282,7 @@ def train_model(
             if log_tb:
                 writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
                 writer.set_as_default()
-                write_tb_log(writer, obj_res, epoch)  # Call your logging function here
+                write_tb_log(writer, obj_res, epoch)  # Call your logger function here
 
             best_ = False
 

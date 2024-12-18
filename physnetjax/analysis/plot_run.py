@@ -161,7 +161,7 @@ def plot_run(base_df, ax, hue, label, log=False):
 
 
 if __name__ == "__main__":
-    from physnetjax.logging.tensorboard_interface import process_tensorboard_logs
+    from physnetjax.logger.tensorboard_interface import process_tensorboard_logs
     from physnetjax.directories import LOGS_PATH
     import polars as pl
 

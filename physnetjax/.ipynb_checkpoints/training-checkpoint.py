@@ -18,7 +18,7 @@ from physnetjax.training.optimizer import (
     base_transform,
     get_optimizer,
 )
-from physnetjax.logging.tensorboard_logging import write_tb_log
+from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.training.trainstep import train_step
 from physnetjax.utils import get_last, get_params_model, pretty_print
 from physnetjax.utils.pretty_printer import training_printer, Printer
@@ -273,10 +273,10 @@ def train_model(
             if log_tb:
                 writer = tf.summary.create_file_writer(str(CKPT_DIR / "tfevents"))
                 # Correct usage within the context manager
-                # Use the writer for logging
+                # Use the writer for logger
                 writer.set_as_default()
                 # Log to TensorBoard
-                write_tb_log(writer, obj_res, epoch)  # Call your logging function here
+                write_tb_log(writer, obj_res, epoch)  # Call your logger function here
 
             best_ = False
             if obj_res[objective] < best_loss:
