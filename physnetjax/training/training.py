@@ -11,6 +11,7 @@ from rich.live import Live
 
 from physnetjax.data.data import prepare_batches
 from physnetjax.utils.pretty_printer import pretty_print_optimizer
+from physnetjax.utils.ascii import computer, cubes
 from physnetjax.training.evalstep import eval_step
 from physnetjax.training.optimizer import (
     base_optimizer,
@@ -72,12 +73,14 @@ def train_model(
     """Train a model."""
     data_keys = tuple(data_keys)
 
-    print("Training Routine")
-    startTime = time.time()
-    print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(startTime)))
-
+    console = Console(width=200, color_system="auto")
+    console.print("Training Routine")
+    console.print(computer)
+    start_time = time.time()
+    console.print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time)))
+    console.print(cubes)
     best_loss = 10000
-    doCharges = model.charges
+    do_charges = model.charges
     # Initialize model parameters and optimizer state.
     key, init_key = jax.random.split(key)
     optimizer, transform, schedule_fn = get_optimizer(
@@ -87,7 +90,7 @@ def train_model(
         transform=transform,
     )
     # pretty_print(optimizer, transform, schedule_fn)
-    console = Console(width=200, color_system="auto")
+
     pretty_print_optimizer(optimizer, transform, schedule_fn, console)
     table, table2 = training_printer(
         learning_rate,
@@ -160,12 +163,7 @@ def train_model(
     if best_loss is None:
         best_loss = best
 
-    if isinstance(model.debug, list):
-        runInDebug = True if "opt" in model.debug else False
-    else:
-        runInDebug = False
-
-    trainTime1 = time.time()
+    train_time1 = time.time()
     epoch_printer = Printer()
     ckp = None
     save_time = None
@@ -213,7 +211,7 @@ def train_model(
                     dipole_weight=dipole_weight,
                     charges_weight=charges_weight,
                     opt_state=opt_state,
-                    doCharges=doCharges,
+                    do_charges=do_charges,
                     params=params,
                     ema_params=ema_params,
                     debug=True,
@@ -237,7 +235,7 @@ def train_model(
                     forces_weight=forces_weight,
                     dipole_weight=dipole_weight,
                     charges_weight=charges_weight,
-                    charges=doCharges,
+                    charges=do_charges,
                     params=ema_params,
                 )
                 valid_loss += (loss - valid_loss) / (i + 1)
@@ -258,10 +256,10 @@ def train_model(
             slr = schedule_fn(epoch)
             lr_eff = scale * slr
 
-            trainTime = time.time()
-            epoch_length = trainTime - trainTime1
+            train_time = time.time()
+            epoch_length = train_time - train_time1
             epoch_length = f"{epoch_length:.2f} s"
-            trainTime1 = trainTime
+            train_time1 = train_time
 
             obj_res = {
                 "valid_energy_mae": valid_energy_mae,
@@ -325,7 +323,7 @@ def train_model(
                     valid_energy_mae,
                     train_forces_mae,
                     valid_forces_mae,
-                    doCharges,
+                    do_charges,
                     train_dipoles_mae,
                     valid_dipoles_mae,
                     scale,

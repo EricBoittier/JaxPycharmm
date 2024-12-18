@@ -67,9 +67,9 @@ def setup_coordinates(pdb_file, psf_file, atoms):
     settings.set_warn_level(-1)
     read.pdb(pdb_file, resid=True)
     read.psf_card(psf_file)
-    atoms = ase.io.read(pdb_file)
-    # add_waters()
-    # R = coor.get_positions().values
+    if atoms is None:
+        atoms = ase.io.read(pdb_file)
+
     import pycharmm.psf as psf
 
     Z = [str(_)[:1] for _ in psf.get_atype()]
@@ -91,13 +91,13 @@ def setup_coords_seq(seq):
     # minmize the system
     minimize.run_sd(**{"nstep": 100, "tolenr": 1e-5, "tolgrd": 1e-5})
     coor.show()
-    write.coor_pdb("output.pdb")
-    atoms = ase.io.read("output.pdb")
+    OUTPUT_PDB = "output.pdb"
+    write.coor_pdb(OUTPUT_PDB)
+    atoms = ase.io.read(OUTPUT_PDB)
 
     import pycharmm.psf as psf
 
     Z = [str(_)[:1] for _ in psf.get_atype()]
-    # positions = coor.get_positions().values
     positions = atoms.get_positions()
     atoms = ase.Atoms(Z, positions)
 
@@ -130,7 +130,6 @@ def setup_calculator(atoms, params, model, eatol=10, fatol=10):
     calculator = get_ase_calc(params, model, atoms, conversion=conversion)
     atoms.calc = calculator
 
-    # ml_selection = pycharmm.SelectAtoms().by_res_id("1")
     ml_selection = pycharmm.SelectAtoms(seg_id="PEPT")
     print(list(ml_selection))
     energy.show()
@@ -142,12 +141,12 @@ def setup_calculator(atoms, params, model, eatol=10, fatol=10):
     }
 
     F = atoms.get_forces()
-    Model = get_pyc(params, model, atoms, conversion=conversion)
+    model_instance = get_pyc(params, model, atoms, conversion=conversion)
     Z = np.array(Z)
 
     # Initialize PhysNet calculator
     mlp = pycharmm.MLpot(
-        Model,
+        model_instance,
         Z,
         ml_selection,
         ml_fq=False,
@@ -167,32 +166,33 @@ def setup_calculator(atoms, params, model, eatol=10, fatol=10):
     )
 
 
-def verify_energy(U, atol=1e-4):
+def verify_energy(potential_energy, atol=1e-4):
     """Verify that energies match within tolerance."""
     energy.show()
-    userE = energy.get_energy()["USER"]
-    print(userE, U)
-    assert np.isclose(float(U.squeeze()), float(userE), atol=atol)
+    user_energy = energy.get_energy()["USER"]
+    print(user_energy, potential_energy)
+    assert np.isclose(float(potential_energy.squeeze()), float(user_energy), atol=atol)
     print(f"Success! energies are close, within {atol} kcal/mol")
-    return True, userE
+    return True, user_energy
 
 
-def verify_forces(F, atol=2):
+def verify_forces(forces_expected, atol=2):
     """Verify that forces match within tolerance."""
     forces = coor.get_forces().values
     print(forces)
-    print(F)
-    assert np.allclose(F, forces, atol=atol)
+    print(forces_expected)
+    assert np.allclose(forces_expected, forces, atol=atol)
     print(f"Success! forces are close, within {atol} kcal/mol/Ang")
     return True, forces
 
 
-def run_minimization(output_pdb):
+def run_minimization(output_pdb, abnr=False):
     """Run energy minimization and save results."""
     minimize.run_sd(**{"nstep": 100, "tolenr": 1e-5, "tolgrd": 1e-5})
     energy.show()
-    # minimize.run_abnr(**{"nstep": 10, "tolenr": 1e-5, "tolgrd": 1e-5})
-    # energy.show()
+    if abnr:
+        minimize.run_abnr(**{"nstep": 10, "tolenr": 1e-5, "tolgrd": 1e-5})
+        energy.show()
     stream.charmm_script("print coor")
     write.coor_pdb(output_pdb)
 
@@ -357,16 +357,7 @@ def run_heating(
     return files
 
 
-def add_waters(n_waters: int = 4):
-    add_water_script = f"""! Generate a water segment
-read sequence tip3 1
-generate WAT setup angle 109.47
-ic param
-ic build
-"""
-    pycharmm.lingo.charmm_script(add_water_script)
-    # minimize the water segment
-    minimize.run_sd(**{"nstep": 10000, "tolenr": 1e-5, "tolgrd": 1e-5})
+
 
 
 def run_equilibration(
@@ -392,15 +383,6 @@ def run_equilibration(
     nstep = int(tottime / timestep)
     nsavc = int(savetime / timestep)
     print(f"nstep: {nstep}, nsavc: {nsavc}")
-
-    adaptive_umbrella_script = """
-    ! define the phi and chi1 dihedral angle as the two umbrella coordinates
-umbrella dihe nresol 36 trig  6 poly 1 pept 1 C  pept 1 CA pept 1 N pept 1 CY
-umbrella dihe nresol 36 trig  6 poly 1 pept 1 NT pept 1 C  pept 1 CA pept 1 N CA  
-
-umbrella init nsim 1 update 100 equi 100 thresh 10 temp 300 -
-              ucun 10 wuni 11
-              """
 
     dynamics_dict = get_base_dynamics_dict()
     dynamics_dict.update(
@@ -505,6 +487,7 @@ def _setup_sim(
     pkl_path: str | Path | None = None,
     model_path: str | Path | None = None,
     psf_file: str | Path | None = None,
+    seq=False,
     atoms=None,
 ):
     output_pdb = Path(pdb_file).stem + "_min.pdb" if pdb_file is None else "output.pdb"
@@ -513,23 +496,19 @@ def _setup_sim(
 
     # Initialize and setup
     initialize_system()
-
-    # atoms = setup_coordinates(pdb_file, psf_file, atoms)
-    atoms = setup_coords_seq("ALA ALA")
+    if not seq:
+        atoms = setup_coordinates(pdb_file, psf_file, atoms)
+    if atoms is None:
+        atoms = setup_coords_seq("ALA ALA")
     print(atoms, len(atoms))
     params, model = initialize_model(pkl_path, model_path, atoms)
     # Setup calculator and run minimization
     calc_setup, _ = setup_calculator(atoms, params, model)
     if calc_setup:
-        pass
+        print("Calculator setup successful.")
     else:
         print("Error in setting up calculator.")
-    Fcons = "1 cy 1 n 1 ca 1 c"
-    Ycons = "1 n 1 ca 1 c 1 nt"
-    cons_command = "cons dihe {} force {} min {:4.2f}'".format(
-        Fcons, 2, -100.0
-    )  # "16 14 8 6"
-    # pycharmm.lingo.charmm_script(cons_command)
+
     run_minimization(output_pdb)
     timestep = 0.0005
     files = run_heating(

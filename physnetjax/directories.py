@@ -19,6 +19,8 @@ if not HOME_DIR.joinpath("paths.toml").exists():
     # read the paths.toml file
     paths = toml.load(HOME_DIR / "paths.toml")
 
+    print(paths)
+
     if "data" in paths:
         DATA_PATH = Path(paths["data"])
     if "logs" in paths:
