@@ -26,3 +26,22 @@ KEY_TRANSLATION = {
     MolecularData.DIPOLE: "D",
     MolecularData.NUMBER_OF_ATOMS: "N",
 }
+
+
+# rename the dataset keys to match the enum:
+Z_KEYS = ["atomic_numbers", "Z"]
+R_KEYS = ["coordinates", "positions", "R"]
+F_KEYS = ["forces", "F"]
+E_KEYS = ["energy", "energies", "E"]
+D_KEYS = ["dipole", "d", "dipoles"]
+Q_KEYS = ["quadrupole", "q"]
+ESP_KEYS = ["esp", "ESP"]
+ESP_GRID_KEYS = ["esp_grid", "ESP_GRID"]
+COM_KEYS = ["com", "center_of_mass"]
+
+def check_keys(keys: List, data_keys: List) -> Optional[str]:
+    """Check if any of the keys are present in the data_keys."""
+    for key in keys:
+        if key in data_keys:
+            return key
+    return None

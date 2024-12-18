@@ -219,7 +219,8 @@ def prepare_multiple_datasets(
         data.append(dataESPmask)
         keys.append("espMask")
 
-    assert_dataset_size(dataR.squeeze(), train_size, valid_size)
+    num_points = len(dataR.squeeze())
+    assert_dataset_size(num_points, train_size, valid_size)
 
     return (
         data,
@@ -287,25 +288,24 @@ def prepare_datasets(
     return train_data, valid_data
 
 
-def assert_dataset_size(dataR, num_train, num_valid):
+def assert_dataset_size(num_data, num_train, num_valid):
     """
     Assert that the dataset contains enough entries for training and validation.
 
     Args:
-        dataR: The dataset to check.
+        num_data (int): Total number of data points.
         num_train (int): Number of training samples.
         num_valid (int): Number of validation samples.
 
     Raises:
-        RuntimeError: If the dataset doesn't contain enough entries.
+        AssertionError: If the dataset doesn't contain enough entries.
     """
     assert num_train >= 0
     assert num_valid >= 0
     # Make sure that the dataset contains enough entries.
-    num_data = len(dataR)
     num_draw = num_train + num_valid
     if num_draw > num_data:
-        raise RuntimeError(
+        raise AssertionError(
             f"datasets only contains {num_data} points, "
             f"requested num_train={num_train}, num_valid={num_valid}"
         )

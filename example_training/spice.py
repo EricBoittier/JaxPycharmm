@@ -1,6 +1,7 @@
 import jax
 from openqdc.datasets import SpiceV2 as Spice
 
+from physnetjax.data.datasets import process_in_memory
 from physnetjax.models.model import EF
 from physnetjax.training.training import train_model
 
@@ -29,31 +30,32 @@ check_jax_configuration()
 # Dataset preparation
 def prepare_spice_dataset(dataset, subsample_size, max_atoms):
     """Prepare the dataset by preprocessing and subsampling."""
-    return Spice.process(datadicts, max_atoms=max_atoms)
-    return process_in_memory(datadicts, max_atoms=max_atoms)
+    d = dataset.subsample(subsample_size)
+    d = [dict(ds[_]) for _ in d]
+    return process_in_memory(d, max_atoms=max_atoms)
 
 
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
-output1 = prepare_spice_dataset(ds, subsample_size=10000, max_atoms=NATOMS)
-output2 = prepare_spice_dataset(ds, subsample_size=500, max_atoms=NATOMS)
+output1 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
+output2 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
 
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
 
 # Model initialization
 model = EF(
-    features=64,
+    features=8,
     max_degree=0,
     num_iterations=2,
-    num_basis_functions=20,
+    num_basis_functions=8,
     cutoff=10.0,
     max_atomic_number=34,
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=3,
-    zbl=True,
+    n_res=1,
+    zbl=False,
 )
 
 # Model training
@@ -67,7 +69,7 @@ params = train_model(
     energy_weight=NATOMS,
     schedule_fn="constant",
     optimizer="amsgrad",
-    batch_size=10,
+    batch_size=1,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     print_freq=1,

@@ -7,6 +7,8 @@ from ase.units import Bohr, Hartree, kcal
 from numpy.typing import NDArray
 from tqdm import tqdm
 
+from physnetjax.utils.enums import check_keys, Z_KEYS, R_KEYS, D_KEYS, E_KEYS, COM_KEYS, ESP_GRID_KEYS, ESP_KEYS, \
+    Q_KEYS
 from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
 
 # Constants
@@ -32,12 +34,16 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
         if load is None:
             return None, 0
 
-        keys = load.keys()
-        if "R" not in keys or "Z" not in keys:
-            raise ValueError("Invalid NPZ file, missing required keys R and Z")
+        data_keys = load.keys()
 
-        R = load["R"]
-        print("R.shape", R.shape)
+        zkey = check_keys(Z_KEYS, data_keys)
+        if zkey is None:
+            return None, 0
+        rkey = check_keys(R_KEYS, data_keys)
+        if rkey is None:
+            return None, 0
+
+        R = load[rkey]
         n_atoms = len(np.nonzero(R.sum(axis=1))[0])
 
         if int(len(R)) != n_atoms:
@@ -47,26 +53,43 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
             return None, n_atoms
 
         R = R[np.nonzero(R.sum(axis=1))]
-        Z = load["Z"][np.nonzero(R.sum(axis=1))]
-        atom_energies = np.take(ATOM_ENERGIES_HARTREE, Z)
-        asemol = ase.Atoms(Z, R)
+        Z = load[zkey][np.nonzero(R.sum(axis=1))]
+
 
         output = {
             MolecularData.COORDINATES.value: R,
             MolecularData.ATOMIC_NUMBERS.value: Z,
         }
-        if MolecularData.FORCES.value in load:
-            output[MolecularData.FORCES.value] = load["F"]
-        if MolecularData.ENERGY.value in load:
-            output[MolecularData.ENERGY.value] = load["E"] - np.sum(atom_energies)
-        if MolecularData.DIPOLE.value in load:
-            output[MolecularData.DIPOLE.value] = load["dipole"]
-        if MolecularData.QUADRUPOLE.value in load:
-            output[MolecularData.QUADRUPOLE.value] = load["quadrupole"]
-        if MolecularData.ESP.value in load:
-            output[MolecularData.ESP.value] = load["esp"]
-        if MolecularData.ESP_GRID.value in load:
-            output[MolecularData.ESP_GRID.value] = load["esp_grid"]
-        if MolecularData.CENTER_OF_MASS.value in load:
+
+        fkey = check_keys(F_KEYS, data_keys)
+        if fkey is not None:
+            output[MolecularData.FORCES.value] = load[fkey]
+
+        ekey = check_keys(E_KEYS, data_keys)
+        if ekey is not None:
+            atom_energies = np.take(ATOM_ENERGIES_HARTREE, Z)
+            output[MolecularData.ENERGY.value] = load[ekey] - np.sum(atom_energies)
+
+        dipkey = check_keys(D_KEYS, data_keys)
+        if dipkey is not None:
+            output[MolecularData.DIPOLE.value] = load[dipkey]
+
+        qkey = check_keys(Q_KEYS, data_keys)
+        if qkey is not None:
+            output[MolecularData.QUADRUPOLE.value] = load[qkey]
+
+        espkey = check_keys(ESP_KEYS, data_keys)
+        if espkey is not None:
+            output[MolecularData.ESP.value] = load[espkey]
+
+        espgridkey = check_keys(ESP_GRID_KEYS, data_keys)
+        if espgridkey is not None:
+            output[MolecularData.ESP_GRID.value] = load[espgridkey]
+
+        comkey = check_keys(COM_KEYS, data_keys)
+        if comkey is not None:
+            asemol = ase.Atoms(Z, R)
             output[MolecularData.CENTER_OF_MASS.value] = asemol.get_center_of_mass()
+
+
         return output, n_atoms
