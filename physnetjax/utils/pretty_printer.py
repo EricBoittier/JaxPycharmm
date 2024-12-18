@@ -19,9 +19,12 @@ def get_panel(data, title):
     )
 
 
-acp_colors = [r"\033[32m]", r"\033[33m]", r"\033[34m]",
-              r"\033[35m]", r"\033[36m]", r"\033[37m]", r"\033[39m]",  r"\033[90m]",
-              r"\033[91m]", r"\033[92m]", r"\033[93m]", r"\033[94m]", r"\033[95m]", r"\033[96m]"]
+acp_colors = [
+    'green', 'yellow', 'blue',
+    'magenta', 'cyan', 'lightgray',
+    'default', 'darkgray', 'lightred',
+    'lightgreen', 'lightyellow', 'lightblue',
+    'lightmagenta', 'lightcyan', 'white',]
 
 def get_acp_plot(data, keys, title="", log=False):
     # print(data)
