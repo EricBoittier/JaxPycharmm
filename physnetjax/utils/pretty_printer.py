@@ -29,8 +29,8 @@ def get_acp_plot(data, keys, title="", log=False):
             #  polaris apply log to data
             data = data.select([pl.col(c).log() for c in data.columns if data[c].dtype in (pl.Float64, pl.Int64)])
     print(data)
-    _min = min([min(data[key]) for key in keys])
-    _max = max([max(data[key]) for key in keys])
+    _min = min([min(data[key].drop_nulls()) for key in keys])
+    _max = max([max(data[key].drop_nulls()) for key in keys])
     config = {
         "min": _min,
         "max": _max,
