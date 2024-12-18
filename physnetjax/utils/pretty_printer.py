@@ -41,7 +41,7 @@ def get_acp_plot(data, keys, title="", log=False):
     data_to_plot = [list(data[key].drop_nulls().to_numpy()) for key in keys]
     p = Panel(
         acp.plot(data_to_plot, cfg=config),
-        expand=True,
+        expand=False,
         title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
     )
     console = Console(width=100)
