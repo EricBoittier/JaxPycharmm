@@ -1,9 +1,9 @@
 [paths]
 # examples
-# home = "/home/user"
 # logs = "/your/logs"
 # data = "/your/data"
 # analysis = "/your/analysis"
-# main = "/your/main"
+main = "/Users/ericboittier/Documents/github/JaxPycharmm/"
 # pycharmm = "/your/pycharmm"
 # md = "/your/md"
+# /Users/ericboittier/Documents/github/JaxPycharmm/paths.toml

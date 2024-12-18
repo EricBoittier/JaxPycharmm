@@ -1,18 +1,14 @@
+from typing import Any, Callable, Optional, Sequence, Union
+
 import e3x
-from e3x.nn.modules import initializers
-
-import numpy as np
-
-from flax import linen as nn
-
 import jax
 import jax.numpy as jnp
 import jaxtyping
+import numpy as np
+from e3x.nn.modules import initializers
+from flax import linen as nn
 
-from typing import Any, Callable, Optional, Sequence, Union
-from . import tensor_integration
-from . import rope
-
+from . import rope, tensor_integration
 
 InitializerFn = initializers.InitializerFn
 Array = jaxtyping.Array

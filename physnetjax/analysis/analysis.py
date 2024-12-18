@@ -1,7 +1,6 @@
 import ase
 from scipy.stats import gaussian_kde, linregress
 from tqdm import tqdm
-from physnetjax.training.loss import dipole_calc
 
 
 def get_metrics(x, y):
@@ -333,10 +332,10 @@ def clean_and_cast_to_float(s):
 
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 # from MDAnalysis.analysis import dihedrals
 
-import numpy as np
 
 # def make_bonds_ase():
 ## Create a NeighborList object

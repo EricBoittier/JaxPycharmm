@@ -116,3 +116,11 @@ tzdata==2024.2
 wcwidth==0.2.13
 wheel==0.44.0
 zipp==3.20.2
+
+polars~=1.17.1
+tensorboard~=2.18.0
+tensorflow~=2.18.0
+openqdc~=0.1.2
+asciichartpy~=1.5.25
+scikit-learn~=1.6.0
+toml~=0.10.2

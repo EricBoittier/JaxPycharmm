@@ -1,7 +1,8 @@
 import ase
-from ase import data
 import numpy as np
+from ase import data
 from scipy.spatial.distance import cdist
+
 
 def cut_vdw(grid, xyz, elements, vdw_scale=1.4):
     """ """

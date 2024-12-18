@@ -1,17 +1,16 @@
-import numpy as np
-from pathlib import Path
 import os
 import shutil
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from ase import Atoms
-from ase.visualize.plot import plot_atoms
 from io import BytesIO
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from ase import io
-from ase.io.pov import get_bondpairs, set_high_bondorder_pairs
+from ase import Atoms, io
 from ase.data import covalent_radii
+from ase.io.pov import get_bondpairs, set_high_bondorder_pairs
+from ase.visualize.plot import plot_atoms
+from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+from sklearn.decomposition import PCA
 
 default_color_dict = {
     "Cl": [102, 227, 115],

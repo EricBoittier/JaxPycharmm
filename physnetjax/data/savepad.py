@@ -7,6 +7,7 @@ from ase.units import Bohr, Hartree, kcal
 from numpy.typing import NDArray
 from tqdm import tqdm
 
+from physnetjax.data.datasets import process_dataset
 from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
 
 # Constants
@@ -52,10 +53,9 @@ def get_input_files(data_path: str) -> List[Path]:
     return files
 
 
-
-
 if __name__ == "__main__":
     from physnetjax.directories import MAIN_DIR
+
     files = list(Path(MAIN_DIR / "/data/basepairs").glob("*"))
     print(files)
     process_dataset(files)

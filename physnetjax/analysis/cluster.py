@@ -1,8 +1,9 @@
-from physnetjax.analysis.analysis import (
-    remove_mean_from_multimodal_distribution,
-    compute_soap_descriptors,
-)
 from ebc.Clustering import EBC
+
+from physnetjax.analysis.analysis import (
+    compute_soap_descriptors,
+    remove_mean_from_multimodal_distribution,
+)
 
 
 def get_soap_atoms(coordinates, atomic_numbers):

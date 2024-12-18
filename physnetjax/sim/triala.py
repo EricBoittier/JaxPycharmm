@@ -28,21 +28,21 @@ from physnetjax.calc.helper_mlp import *
 with open("i_", "w") as f:
     print("...")
 
-# ASE
-from ase import io
 import ase.units as units
+import pandas as pd
 
 # PyCHARMM
 import pycharmm
 import pycharmm.coor as coor
 import pycharmm.energy as energy
+import pycharmm.lingo as stream
 import pycharmm.minimize as minimize
 import pycharmm.read as read
-import pycharmm.write as write
 import pycharmm.settings as settings
-import pycharmm.lingo as stream
+import pycharmm.write as write
 
-import pandas as pd
+# ASE
+from ase import io
 
 params = pd.read_pickle("checkpoints/test2-q.pkl")
 NATOMS = 34

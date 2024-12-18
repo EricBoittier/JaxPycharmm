@@ -1,6 +1,6 @@
+import jax.numpy as jnp
 import optax
 import optax.contrib
-import jax.numpy as jnp
 
 base_learning_rate = 0.001
 

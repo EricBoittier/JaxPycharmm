@@ -10,13 +10,12 @@ from typing import Dict, List, Optional, Tuple
 
 import e3x
 import flax.linen as nn
-
 import jax
 import jax.numpy as jnp
 from jax import Array
 
-from physnetjax.models.zbl import ZBLRepulsion
 from physnetjax.models.euclidean_fast_attention import fast_attention as efa
+from physnetjax.models.zbl import ZBLRepulsion
 
 EFA = efa.EuclideanFastAttention
 import ase.data

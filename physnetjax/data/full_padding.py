@@ -17,6 +17,7 @@ BOHR_TO_ANGSTROM = 0.529177
 
 from physnetjax.data.data import ATOM_ENERGIES_HARTREE
 
+
 def pad_array(
     arr: NDArray, max_size: int, axis: int = 0, pad_value: float = 0.0
 ) -> NDArray:

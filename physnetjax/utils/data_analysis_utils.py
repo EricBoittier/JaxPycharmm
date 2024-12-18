@@ -1,25 +1,13 @@
 import argparse
-import pickle
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Dict, List, Any
 
-from physnetjax.analysis.analysis import (
-    remove_mean_from_multimodal_distribution,
-    count_params,
-    plot_stats,
-)
-from physnetjax.analysis.povray_tool import annotate_ebc
-from physnetjax.analysis.model_analysis_utils import load_data
 from physnetjax.analysis.cluster import cluster_ebc_soap
-from physnetjax.restart.restart import get_params_model, get_last
-from physnetjax.data.data import prepare_batches, prepare_datasets
+from physnetjax.utils.model_analysis_utils import load_data
+from physnetjax.analysis.povray_tool import annotate_ebc
 
 # Environment variables
-from physnetjax.directories import ANALYSIS_PATH
-import os
 
 
 def analysis(args):

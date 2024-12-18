@@ -1,12 +1,16 @@
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 from pathlib import Path
+
 from physnetjax.directories import PYCHARMM_DIR
 
 if PYCHARMM_DIR is None:
-    raise ValueError("PYCHARMM_DIR not set. "
-                     "Please add an entry to the paths.toml file with the path to the CHARMM installation directory.")
+    raise ValueError(
+        "PYCHARMM_DIR not set. "
+        "Please add an entry to the paths.toml file with the path to the CHARMM installation directory."
+    )
 else:
     os.environ["CHARMM_HOME"] = str(PYCHARMM_DIR)
     os.environ["CHARMM_LIB_DIR"] = str(PYCHARMM_DIR / "build" / "cmake")
@@ -28,7 +32,6 @@ import pycharmm.write as write
 
 from physnetjax.calc.helper_mlp import get_ase_calc, get_pyc
 from physnetjax.restart.restart import get_params_model_with_ase
-
 
 # Environment settings
 
@@ -355,9 +358,6 @@ def run_heating(
         file.close()
 
     return files
-
-
-
 
 
 def run_equilibration(

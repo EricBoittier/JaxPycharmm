@@ -17,6 +17,7 @@ BOHR_TO_ANGSTROM = 0.529177
 
 from physnetjax.data.data import ATOM_ENERGIES_HARTREE
 
+
 def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
     """
     Process a single NPZ file and extract relevant data.
@@ -42,20 +43,13 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
         if int(len(R)) != n_atoms:
             return None, n_atoms
 
-        fn = np.linalg.norm(
-            np.linalg.norm(
-                load["F"] * (-627.509474 / 0.529177) * (kcal / mol),
-                axis=(1),
-            )
-        )
-
         if not (3 < n_atoms < 1000):
             return None, n_atoms
 
         R = R[np.nonzero(R.sum(axis=1))]
         Z = load["Z"][np.nonzero(R.sum(axis=1))]
         atom_energies = np.take(ATOM_ENERGIES_HARTREE, Z)
-        mol = ase.Atoms(Z, R)
+        asemol = ase.Atoms(Z, R)
 
         output = {
             MolecularData.COORDINATES.value: R,
@@ -74,5 +68,5 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
         if MolecularData.ESP_GRID.value in load:
             output[MolecularData.ESP_GRID.value] = load["esp_grid"]
         if MolecularData.CENTER_OF_MASS.value in load:
-            output[MolecularData.CENTER_OF_MASS.value] = mol.get_center_of_mass()
+            output[MolecularData.CENTER_OF_MASS.value] = asemol.get_center_of_mass()
         return output, n_atoms

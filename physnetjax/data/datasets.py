@@ -7,109 +7,85 @@ from ase.units import Bohr, Hartree, kcal
 from numpy.typing import NDArray
 from tqdm import tqdm
 
+from physnetjax.data.full_padding import pad_atomic_numbers, pad_coordinates, pad_forces
+from physnetjax.data.read_npz import process_npz_file
 from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
+from physnetjax.utils.pretty_printer import print_dict_as_table
 
 # Constants
 HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM = Hartree / Bohr
 MAX_N_ATOMS = 37
 MAX_GRID_POINTS = 10000
 BOHR_TO_ANGSTROM = 0.529177
+NUM_ESP_CLIP = 1000  # ESP clip limit
 
-from physnetjax.data.data import ATOM_ENERGIES_HARTREE
 
 def process_dataset(
     files: List[Path], batch_index: int = 0
 ) -> Dict[MolecularData, NDArray]:
     """
     Process a batch of NPZ files and combine their data.
-
     Args:
         files: List of NPZ files to process
         batch_index: Index of the batch being processed
-
     Returns:
-        Dictionary containing combined and processed data, keyed by MolecularData enum
+        Dictionary containing combined and processed data, keyed by MolecularData enum.
     """
-    # Initialize data collectors
-    collected_data = {
-        MolecularData.ATOMIC_NUMBERS: [],
-        MolecularData.COORDINATES: [],
-        MolecularData.QUADRUPOLE: [],
-        MolecularData.ESP: [],
-        MolecularData.ESP_GRID: [],
-        MolecularData.CENTER_OF_MASS: [],
-        MolecularData.FORCES: [],
-        MolecularData.ENERGY: [],
-        MolecularData.DIPOLE: [],
-    }
+    # Initialize raw data collectors and molecule IDs
+    raw_data = {data_type: [] for data_type in MolecularData}
+    molecule_ids = []
 
-    molecule_ids = []  # Keep track of molecule IDs separately
-
-    for filepath in tqdm(files):
+    # Helper: Read and filter NPZ file data
+    def read_and_filter(filepath: Path) -> Union[Tuple[Dict, int], None]:
         result, n_atoms = process_npz_file(filepath)
-        print(result, n_atoms)
         if result is not None and 3 < n_atoms < MAX_N_ATOMS:
-            # Store molecule ID
-            molecule_ids.append(str(filepath).split("/")[-2])
+            return result, n_atoms
+        return None
 
-            # Add data to collectors
+    # Load and collect data
+    for filepath in tqdm(files, desc="Processing Files"):
+        processed = read_and_filter(filepath)
+        if processed:
+            result, n_atoms = processed
+            molecule_ids.append(str(filepath).split("/")[-2])
             for data_type in MolecularData:
                 if data_type.value in result:
-                    collected_data[data_type].append(result[data_type.value])
+                    raw_data[data_type].append(result[data_type.value])
 
-    # Pad all collected arrays to uniform size
-    N = len(collected_data[MolecularData.ATOMIC_NUMBERS])
+    # Pad data to uniform sizes
+    def pad_data(data_key, pad_function, *args):
+        return np.array([pad_function(item, *args) for item in raw_data[data_key]])
 
-    # Process ESP grid sizes if present
-    if collected_data[MolecularData.ESP]:
-        N_grid = [_.shape[0] for _ in collected_data[MolecularData.ESP]]
+    N = len(raw_data[MolecularData.ATOMIC_NUMBERS])
+    processed_data = {
+        MolecularData.ATOMIC_NUMBERS: pad_data(
+            MolecularData.ATOMIC_NUMBERS, pad_atomic_numbers, MAX_N_ATOMS
+        ),
+        MolecularData.COORDINATES: pad_data(
+            MolecularData.COORDINATES, pad_coordinates, MAX_N_ATOMS
+        ),
+    }
 
-    # Pad arrays
-    processed_data = {}
-
-    # Pad atomic numbers
-    Z = [
-        np.array([int(_) for _ in collected_data[MolecularData.ATOMIC_NUMBERS][i]])
-        for i in range(N)
-    ]
-    processed_data[MolecularData.ATOMIC_NUMBERS] = np.array(
-        [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(N)]
-    )
-
-    # Pad coordinates
-    processed_data[MolecularData.COORDINATES] = np.array(
-        [
-            pad_coordinates(collected_data[MolecularData.COORDINATES][i], MAX_N_ATOMS)
-            for i in range(N)
-        ]
-    )
-
-    # Pad forces
-    if collected_data[MolecularData.FORCES]:
-        processed_data[MolecularData.FORCES] = np.array(
-            [
-                pad_forces(
-                    collected_data[MolecularData.FORCES][i], len(Z[i]), MAX_N_ATOMS
-                )
-                for i in range(N)
-            ]
+    # Pad forces if present
+    if raw_data[MolecularData.FORCES]:
+        processed_data[MolecularData.FORCES] = pad_data(
+            MolecularData.FORCES, pad_forces, MAX_N_ATOMS
         )
 
-    # Process energy
-    if collected_data[MolecularData.ENERGY]:
+    # Convert and scale energy if present
+    if raw_data[MolecularData.ENERGY]:
         processed_data[MolecularData.ENERGY] = np.array(
-            [[collected_data[MolecularData.ENERGY][i] * Hartree] for i in range(N)]
+            [[energy * Hartree] for energy in raw_data[MolecularData.ENERGY]]
         )
 
-    # Process other data types that don't need special handling
+    # Add unpadded data
     for data_type in [MolecularData.DIPOLE, MolecularData.CENTER_OF_MASS]:
-        if collected_data[data_type]:
-            processed_data[data_type] = np.array(collected_data[data_type])
+        if raw_data[data_type]:
+            processed_data[data_type] = np.array(raw_data[data_type])
 
     # Save processed data
     save_dict = {key.value: processed_data[key] for key in processed_data}
     save_dict["molecule_ids"] = np.array(molecule_ids)
-
     output_path = f"processed_data_batch_{batch_index}.npz"
     np.savez(output_path, **save_dict)
 
@@ -201,11 +177,9 @@ def process_in_memory(data: List[Dict], max_atoms=None):
     return output
 
 
-
-NUM_ESP_CLIP = 1000  # Introduced constant for ESP clip limit
-
-
-def process_dataset_key(data_key, datasets, shape, natoms, not_failed, reshape_dims=None):
+def process_dataset_key(
+    data_key, datasets, shape, natoms, not_failed, reshape_dims=None
+):
     """Helper to process a key across datasets and apply reshaping."""
     data_array = np.concatenate([ds[data_key] for ds in datasets])
     if reshape_dims:
@@ -225,17 +199,17 @@ def clip_or_default_data(datasets, data_key, not_failed, shape, clip=False):
 
 
 def prepare_multiple_datasets(
-        key,
-        train_size=0,
-        valid_size=0,
-        filename=None,
-        clean=False,
-        verbose=False,
-        esp_mask=False,
-        clip_esp=False,
-        natoms=60,
-        subtract_atom_energies=False,
-        subtract_mean=False,
+    key,
+    train_size=0,
+    valid_size=0,
+    filename=None,
+    clean=False,
+    verbose=False,
+    esp_mask=False,
+    clip_esp=False,
+    natoms=60,
+    subtract_atom_energies=False,
+    subtract_mean=False,
 ):
     """
     Prepare multiple datasets for training and validation.
@@ -257,18 +231,20 @@ def prepare_multiple_datasets(
             print_dict_as_table(data_shape, title=Path(filename[i]).name, plot=True)
 
     # Validate datasets and initialize variables
-    data_ids = np.concatenate([ds["id"] for ds in datasets]) if "id" in datasets[0] else None
-    shape = (
-        np.concatenate([ds["R"] for ds in datasets])
-        .reshape(-1, natoms, 3)
-        .shape
+    data_ids = (
+        np.concatenate([ds["id"] for ds in datasets]) if "id" in datasets[0] else None
     )
+    shape = np.concatenate([ds["R"] for ds in datasets]).reshape(-1, natoms, 3).shape
     not_failed = np.arange(shape[0])  # Default: no failed rows filtered
 
     # Handle cleaning
     if clean:
-        failed_ids = pd.read_csv("/pchem-data/meuwly/boittier/home/jaxeq/data/qm9-fails.csv")["0"].tolist()
-        not_failed = np.array([i for i in range(len(data_ids)) if str(data_ids[i]) not in failed_ids])
+        failed_ids = pd.read_csv(
+            "/pchem-data/meuwly/boittier/home/jaxeq/data/qm9-fails.csv"
+        )["0"].tolist()
+        not_failed = np.array(
+            [i for i in range(len(data_ids)) if str(data_ids[i]) not in failed_ids]
+        )
         print(f"n_failed: {len(data_ids) - len(not_failed)}")
 
     # Collect processed data
@@ -281,17 +257,23 @@ def prepare_multiple_datasets(
         keys.append("id")
 
     if "R" in datasets[0]:
-        positions = process_dataset_key("R", datasets, shape, natoms, not_failed, reshape_dims=(natoms, 3))
+        positions = process_dataset_key(
+            "R", datasets, shape, natoms, not_failed, reshape_dims=(natoms, 3)
+        )
         data.append(positions)
         keys.append("R")
 
     if "Z" in datasets[0]:
-        atomic_numbers = process_dataset_key("Z", datasets, shape, natoms, not_failed, reshape_dims=(natoms,))
+        atomic_numbers = process_dataset_key(
+            "Z", datasets, shape, natoms, not_failed, reshape_dims=(natoms,)
+        )
         data.append(atomic_numbers)
         keys.append("Z")
 
     if "F" in datasets[0]:
-        forces = process_dataset_key("F", datasets, shape, natoms, not_failed, reshape_dims=(natoms, 3))
+        forces = process_dataset_key(
+            "F", datasets, shape, natoms, not_failed, reshape_dims=(natoms, 3)
+        )
         data.append(forces)
         keys.append("F")
 
@@ -313,4 +295,3 @@ def prepare_multiple_datasets(
     # Additional processing for other keys can follow the same pattern
 
     return data, keys
-

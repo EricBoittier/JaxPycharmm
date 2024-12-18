@@ -1,17 +1,18 @@
+import time
 import uuid
 from pathlib import Path
-import time
 
 import ase
 import e3x
 import jax
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
+from rich.console import Console
 from rich.live import Live
 
-from physnetjax.data.data import prepare_batches
-from physnetjax.utils.pretty_printer import pretty_print_optimizer
-from physnetjax.utils.ascii import computer, cubes
+from physnetjax.data.batches import prepare_batches
+from physnetjax.logger.tensorboard_logging import write_tb_log
+from physnetjax.restart.restart import orbax_checkpointer, restart_training
 from physnetjax.training.evalstep import eval_step
 from physnetjax.training.optimizer import (
     base_optimizer,
@@ -19,17 +20,14 @@ from physnetjax.training.optimizer import (
     base_transform,
     get_optimizer,
 )
-from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.training.trainstep import train_step
-
+from physnetjax.utils.ascii import computer, cubes
 from physnetjax.utils.pretty_printer import (
-    training_printer,
     Printer,
+    pretty_print_optimizer,
     print_dict_as_table,
+    training_printer,
 )
-from physnetjax.restart.restart import restart_training, orbax_checkpointer
-
-from rich.console import Console
 
 schedule_fn = base_schedule_fn
 transform = base_transform

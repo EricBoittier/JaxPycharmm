@@ -1,8 +1,9 @@
+import time
+
+import e3x.ops
 import jax
 import jax.numpy as jnp
 import numpy as np
-import e3x.ops
-import time
 
 
 def generate_mock_data(data_size, num_atoms=60):
@@ -92,8 +93,8 @@ def performance_comparison(original_func, optimized_func, data, batch_size=32):
 
 def main():
     # Import the original and optimized functions
-    from physnetjax.data import prepare_batches_old as original_prepare_batches
     from physnetjax.data import prepare_batches as optimized_prepare_batches
+    from physnetjax.data import prepare_batches_old as original_prepare_batches
 
     # Generate test dataset
     data_sizes = [1000, 10000, 50000]

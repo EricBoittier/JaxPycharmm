@@ -1,26 +1,8 @@
-import os
-import sys
-from pathlib import Path
-
 import jax
-import jax.numpy as jnp
-import optax
-import numpy as np
-import flax.linen as nn
-import networkx as nx
-import matplotlib.pyplot as plt
-
-import orbax
-from orbax.checkpoint import PyTreeCheckpointer
-
-from physnetjax.models.model import EF
-from physnetjax.training.loss import dipole_calc
-from physnetjax.training.training import train_model
-from physnetjax.data.data import prepare_batches, prepare_datasets
-
 from openqdc.datasets import SpiceV2 as Spice
 
-from physnetjax.data.savepad import process_in_memory
+from physnetjax.models.model import EF
+from physnetjax.training.training import train_model
 
 # Configurable Constants
 NATOMS = 110
@@ -47,7 +29,7 @@ check_jax_configuration()
 # Dataset preparation
 def prepare_spice_dataset(dataset, subsample_size, max_atoms):
     """Prepare the dataset by preprocessing and subsampling."""
-    datadicts = [dict(dataset[_]) for _ in dataset.subsample(subsample_size)]
+    return Spice.process(datadicts, max_atoms=max_atoms)
     return process_in_memory(datadicts, max_atoms=max_atoms)
 
 

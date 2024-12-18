@@ -1,14 +1,14 @@
-from pathlib import Path
-from typing import Tuple
 import os
 from datetime import datetime
+from pathlib import Path
+from typing import Tuple
 
 import orbax
+import orbax.checkpoint
 
 from physnetjax.models.model import EF
-from physnetjax.utils.utils import get_files
 from physnetjax.utils.pretty_printer import print_dict_as_table
-import orbax.checkpoint
+from physnetjax.utils.utils import get_files
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
@@ -110,6 +110,7 @@ def restart_training(restart: str, transform, optimizer, num_atoms: int):
 
 def get_params_model_with_ase(pkl_path, model_path, atoms):
     import pandas as pd
+
     from physnetjax.models.model import EF
     from physnetjax.utils.utils import _process_model_attributes
 

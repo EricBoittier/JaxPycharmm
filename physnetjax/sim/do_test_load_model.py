@@ -1,4 +1,5 @@
 import pandas as pd
+
 from physnetjax.models.model import EF
 from physnetjax.utils.utils import _process_model_attributes
 

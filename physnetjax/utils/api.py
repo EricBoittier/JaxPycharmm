@@ -20,8 +20,8 @@ print_jax_config()
 import argparse
 
 import jax
-
 from model import EF
+
 from training import train_model
 
 """

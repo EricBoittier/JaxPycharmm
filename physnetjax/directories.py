@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+
 import toml
 
 MAIN_PATH = Path(__file__).resolve().parents[1]
@@ -35,12 +36,14 @@ else:
 
 def print_paths():
     from rich.console import Console
+
     console = Console()
     console.print(f"DATA_PATH: {DATA_PATH}")
     console.print(f"LOGS_PATH: {LOGS_PATH}")
     console.print(f"ANALYSIS_PATH: {ANALYSIS_PATH}")
     console.print(f"MAIN_PATH: {MAIN_PATH}")
     console.print(f"PYCHARMM_DIR: {PYCHARMM_DIR}")
+
 
 if __name__ == "__main__":
     print_paths()

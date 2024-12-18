@@ -1,16 +1,9 @@
+from typing import Dict, List
+
+import e3x.ops
 import jax
 import jax.numpy as jnp
-import e3x.ops
-from pathlib import Path
-from typing import Dict, List, Tuple, Union
-
-import ase
-import numpy as np
-from ase.units import Bohr, Hartree, kcal
-from numpy.typing import NDArray
-from tqdm import tqdm
-
-from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
+from ase.units import Bohr, Hartree
 
 # Constants
 HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM = Hartree / Bohr
@@ -18,105 +11,8 @@ MAX_N_ATOMS = 37
 MAX_GRID_POINTS = 10000
 BOHR_TO_ANGSTROM = 0.529177
 
-from physnetjax.data.data import ATOM_ENERGIES_HARTREE
 
-# def prepare_batches(
-#     key,
-#     data,
-#     batch_size,
-#     data_keys=None,
-#     num_atoms=60,
-#     dst_idx=None,
-#     src_idx=None,
-# ) -> list:
-#     """
-#     Efficiently prepare batches for training.
-#
-#     Args:
-#         key: Random key for shuffling.
-#         data (dict): Dictionary containing the dataset.
-#         batch_size (int): Size of each batch.
-#         include_id (bool, optional): Whether to include ID in the output.
-#         data_keys (list, optional): List of keys to include in the output.
-#         num_atoms (int, optional): Number of atoms per batch. Defaults to 60.
-#
-#     Returns:
-#         list: A list of dictionaries, each representing a batch.
-#     """
-#     # Validate inputs
-#     if data_keys is None:
-#         data_keys = list(data.keys())
-#
-#     # Determine the number of training steps per epoch
-#     data_size = len(data["R"])
-#     steps_per_epoch = data_size // batch_size
-#
-#     # Optimize random permutation and batch selection
-#     perms = jax.random.permutation(key, data_size)[: steps_per_epoch * batch_size]
-#     perms = perms.reshape((steps_per_epoch, batch_size))
-#
-#     # Precompute sparse indices and offsets
-#     batch_segments = jnp.repeat(jnp.arange(batch_size), num_atoms)
-#     offsets = jnp.arange(batch_size) * num_atoms
-#
-#     # Compute dst_idx and src_idx only if not provided
-#     if dst_idx is None or src_idx is None:
-#         dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
-#
-#     dst_idx = dst_idx + offsets[:, None]
-#     src_idx = src_idx + offsets[:, None]
-#
-#     # Create output list to match original function's behavior
-#     output = []
-#
-#     for perm in perms:
-#         # Efficiently select and reshape data
-#         batch = {
-#             k: (
-#                 v[perm].reshape(batch_size * num_atoms)
-#                 if k in ["Z", "mono"]
-#                 else (
-#                     v[perm].reshape(batch_size * num_atoms, -1)
-#                     if k in ["R", "F"]
-#                     else v[perm].reshape(batch_size, -1) if k == "E" else v[perm]
-#                 )
-#             )
-#             for k, v in data.items()
-#             if k in data_keys
-#         }
-#
-#         # Compute good indices similar to the original implementation
-#         good_indices = []
-#         for i, nat in enumerate(batch["N"]):
-#             cond = (dst_idx[i] < (nat + i * num_atoms)) * (
-#                 src_idx[i] < (nat + i * num_atoms)
-#             )
-#             good_indices.append(
-#                 jnp.where(
-#                     cond,
-#                     1,
-#                     0,
-#                 )
-#             )
-#         good_indices = jnp.concatenate(good_indices).flatten()
-#
-#         # Add additional batch metadata
-#         batch.update(
-#             {
-#                 "dst_idx": dst_idx.flatten(),
-#                 "src_idx": src_idx.flatten(),
-#                 "batch_mask": good_indices,
-#                 "batch_segments": batch_segments.reshape(-1),
-#                 "atom_mask": jnp.where(batch["Z"] > 0, 1, 0),
-#             }
-#         )
-#
-#         output.append(batch)
-#
-#     return output
-
-
-def prepare_batches(
+def prepare_batches_one(
     key,
     data,
     batch_size,
@@ -180,34 +76,28 @@ def prepare_batches(
                 else:
                     dict_[k] = v[perm]
 
-        if True:
-            good_indices = []
-            for i, nat in enumerate(dict_["N"]):
-                # print("nat", nat)
-                cond = (dst_idx[i] < (nat + i * num_atoms)) * (
-                    src_idx[i] < (nat + i * num_atoms)
+        good_indices = []
+        for i, nat in enumerate(dict_["N"]):
+            # print("nat", nat)
+            cond = (dst_idx[i] < (nat + i * num_atoms)) * (
+                src_idx[i] < (nat + i * num_atoms)
+            )
+            good_indices.append(
+                jnp.where(
+                    cond,
+                    1,
+                    0,
                 )
-                good_indices.append(
-                    jnp.where(
-                        cond,
-                        1,
-                        0,
-                    )
-                )
-            good_indices = jnp.concatenate(good_indices).flatten()
-            dict_["dst_idx"] = dst_idx.flatten()
-            dict_["src_idx"] = src_idx.flatten()
-            dict_["batch_mask"] = good_indices  # .reshape(-1)
-            dict_["batch_segments"] = batch_segments.reshape(-1)
-            dict_["atom_mask"] = jnp.where(dict_["Z"] > 0, 1, 0).reshape(-1)
-            output.append(dict_)
+            )
+        good_indices = jnp.concatenate(good_indices).flatten()
+        dict_["dst_idx"] = dst_idx.flatten()
+        dict_["src_idx"] = src_idx.flatten()
+        dict_["batch_mask"] = good_indices  # .reshape(-1)
+        dict_["batch_segments"] = batch_segments.reshape(-1)
+        dict_["atom_mask"] = jnp.where(dict_["Z"] > 0, 1, 0).reshape(-1)
+        output.append(dict_)
     # print(output)
     return output
-
-
-import jax
-import jax.numpy as jnp
-from typing import Dict, List, Optional
 
 
 def prepare_batches_jit(
@@ -327,9 +217,9 @@ def prepare_batches_jit(
         # We'll compute this for all i and concatenate.
         N = batch["N"]
         # Expand N and offsets for comparison
-        expanded_N = N[:, None] + offsets[:, None]
-        valid_dst = dst_idx < expanded_N
-        valid_src = src_idx < expanded_N
+        expanded_n = N[:, None] + offsets[:, None]
+        valid_dst = dst_idx < expanded_n
+        valid_src = src_idx < expanded_n
         good_pairs = (valid_dst & valid_src).astype(jnp.int32)
         good_indices = good_pairs.reshape(-1)
 

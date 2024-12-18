@@ -1,17 +1,18 @@
-from flax import linen as nn
-from flax.linen.dtypes import promote_dtype
+from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
+
 import jax
 import jax.numpy as jnp
 import jaxtyping
-
 from e3x import so3
 from e3x.config import Config
-from e3x.nn.modules import initializers
-from e3x.nn.modules import _make_tensor_product_mask
-from e3x.nn.modules import _duplication_indices_for_max_degree
 from e3x.nn.features import _extract_max_degree_and_check_shape
-
-from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
+from e3x.nn.modules import (
+    _duplication_indices_for_max_degree,
+    _make_tensor_product_mask,
+    initializers,
+)
+from flax import linen as nn
+from flax.linen.dtypes import promote_dtype
 
 InitializerFn = initializers.InitializerFn
 Array = jaxtyping.Array

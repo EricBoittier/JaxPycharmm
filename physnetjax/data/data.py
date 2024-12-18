@@ -17,17 +17,17 @@ ATOM_ENERGIES_HARTREE = np.array(
 
 
 def prepare_multiple_datasets(
-        key,
-        train_size=0,
-        valid_size=0,
-        filename=None,
-        clean=False,
-        verbose=False,
-        esp_mask=False,
-        clip_esp=False,
-        natoms=60,
-        subtract_atom_energies=False,
-        subtract_mean=False,
+    key,
+    train_size=0,
+    valid_size=0,
+    filename=None,
+    clean=False,
+    verbose=False,
+    esp_mask=False,
+    clip_esp=False,
+    natoms=60,
+    subtract_atom_energies=False,
+    subtract_mean=False,
 ):
     """
     Prepare multiple datasets for training and validation.
@@ -230,17 +230,17 @@ def prepare_multiple_datasets(
 
 
 def prepare_datasets(
-        key,
-        train_size=0,
-        valid_size=0,
-        files=None,
-        clean=False,
-        esp_mask=False,
-        clip_esp=False,
-        natoms=60,
-        verbose=False,
-        subtract_atom_energies=False,
-        subtract_mean=False,
+    key,
+    train_size=0,
+    valid_size=0,
+    files=None,
+    clean=False,
+    esp_mask=False,
+    clip_esp=False,
+    natoms=60,
+    verbose=False,
+    subtract_atom_energies=False,
+    subtract_mean=False,
 ):
     """
     Prepare datasets for training and validation.
@@ -329,7 +329,7 @@ def get_choices(key, num_data, num_train, num_valid):
         jax.random.choice(key, num_data, shape=(num_data,), replace=False)
     )
     train_choice = choice[:num_train]
-    valid_choice = choice[num_train: num_train + num_valid]
+    valid_choice = choice[num_train : num_train + num_valid]
     return train_choice, valid_choice
 
 

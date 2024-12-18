@@ -1,8 +1,7 @@
 from typing import List, Optional
 
-import numpy as np
 import jax
-
+import numpy as np
 
 __all__ = ["PyCharmm_Calculator"]
 

@@ -1,25 +1,25 @@
 import argparse
+
+# Set environment variables
+import os
 import pickle
 from pathlib import Path
 from tabnanny import verbose
 
 import matplotlib.pyplot as plt
 
-# Set environment variables
-import os
-
 from physnetjax.directories import ANALYSIS_PATH
 
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-import jax
+from typing import Any, Dict, List
 
 # from jax import
 import jax
+
 from physnetjax.analysis.analysis import count_params, plot_stats
-from physnetjax.restart.restart import get_params_model, get_last
 from physnetjax.data.data import prepare_batches, prepare_datasets
-from typing import Dict, List, Any
+from physnetjax.restart.restart import get_last, get_params_model
 
 # --- CONFIGURATION ---
 DEFAULT_BATCH_SIZE = 100

@@ -1,14 +1,13 @@
 """Euclidean Rope attention."""
 
-from jax import ops
-import jax.numpy as jnp
-from typing import Optional
-import numpy as np
-from jaxtyping import Array
-
 import logging
-import e3x
+from typing import Optional
 
+import e3x
+import jax.numpy as jnp
+import numpy as np
+from jax import ops
+from jaxtyping import Array
 
 LEBEDEV_FREQUENCY_LOOKUP = {
     50: np.pi,

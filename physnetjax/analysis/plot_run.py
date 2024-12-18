@@ -1,5 +1,5 @@
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from physnetjax.utils.pretty_printer import get_panel
 
@@ -161,12 +161,13 @@ def plot_run(base_df, ax, hue, label, log=False):
 
 
 if __name__ == "__main__":
-    from physnetjax.logger.tensorboard_interface import process_tensorboard_logs
-    from physnetjax.directories import LOGS_PATH
-    import polars as pl
-
     from argparse import ArgumentParser
     from pathlib import Path
+
+    import polars as pl
+
+    from physnetjax.directories import LOGS_PATH
+    from physnetjax.logger.tensorboard_interface import process_tensorboard_logs
 
     parser = ArgumentParser()
     parser.add_argument("--logs", type=Path, required=True)

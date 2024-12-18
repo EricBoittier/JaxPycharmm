@@ -14,6 +14,7 @@ cons_command = "cons dihe {} force {} min {:4.2f}'".format(
 )  # "16 14 8 6"
 # pycharmm.lingo.charmm_script(cons_command)
 
+
 def add_waters(n_waters: int = 4):
     add_water_script = f"""! Generate a water segment
 read sequence tip3 1
