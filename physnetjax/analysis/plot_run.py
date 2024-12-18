@@ -152,6 +152,7 @@ if __name__ == "__main__":
     df = process_tensorboard_logs(logs_path)
 
     # pretty print polars dataframe with rich
+    from rich.console import Console
     console = Console()
     console.print(df)
 
