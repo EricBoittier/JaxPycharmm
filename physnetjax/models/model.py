@@ -74,7 +74,7 @@ class EF(nn.Module):
                 lebedev_num=194,
                 parametrized=False,
                 epe_max_frequency=b_max,
-                epe_max_length=20.0, # maximum distance in Angstroms for the EPE
+                epe_max_length=20.0,  # maximum distance in Angstroms for the EPE
                 tensor_integration=False,
             )
 
@@ -238,6 +238,7 @@ class EF(nn.Module):
         graph_mask: jnp.ndarray,
     ) -> jnp.ndarray:
         """Perform one iteration of message passing."""
+        # if it is the last iteration
         if iteration == self.num_iterations - 1:
             x = e3x.nn.MessagePass(
                 max_degree=0,

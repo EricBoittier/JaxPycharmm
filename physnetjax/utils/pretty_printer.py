@@ -11,6 +11,7 @@ import numpy as np
 from rich.columns import Columns
 import polars as pl
 
+
 def get_panel(data, title):
     return Panel(
         acp.plot(data),
@@ -19,14 +20,34 @@ def get_panel(data, title):
     )
 
 
-acp_colors = ["\033[32m", "\033[33m", "\033[34m",
-              "\033[35m", "\033[36m", "\033[37m", "\033[39m",  "\033[90m",
-              "\033[91m", "\033[92m", "\033[93m", "\033[94m", "\033[95m", "\033[96m"]
+acp_colors = [
+    "\033[32m",
+    "\033[33m",
+    "\033[34m",
+    "\033[35m",
+    "\033[36m",
+    "\033[37m",
+    "\033[39m",
+    "\033[90m",
+    "\033[91m",
+    "\033[92m",
+    "\033[93m",
+    "\033[94m",
+    "\033[95m",
+    "\033[96m",
+]
+
 
 def get_acp_plot(data, keys, title="", log=False, color="blue"):
     # print(data)
     if log:
-        data = data.select([pl.col(c).log10() for c in data.columns if data[c].dtype in (pl.Float64, pl.Int64)])
+        data = data.select(
+            [
+                pl.col(c).log10()
+                for c in data.columns
+                if data[c].dtype in (pl.Float64, pl.Int64)
+            ]
+        )
     # print(data)
     _min = min([min(data[key].drop_nulls()) for key in keys])
     _max = max([max(data[key].drop_nulls()) for key in keys])
@@ -34,7 +55,7 @@ def get_acp_plot(data, keys, title="", log=False, color="blue"):
         "min": _min,
         "max": _max,
         "height": 4,
-        'format': '{:1.2e}',
+        "format": "{:1.2e}",
         # "colors": [acp_colors[i] for i in range(len(keys))],
     }
     skip = 1 if len(data) < 100 else len(data) // 80
@@ -47,8 +68,6 @@ def get_acp_plot(data, keys, title="", log=False, color="blue"):
     console = Console(width=100)
     console.print(p)
     return
-
-
 
 
 def init_table(doCharges=False):

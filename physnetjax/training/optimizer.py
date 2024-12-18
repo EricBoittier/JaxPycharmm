@@ -58,11 +58,10 @@ def get_optimizer(
                     "peak_value": learning_rate * 1.5,
                     "decay_steps": 5000,
                     "alpha": 0.3,
-                } for _ in range(5)
+                }
+                for _ in range(5)
             ]
-            schedule_fn = optax.schedules.sgdr_schedule(
-                cosine_dicts=cosine_dicts
-            )
+            schedule_fn = optax.schedules.sgdr_schedule(cosine_dicts=cosine_dicts)
         elif schedule_fn == "exponential":
             schedule_fn = optax.schedules.exponential_decay_schedule(
                 init_value=learning_rate, decay_rate=0.995
