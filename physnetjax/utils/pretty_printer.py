@@ -3,6 +3,7 @@ from rich.table import Table
 import time
 import time
 from rich.panel import Panel
+from rich.console import Console
 from rich.live import Live
 from rich.table import Table
 import asciichartpy as acp
