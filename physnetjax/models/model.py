@@ -75,7 +75,10 @@ class EF(nn.Module):
                 parametrized=False,
                 epe_max_frequency=b_max,
                 epe_max_length=20.0,  # maximum distance in Angstroms for the EPE
-                tensor_integration=False,
+                tensor_integration=True,
+                ti_degree_scaling_constants=[
+                    0.5**i for i in range(self.max_degree + 1)
+                ],
             )
 
     def return_attributes(self) -> Dict:
