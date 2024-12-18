@@ -28,8 +28,10 @@ def plot_run(base_df, ax, hue, label, log=False):
         "lr"
     ]
     from physnetjax.utils.pretty_printer import get_acp_plot
-    get_acp_plot(base_df, ["train_loss", "valid_loss"], log=log)
-
+    get_acp_plot(base_df, ["train_loss", "valid_loss"], title="Loss", log=log)
+    get_acp_plot(base_df, ["train_energy_mae", "valid_energy_mae"], title="Energy MAE", log=log)
+    get_acp_plot(base_df, ["train_forces_mae", "valid_forces_mae"], title="Forces MAE", log=log)
+    get_acp_plot(base_df, ["lr"], title="Learning Rate", log=log)
 
     # Plot each metric
     for i, ycol in enumerate(metrics):
