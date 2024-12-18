@@ -14,7 +14,7 @@ import polars as pl
 def get_panel(data, title):
     return Panel(
         acp.plot(data),
-        expand=True,
+        expand=False,
         title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
     )
 
@@ -44,7 +44,7 @@ def get_acp_plot(data, keys, title="", log=False):
         expand=True,
         title=f"~~ [bold][yellow]{title}[/bold][/yellow] ~~",
     )
-    console = Console()
+    console = Console(width=100)
     console.print(p)
     return console
 
