@@ -40,6 +40,7 @@ def get_acp_plot(data, keys, title="", log=False):
     }
     skip = len(data) // 200
     data_to_plot = [list(data[key].drop_nulls().to_numpy())[::skip] for key in keys]
+    print(len(data_to_plot[0]))
     p = Panel(
         acp.plot(data_to_plot, cfg=config),
         expand=False,
