@@ -38,7 +38,8 @@ def get_acp_plot(data, keys, title="", log=False):
         "height": 4,
         "colors": [acp_colors[i] for i in range(len(keys))],
     }
-    data_to_plot = [list(data[key].drop_nulls().to_numpy()) for key in keys]
+    skip = len(data) // 200
+    data_to_plot = [list(data[key].drop_nulls().to_numpy())[::skip] for key in keys]
     p = Panel(
         acp.plot(data_to_plot, cfg=config),
         expand=False,
