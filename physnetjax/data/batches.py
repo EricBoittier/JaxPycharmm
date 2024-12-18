@@ -136,7 +136,7 @@ def prepare_batches_jit(
     # -------------------------------------------------------------------------
 
     # Check for mandatory keys
-    required_keys = ["R", "N", "Z", "F", "E"]
+    required_keys = ["R", "N", "Z"]
     for req_key in required_keys:
         if req_key not in data:
             raise ValueError(f"Data dictionary must contain '{req_key}' key.")

@@ -25,8 +25,7 @@ import numpy as np
 import optax
 import orbax
 
-from physnetjax.data.data import prepare_batches, prepare_datasets
-from physnetjax.training.loss import dipole_calc
+from physnetjax.data.data import  prepare_datasets
 from physnetjax.models.model import EF
 from physnetjax.training.training import train_model  # from model import dipole_calc
 

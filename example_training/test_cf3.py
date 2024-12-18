@@ -22,9 +22,9 @@ sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
 import jax
 import orbax
 
-from physnetjax.data import prepare_datasets
+from physnetjax.data.data import prepare_datasets
 from physnetjax.models.model import EF
-from physnetjax.training import train_model  # from model import dipole_calc
+from physnetjax.training.training import train_model  # from model import dipole_calc
 
 orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
 
