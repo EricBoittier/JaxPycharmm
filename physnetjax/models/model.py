@@ -245,15 +245,15 @@ class EF(nn.Module):
             x = e3x.nn.MessagePass(
                 max_degree=0,
                 include_pseudotensors=False,
-                dense_kernel_init=jax.nn.initializers.he_uniform(),
-                dense_bias_init=jax.nn.initializers.zeros,
+                # dense_kernel_init=jax.nn.initializers.he_uniform(),
+                # dense_bias_init=jax.nn.initializers.zeros,
             )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
             return x
 
         x = e3x.nn.MessagePass(
             include_pseudotensors=False,
-            dense_kernel_init=jax.nn.initializers.he_normal(),
-            dense_bias_init=jax.nn.initializers.zeros,
+            # dense_kernel_init=jax.nn.initializers.he_normal(),
+            # dense_bias_init=jax.nn.initializers.zeros,
         )(x, basis, dst_idx=dst_idx, src_idx=src_idx, indices_are_sorted=False)
         if self.efa:
             x1 = self.efa_final(x, positions, batch_segments, graph_mask)
