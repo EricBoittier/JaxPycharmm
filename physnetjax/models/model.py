@@ -640,7 +640,7 @@ class EF(nn.Module):
         # Debug output values
 
         # # if "forces" in self.debug:
-        # debug_forces(output, forces)
+        debug_forces(output, forces)
         # # if "energy" in self.debug:
         # jax.debug.print("Energy: {x}", x=energy)
         # # if "charges" in self.debug and charges is not None:
@@ -648,15 +648,15 @@ class EF(nn.Module):
         return output
 
 
-# def debug_forces(output, forces):
-#     for k in output.keys():
-#         if output[k] is not None:
-#             hasnans = jnp.isnan(output[k]).any()
-#             hasninf = ~jnp.isfinite(output[k]).any()
-#             jax.debug.print(
-#                 "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
-#                 k=k,
-#                 nans=hasnans,
-#                 ninf=hasninf,
-#             )
-#     jax.debug.print("Forces shape: {x}", x=forces.shape)
+def debug_forces(output, forces):
+    for k in output.keys():
+        if output[k] is not None:
+            hasnans = jnp.isnan(output[k]).any()
+            hasninf = ~jnp.isfinite(output[k]).any()
+            jax.debug.print(
+                "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
+                k=k,
+                nans=hasnans,
+                ninf=hasninf,
+            )
+    jax.debug.print("Forces shape: {x}", x=forces.shape)
