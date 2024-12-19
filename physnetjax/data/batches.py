@@ -310,13 +310,12 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     for key in data_keys:
         if key in data:
             if key == "N":
-                batch[key] = n
+                shape = (batch_shape,)
             elif key in {"dst_idx", "src_idx"}:
                 break
             elif key == "E":
-                batch[key] = data[key][perm]
+                shape = (batch_shape, 1)
             elif key == "D":
-                batch[key] = data[key][perm]
                 shape = (1, 3)
             elif key in {"R", "F"}:
                 shape = (batch_shape, 3)
@@ -355,6 +354,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
     batch["atom_mask"] = atom_mask
     # mask for batches (atom wise)
+    print("batch[N]", batch["N"])
     batch_mask_atoms = np.concatenate([np.ones(x) * i for i, x in enumerate(batch["N"])])
     batch["batch_segments"] = np.pad(
         batch_mask_atoms,
