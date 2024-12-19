@@ -578,6 +578,7 @@ class EF(nn.Module):
             atom_mask = jnp.ones_like(atomic_numbers)
 
         import lovely_jax as lj
+        lj.monkey_patch()
 
         jax.debug.print("atomic_numbers {x}", x=atomic_numbers)
         jax.debug.print("positions {x}", x=positions)
@@ -588,13 +589,7 @@ class EF(nn.Module):
         jax.debug.print("batch_mask {x}", x=batch_mask)
         jax.debug.print("atom_mask {x}", x=atom_mask)
 
-        print(lj.lovely(batch_mask, verbose=True))
-        print(lj.lovely(atom_mask, verbose=True))
-        print(lj.lovely(atomic_numbers, verbose=True))
-        print(lj.lovely(positions, verbose=True))
-        print(lj.lovely(dst_idx, verbose=True))
-        print(lj.lovely(src_idx, verbose=True))
-        print(lj.lovely(batch_segments, verbose=True))
+
 
 
         # Since we want to also predict forces, i.e. the gradient of the energy w.r.t. positions (argument 1), we use
