@@ -31,7 +31,7 @@ dataset = ds[0]
 
 print(dataset)
 
-print(dataset.e0s_dict)
+print(dataset.e0)
 
 # datadicts = [dict(ds[_]) for _ in ds.subsample(50)]
 # output1 = process_in_memory(datadicts, max_atoms=NATOMS)
