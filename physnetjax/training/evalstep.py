@@ -86,7 +86,7 @@ def eval_step(
             forces_target=batch["F"],
             forces_weight=forces_weight,
             energy_weight=energy_weight,
-            atom_mask=batch["atom_mask"],
+            atomic_mask=batch["atom_mask"],
         )
         energy_mae = mean_absolute_error(output["energy"], batch["E"], batch_size)
         forces_mae = mean_absolute_error(

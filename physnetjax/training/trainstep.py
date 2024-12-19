@@ -5,8 +5,7 @@ import jax.numpy as jnp
 import optax
 from optax import tree_utils as otu
 
-# from jax import config
-# config.update('jax_enable_x64', True)
+
 from physnetjax.training.loss import (
     mean_absolute_error,
     mean_squared_loss,
