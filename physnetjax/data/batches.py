@@ -337,8 +337,11 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                         )
                     elif key in {"D"}:
                         val = val.reshape(1, 3)
+                    elif key in {"E", "N"}:
+                        val = val.reshape(1, 1)
                     else:
-                        val = val[start:stop].reshape(int(n[i]), 1)
+                        pass
+                        #val = val[start:stop] #.reshape(int(n[i]), 1)
 
                     if idx_counter + int(n[i]) > batch_shape:
                         # print("breaking at", i, "idx_counter", idx_counter, "n[i]", n[i])

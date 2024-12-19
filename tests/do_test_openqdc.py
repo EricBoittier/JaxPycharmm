@@ -31,9 +31,8 @@ dataset = ds[0]
 
 print(dataset)
 
-print(ds.keys)
-print(ds.e0)
-
+print(dir(ds))
+print(ds.__isolated_atom_energies__)
 print(dataset.e0)
 
 # datadicts = [dict(ds[_]) for _ in ds.subsample(50)]
