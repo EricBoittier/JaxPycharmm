@@ -354,6 +354,7 @@ class EF(nn.Module):
     ) -> jnp.ndarray:
         """Calculate atomic charges from atomic features."""
         x = e3x.nn.Dense(1, use_bias=False)(x)
+
         charge_bias = self.param(
             "charge_bias",
             lambda rng, shape: jnp.zeros(shape),
