@@ -37,7 +37,7 @@ def get_optimizer(
     **kwargs,
 ):
     if isinstance(clip_global, bool):
-        clip_global = 1.0 if clip_global else None
+        clip_global = 10.0 if clip_global else None
 
     if schedule_fn is None:
         schedule_fn = optax.schedules.constant_schedule(learning_rate)
