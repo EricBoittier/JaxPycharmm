@@ -656,8 +656,8 @@ class EF(nn.Module):
         # Debug output values
 
         # # if "forces" in self.debug:
-        # print(forces)
-        # print(energy)
+        print(forces)
+        print(energy)
 
         # debug_forces(output, forces)
         # # if "energy" in self.debug:
