@@ -314,13 +314,13 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
             elif key in {"dst_idx", "src_idx"}:
                 break
             elif key == "E":
-                shape = (batch_size, 1)
+                shape = (batch_size,)
             elif key == "D":
                 shape = (batch_size, 3)
             elif key in {"R", "F"}:
                 shape = (batch_shape, 3)
             else:
-                shape = (batch_shape, 1)
+                raise ValueError(f"Invalid key: {key}")
 
             batch[key] = np.zeros(shape)
             idx_counter = 0
