@@ -332,7 +332,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     stop = int(n[i])
                     val = data[key][permutation_index]
                     if key in {"R", "F"}:
-                        print(i, key, "R/F", val.shape, val)
+                        print(i, key, val.shape, val)
                         val = val[start:stop, :].reshape(
                             int(n[i]), 3
                         )
