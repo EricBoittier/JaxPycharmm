@@ -355,13 +355,16 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     batch["atom_mask"] = atom_mask
     # mask for batches (atom wise)
     batch["N"] = np.array(n, dtype=np.int32)
+    batch["Z"] = np.array(batch["Z"], dtype=np.int32)
+
     # print("batch[N]", batch["N"])
     batch_mask_atoms = np.concatenate([np.ones(int(x)) * i for i, x in enumerate(batch["N"])])
     print("batch_mask_atoms", batch_mask_atoms.shape)
     print("batch_shape", batch_shape)
-    batch["batch_segments"] = np.pad(
+    padded_batch_segs = np.pad(
         batch_mask_atoms,
         (0, batch_shape - len(batch_mask_atoms)))
+    batch["batch_segments"] = np.array(padded_batch_segs, dtype=np.int32)
     return batch
 
 
