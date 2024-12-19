@@ -26,6 +26,6 @@ def test_process_npz_file(test_process_dataset):
 
     # out, natoms = process_npz_file(test_process_dataset[0])
     # print(out, natoms)
-    _ = process_dataset(test_process_dataset)
+    _ = process_dataset(test_process_dataset, name = "basepairs-concatenated")
     print(_)
 

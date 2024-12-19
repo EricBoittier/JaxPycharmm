@@ -66,8 +66,11 @@ def pad_forces(forces: NDArray, max_atoms: int) -> NDArray:
     Returns:
         Padded and converted forces array with shape (max_atoms, 3)
     """
-    converted_forces = forces * (-HARTREE_PER_BOHR_TO_EV_PER_ANGSTROM)
-    return pad_array(converted_forces, max_atoms)
+    if len(forces.shape) == 3:
+        return pad_array(forces, max_atoms, axis=1)
+    return pad_array(forces, max_atoms)
+
+
 
 
 def pad_atomic_numbers(atomic_numbers: NDArray, max_atoms: int) -> NDArray:

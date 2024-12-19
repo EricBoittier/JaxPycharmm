@@ -28,7 +28,8 @@ OUTPUT_FILE_PATTERN = "processed_data_batch_{}.npz"
 
 def process_dataset(
     npz_files: List[Path], batch_index: int = 0,
-MAX_N_ATOMS = 37
+MAX_N_ATOMS = 37,
+name = None
 ) -> Dict[MolecularData, NDArray]:
     """
     Process a batch of NPZ files and combine their data.
@@ -105,24 +106,21 @@ MAX_N_ATOMS = 37
             MolecularData.FORCES, pad_forces, MAX_N_ATOMS
         )
     if raw_data[MolecularData.ENERGY]:
-        processed_data[MolecularData.ENERGY] = np.array(
-            [[energy * Hartree] for energy in raw_data[MolecularData.ENERGY]]
+        processed_data[MolecularData.ENERGY] = np.concatenate(
+            raw_data[MolecularData.ENERGY]
         )
 
     # Add unpadded data types
     for data_type in [MolecularData.DIPOLE, MolecularData.CENTER_OF_MASS]:
         if raw_data[data_type]:
-            processed_data[data_type] = np.array(raw_data[data_type])
-
-    if processed_data[MolecularData.ATOMIC_NUMBERS].shape[0] != num_atoms:
-        raise ValueError("Energy data shape does not match atomic count.")
-
+            processed_data[data_type] = np.concatenate(raw_data[data_type])
 
     # Save processed data
     save_dict = {key.value: processed_data[key] for key in processed_data}
-    save_dict["molecule_ids"] = np.array(molecule_ids)
-    output_path = OUTPUT_FILE_PATTERN.format(batch_index)
-    np.savez(output_path, **save_dict)
+    # save_dict["molecule_ids"] = np.array(molecule_ids)
+    if name is not None and isinstance(name, str):
+        output_path = name + "-" + OUTPUT_FILE_PATTERN.format(batch_index)
+        np.savez(output_path, **save_dict)
 
     return processed_data
 
