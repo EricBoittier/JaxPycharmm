@@ -172,6 +172,9 @@ def train_model(
         "num_atoms": num_atoms,
         "data_keys": data_keys,
     }
+    if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
+        "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict:
+        kwargs.update(batch_args_dict)
     valid_batches = _prepare_batches(
         kwargs
     )
@@ -237,6 +240,9 @@ def train_model(
                 "num_atoms": num_atoms,
                 "data_keys": data_keys,
             }
+            if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
+                    "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict:
+                kwargs.update(batch_args_dict)
             train_batches = _prepare_batches(
                 kwargs
             )

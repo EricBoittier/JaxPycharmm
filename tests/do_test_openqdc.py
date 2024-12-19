@@ -31,6 +31,9 @@ dataset = ds[0]
 
 print(dataset)
 
+print(ds.keys)
+print(ds.e0)
+
 print(dataset.e0)
 
 # datadicts = [dict(ds[_]) for _ in ds.subsample(50)]
