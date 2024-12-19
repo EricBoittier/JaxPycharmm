@@ -332,6 +332,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     stop = int(n[i])
                     val = data[key][permutation_index]
                     if key in {"R", "F"}:
+                        print("R/F", val.shape)
                         val = val[start:stop, :].reshape(
                             int(n[i]), 3
                         )
@@ -343,11 +344,10 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                         val = val[start:stop].reshape(int(n[i]), 1)
                     else:
                         pass
-                        #val = val[start:stop] #.reshape(int(n[i]), 1)
 
                     if idx_counter + int(n[i]) > batch_shape:
-                        # print("breaking at", i, "idx_counter", idx_counter, "n[i]", n[i])
                         break
+
                     batch[key][idx_counter:idx_counter + int(n[i])] = val
                     idx_counter += int(n[i])
 
