@@ -181,7 +181,7 @@ def train_model(
 
     from contextlib import nullcontext
 
-    with Live(auto_refresh=False) as live if console is not None else nullcontext():
+    with Live(auto_refresh=False) if console is not None else nullcontext() as live :
         # if True:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
