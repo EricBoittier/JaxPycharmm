@@ -110,7 +110,7 @@ def train_model(
             x["data"],
             x["batch_size"],
             batch_args_dict["batch_shape"],
-            batch_args_dict["batch_nbl_len"],
+            batch_args_dict["nb_len"],
             num_atoms=x["num_atoms"],
             data_keys=x["data_keys"],
         )
