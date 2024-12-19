@@ -117,7 +117,7 @@ def train_step(
     # print("Checking for nans in updates")
     jax.debug.print("updates {x}", x=updates)
     # update "reduce on plateau" state
-    updates = otu.tree_scalar_mul(transform_state.scale, updates)
+    # updates = otu.tree_scalar_mul(transform_state.scale, updates)
     params = optax.apply_updates(params, updates)
 
     energy_mae = mean_absolute_error(
