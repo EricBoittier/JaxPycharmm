@@ -115,6 +115,8 @@ def train_step(
     updates, opt_state = optimizer_update(grad, opt_state, params)
     # check for nans in updates
     # print("Checking for nans in updates")
+    import lovely_jax as lj
+    lj.monkey_patch()
     jax.debug.print("updates {x}", x=updates)
     # update "reduce on plateau" state
     updates = otu.tree_scalar_mul(transform_state.scale, updates)
