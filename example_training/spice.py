@@ -45,16 +45,16 @@ data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
 
 # Model initialization
 model = EF(
-    features=128,
+    features=64,
     max_degree=0,
-    num_iterations=5,
-    num_basis_functions=20,
-    cutoff=10.0,
+    num_iterations=3,
+    num_basis_functions=16,
+    cutoff=5.0,
     max_atomic_number=70,
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=5,
+    n_res=2,
     zbl=False,
     # debug=["forces", "idx"]
 )
@@ -63,6 +63,9 @@ batch_kwargs = {
     "batch_shape" : int((BATCH_SIZE - 1) * NATOMS),
     "nb_len" : int((NATOMS * (NATOMS - 1) * (BATCH_SIZE - 1)) // 1.6)
 }
+
+print("Model initialized")
+print(batch_kwargs)
 
 # Model training
 params = train_model(
