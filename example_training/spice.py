@@ -37,7 +37,7 @@ def prepare_spice_dataset(dataset, subsample_size, max_atoms):
 
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
-output1 = prepare_spice_dataset(ds, subsample_size=20000, max_atoms=NATOMS)
+output1 = prepare_spice_dataset(ds, subsample_size=200, max_atoms=NATOMS)
 output2 = prepare_spice_dataset(ds, subsample_size=200, max_atoms=NATOMS)
 
 # Random key initialization
