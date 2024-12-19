@@ -9,7 +9,7 @@ from physnetjax.training.training import train_model
 NATOMS = 110
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 RANDOM_SEED = 42
-BATCH_SIZE = 10
+BATCH_SIZE = 60
 
 # # Environment configuration
 # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
@@ -45,9 +45,9 @@ data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
 
 # Model initialization
 model = EF(
-    features=64,
+    features=128,
     max_degree=0,
-    num_iterations=3,
+    num_iterations=5,
     num_basis_functions=16,
     cutoff=5.0,
     max_atomic_number=70,
