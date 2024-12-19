@@ -66,9 +66,9 @@ def pad_forces(forces: NDArray, max_atoms: int) -> NDArray:
     Returns:
         Padded and converted forces array with shape (max_atoms, 3)
     """
-    if len(forces.shape) == 3:
-        return pad_array(forces, max_atoms, axis=1)
-    return pad_array(forces, max_atoms, axis=0)
+    # if len(forces.shape) == 3:
+    #     return pad_array(forces, max_atoms, axis=1)
+    return pad_array(forces, max_atoms)
 
 
 
