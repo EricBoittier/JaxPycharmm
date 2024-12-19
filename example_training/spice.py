@@ -9,7 +9,7 @@ from physnetjax.training.training import train_model
 NATOMS = 110
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 RANDOM_SEED = 42
-BATCH_SIZE = 2
+BATCH_SIZE = 20
 
 # # Environment configuration
 # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
@@ -37,8 +37,8 @@ def prepare_spice_dataset(dataset, subsample_size, max_atoms):
 
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
-output1 = prepare_spice_dataset(ds, subsample_size=20, max_atoms=NATOMS)
-output2 = prepare_spice_dataset(ds, subsample_size=20, max_atoms=NATOMS)
+output1 = prepare_spice_dataset(ds, subsample_size=20000, max_atoms=NATOMS)
+output2 = prepare_spice_dataset(ds, subsample_size=200, max_atoms=NATOMS)
 
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
