@@ -52,8 +52,9 @@ MAX_N_ATOMS = 37
     def read_and_filter(filepath: Path) -> Union[Tuple[Dict, int], None]:
         """Read and validate NPZ file data based on atomic count."""
         result, n_atoms = process_npz_file(filepath)
-        if result is not None and 3 < n_atoms < MAX_N_ATOMS:
+        if result is not None and n_atoms < MAX_N_ATOMS:
             return result, n_atoms
+        print(f"Skipping file: {filepath}")
         return None
 
     raw_data = initialize_raw_data()
@@ -73,17 +74,29 @@ MAX_N_ATOMS = 37
             if data_type.value in result:
                 raw_data[data_type].append(result[data_type.value])
 
-    def pad_data_by_key(data_key: MolecularData, pad_function, *pad_args):
+    def pad_data_by_key(data_key: MolecularData, pad_function,
+                        singleton,
+                        *pad_args):
         """Pad raw data of a single type to ensure uniform sizes."""
-        return np.array([pad_function(item, *pad_args) for item in raw_data[data_key]])
+        print(data_key, len(raw_data[data_key]), raw_data[data_key][0].shape)
+        if singleton:
+            return np.array([pad_function(item, *pad_args) for item in raw_data[data_key]])
+        tmp_out = []
+        for item in raw_data[data_key]:
+            for i in range(len(item)):
+                tmp_out.append(pad_function(item[i], *pad_args))
+        out = np.stack(tmp_out)
+        print(out.shape)
+        return out
 
+    singleton = False
 
     processed_data = {
         MolecularData.ATOMIC_NUMBERS: pad_data_by_key(
-            MolecularData.ATOMIC_NUMBERS, pad_atomic_numbers, MAX_N_ATOMS
+            MolecularData.ATOMIC_NUMBERS, pad_atomic_numbers, singleton, MAX_N_ATOMS
         ),
         MolecularData.COORDINATES: pad_data_by_key(
-            MolecularData.COORDINATES, pad_coordinates, MAX_N_ATOMS
+            MolecularData.COORDINATES, pad_coordinates, singleton, MAX_N_ATOMS
         ),
     }
 

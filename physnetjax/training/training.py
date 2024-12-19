@@ -9,7 +9,7 @@ from flax.training import orbax_utils, train_state
 from rich.console import Console
 from rich.live import Live
 
-from physnetjax.data.batches import prepare_batches, prepare_batches_advanced_minibatching
+from physnetjax.data.batches import get_prepare_batches_fn, prepare_batches_advanced_minibatching
 from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.restart.restart import orbax_checkpointer, restart_training
 from physnetjax.training.evalstep import eval_step
@@ -55,6 +55,7 @@ def decide_batching(batch_method, batch_args_dict):
             data_keys=x["data_keys"],
         )
     else:
+        prepare_batches = get_prepare_batches_fn()
         _prepare_batches = lambda x: prepare_batches(
             x["key"],
             x["data"],

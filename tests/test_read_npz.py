@@ -5,6 +5,7 @@ import jax.numpy as jnp
 from pathlib import Path
 
 from physnetjax.data.data import prepare_multiple_datasets, prepare_datasets
+from physnetjax.data.datasets import process_dataset
 from physnetjax.directories import MAIN_PATH
 from physnetjax.data.read_npz import process_npz_file
 
@@ -27,8 +28,10 @@ def test_process_dataset():
     return mock_filename
 
 
-def test_process_npz_file():
-    files = test_process_dataset()
-    process_npz_file(files[0])
+def test_process_npz_file(test_process_dataset):
 
+    # out, natoms = process_npz_file(test_process_dataset[0])
+    # print(out, natoms)
+    _ = process_dataset(test_process_dataset)
+    print(_)
 

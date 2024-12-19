@@ -4,6 +4,7 @@ from typing import Dict, List, Tuple, Union
 import ase
 import numpy as np
 from ase.units import Bohr, Hartree, kcal
+from numpy.ma.core import nonzero
 from numpy.typing import NDArray
 from tqdm import tqdm
 
@@ -45,17 +46,15 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
             return None, 0
 
         R = load[rkey]
-        n_atoms = len(np.nonzero(R.sum(axis=1))[0])
+        Z = load[zkey]
+        n_atoms = Z.shape[1]
 
-        if int(len(R)) != n_atoms:
-            return None, n_atoms
-
-        if not (3 < n_atoms < 1000):
-            return None, n_atoms
-
-        R = R[np.nonzero(R.sum(axis=1))]
-        Z = load[zkey][np.nonzero(R.sum(axis=1))]
-
+        # if int(len(R)) != n_atoms:
+        #     print(f"Number of atoms in R and Z do not match for {filepath}")
+        #     return None, n_atoms
+        #
+        # if not (3 < n_atoms < 1000):
+        #     return None, n_atoms
 
         output = {
             MolecularData.COORDINATES.value: R,
