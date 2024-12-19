@@ -348,8 +348,10 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     if idx_counter + int(n[i]) > batch_shape:
                         break
 
-                    batch[key][idx_counter:idx_counter + int(n[i])] = val
-                    idx_counter += int(n[i])
+                    if key in {"R", "F", "Z"}:
+                        batch[key][idx_counter:idx_counter + int(n[i]), :] = val
+                    # batch[key][idx_counter:idx_counter + int(n[i])] = val
+                        idx_counter += int(n[i])
 
     # mask for atoms
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
