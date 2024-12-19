@@ -19,7 +19,7 @@ sys.path.append("/pchem-data/meuwly/boittier/home/pycharmm_test/src")
 
 import jax
 
-from openqdc.datasets import Spice
+from openqdc.datasets import SpiceV2 as Spice
 from physnetjax.data.savepad import *
 
 NATOMS = 96
@@ -27,7 +27,7 @@ NATOMS = 96
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
 
-print(ds[0])
+print()
 
 # datadicts = [dict(ds[_]) for _ in ds.subsample(50)]
 # output1 = process_in_memory(datadicts, max_atoms=NATOMS)

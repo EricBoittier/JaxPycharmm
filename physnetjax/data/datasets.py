@@ -158,7 +158,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
         output[MolecularData.FORCES] = np.array(
             [
                 pad_forces(
-                    d[_],
+                    np.array([d[_]]),
                     MAX_N_ATOMS,
                 )
                 for d in data
