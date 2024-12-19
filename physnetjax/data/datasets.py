@@ -89,8 +89,6 @@ name = None
         return output_array
 
 
-    singleton = True
-
     processed_data = {
         MolecularData.ATOMIC_NUMBERS: pad_data_by_key(
             MolecularData.ATOMIC_NUMBERS, pad_atomic_numbers, MAX_N_ATOMS
@@ -161,7 +159,6 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
             [
                 pad_forces(
                     d[_],
-                    len(d[_]),
                     MAX_N_ATOMS,
                 )
                 for d in data
