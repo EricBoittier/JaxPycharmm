@@ -4,8 +4,13 @@ from physnetjax.data.datasets import (
     MAX_N_ATOMS,
     NUM_ESP_CLIP,
 )
-from physnetjax.data.datasets import process_dataset, process_in_memory, prepare_multiple_datasets, process_dataset_key, \
-    clip_or_default_data
+from physnetjax.data.datasets import (
+    process_dataset,
+    process_in_memory,
+    prepare_multiple_datasets,
+    process_dataset_key,
+    clip_or_default_data,
+)
 from physnetjax.utils.enums import MolecularData
 
 
@@ -38,12 +43,18 @@ def test_process_dataset(tmp_path):
     Z = MolecularData.ATOMIC_NUMBERS
     R = MolecularData.COORDINATES
     # Assertions on output structure and content
-    assert Z in result.keys(), f"Result should contain 'atomic_numbers'. Got: {result.keys()}"
-    assert R in result.keys(), "Result should contain 'coordinates'. Got: {result.keys()}"
-    assert result[Z].shape[0] == MAX_N_ATOMS, \
-        f"Atomic numbers should be padded to {MAX_N_ATOMS}. Got: {result[Z]}"
-    assert result[R].shape[1] == MAX_N_ATOMS, \
-        f"Coordinates should be padded to {MAX_N_ATOMS}. Got: {result[R]}"
+    assert (
+        Z in result.keys()
+    ), f"Result should contain 'atomic_numbers'. Got: {result.keys()}"
+    assert (
+        R in result.keys()
+    ), "Result should contain 'coordinates'. Got: {result.keys()}"
+    assert (
+        result[Z].shape[0] == MAX_N_ATOMS
+    ), f"Atomic numbers should be padded to {MAX_N_ATOMS}. Got: {result[Z]}"
+    assert (
+        result[R].shape[1] == MAX_N_ATOMS
+    ), f"Coordinates should be padded to {MAX_N_ATOMS}. Got: {result[R]}"
     # assert "dipole_moment" in result, "Result should contain 'dipole_moment'."
     # assert "charges" in result, "Result should contain 'charges'."
 
@@ -71,10 +82,12 @@ def test_process_in_memory():
     # Assertions on keys and structure
     assert "Z" in result, "Processed data should contain key 'Z' for atomic numbers."
     assert "R" in result, "Processed data should contain key 'R' for coordinates."
-    assert result["Z"].shape[0] == len(mock_data), \
-        "Number of samples should match the input data length."
-    assert result["R"].shape[1] == MAX_N_ATOMS, \
-        f"Coordinates should be padded to {MAX_N_ATOMS}."
+    assert result["Z"].shape[0] == len(
+        mock_data
+    ), "Number of samples should match the input data length."
+    assert (
+        result["R"].shape[1] == MAX_N_ATOMS
+    ), f"Coordinates should be padded to {MAX_N_ATOMS}."
 
 
 def test_process_dataset_key():
@@ -88,15 +101,13 @@ def test_process_dataset_key():
 
     # Call the function
     result = process_dataset_key(
-        data_key,
-        datasets=mock_data,
-        shape=(15,),
-        natoms=0,
-        not_failed=not_failed
+        data_key, datasets=mock_data, shape=(15,), natoms=0, not_failed=not_failed
     )
 
     # Assertions on the output
-    assert result.shape == (15,), "The shape of the processed key should match the valid data size."
+    assert result.shape == (
+        15,
+    ), "The shape of the processed key should match the valid data size."
     assert np.all(result >= 0), "Energy values should be non-negative in mock datasets."
 
 
@@ -111,17 +122,19 @@ def test_clip_or_default_data():
     shape = (270,)
 
     # No clipping case
-    result = clip_or_default_data(
-        mock_data, data_key, not_failed, shape, clip=False
-    )
-    assert result.shape == (270,), "Result shape should match when clipping is disabled."
+    result = clip_or_default_data(mock_data, data_key, not_failed, shape, clip=False)
+    assert result.shape == (
+        270,
+    ), "Result shape should match when clipping is disabled."
 
     # Clipping case
     result_clipped = clip_or_default_data(
         mock_data, data_key, not_failed, shape, clip=True
     )
-    assert result_clipped.shape == (270, NUM_ESP_CLIP), \
-        f"Result should be clipped to {NUM_ESP_CLIP}."
+    assert result_clipped.shape == (
+        270,
+        NUM_ESP_CLIP,
+    ), f"Result should be clipped to {NUM_ESP_CLIP}."
 
 
 def test_prepare_multiple_datasets():
@@ -152,10 +165,11 @@ def test_prepare_multiple_datasets():
         natoms=MAX_N_ATOMS,
     )
 
-
     # Assertions on results
     assert len(data) == len(keys), "Keys and Data lengths should match."
-    assert mock_valid_size + mock_train_size <= len(data[0]), "Dataset sizes should match input requirements."
+    assert mock_valid_size + mock_train_size <= len(
+        data[0]
+    ), "Dataset sizes should match input requirements."
     assert "R" in keys, "Keys should include 'R' for coordinates."
     assert "Z" in keys, "Keys should include 'Z' for atomic numbers."
     assert "E" in keys, "Keys should include 'E' for energy."

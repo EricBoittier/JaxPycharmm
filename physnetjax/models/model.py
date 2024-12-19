@@ -582,7 +582,8 @@ class EF(nn.Module):
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
 
         # Debug input shapes
-        if isinstance(self.debug, list) and "idx" in self.debug:
+        # if isinstance(self.debug, list) and "idx" in self.debug:
+        if True:
             jax.debug.print("atomic_numbers {x}", x=atomic_numbers.shape)
             jax.debug.print("positions {x}", x=positions.shape)
             jax.debug.print("dst_idx {x}", x=dst_idx.shape)
