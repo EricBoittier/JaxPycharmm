@@ -355,7 +355,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     batch["atom_mask"] = atom_mask
     # mask for batches (atom wise)
     print("batch[N]", batch["N"])
-    batch_mask_atoms = np.concatenate([np.ones(x) * i for i, x in enumerate(batch["N"])])
+    batch_mask_atoms = np.concatenate([np.ones(int(x)) * i for i, x in enumerate(batch["N"])])
     batch["batch_segments"] = np.pad(
         batch_mask_atoms,
         (0, batch_shape - len(batch_mask_atoms)))
