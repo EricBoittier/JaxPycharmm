@@ -338,7 +338,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     elif key in {"D"}:
                         val = val.reshape(1, 3)
                     elif key in {"E", "N"}:
-                        val = val.reshape(1, 1)
+                        val = val.reshape(batch_size)
                     elif key in {"Z"}:
                         val = val[start:stop].reshape(int(n[i]), 1)
                     else:
