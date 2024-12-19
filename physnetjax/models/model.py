@@ -577,6 +577,8 @@ class EF(nn.Module):
             batch_mask = jnp.ones_like(dst_idx)
             atom_mask = jnp.ones_like(atomic_numbers)
 
+        import lovely_jax as lj
+
         jax.debug.print("atomic_numbers {x}", x=atomic_numbers)
         jax.debug.print("positions {x}", x=positions)
         jax.debug.print("dst_idx {x}", x=dst_idx)
