@@ -70,7 +70,7 @@ params = train_model(
     model,
     output1,
     output2,
-    num_epochs=int(10**6),
+    num_epochs=int(10**1),
     learning_rate=0.001,
     energy_weight=NATOMS,
     schedule_fn="constant",
