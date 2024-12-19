@@ -9,7 +9,7 @@ from physnetjax.training.training import train_model
 NATOMS = 110
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 RANDOM_SEED = 42
-BATCH_SIZE = 60
+BATCH_SIZE = 20
 
 # # Environment configuration
 # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
