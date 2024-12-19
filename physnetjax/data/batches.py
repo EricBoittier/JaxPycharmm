@@ -331,7 +331,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     stop = int(n[i])
                     val = data[key][permutation_index]
                     if key in {"R", "F"}:
-                        print(i, key, val.shape, val)
+                        # print(i, key, val.shape, val)
                         val = val[start:stop, :].reshape(
                             int(n[i]), 3
                         )
@@ -354,7 +354,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
     batch["atom_mask"] = atom_mask
     # mask for batches (atom wise)
-    print("batch[N]", batch["N"])
+    # print("batch[N]", batch["N"])
     batch_mask_atoms = np.concatenate([np.ones(int(x)) * i for i, x in enumerate(batch["N"])])
     batch["batch_segments"] = np.pad(
         batch_mask_atoms,
