@@ -72,7 +72,7 @@ params = train_model(
     output2,
     num_epochs= int(10**1),
     learning_rate=0.0001,
-    energy_weight=NATOMS,
+    energy_weight=1,
     schedule_fn="constant",
     optimizer="amsgrad",
     batch_size=BATCH_SIZE,
