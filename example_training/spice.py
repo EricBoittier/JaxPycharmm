@@ -9,11 +9,11 @@ from physnetjax.training.training import train_model
 NATOMS = 110
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 RANDOM_SEED = 42
+BATCH_SIZE = 3
 
 # # Environment configuration
 # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
 
 # JAX Configuration Check
 def check_jax_configuration():
@@ -58,6 +58,11 @@ model = EF(
     zbl=False,
 )
 
+batch_kwargs = {
+    "batch_shape" : int((BATCH_SIZE - 1) * NATOMS),
+    "nb_len" : int((NATOMS * (NATOMS - 1) * (BATCH_SIZE - 1)) // 1.6)
+}
+
 # Model training
 params = train_model(
     train_key,
@@ -69,10 +74,12 @@ params = train_model(
     energy_weight=NATOMS,
     schedule_fn="constant",
     optimizer="amsgrad",
-    batch_size=1,
+    batch_size=BATCH_SIZE,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
     print_freq=1,
     objective="valid_loss",
     best=1e6,
+    batch_method="advanced",
+    batch_args_dict=batch_kwargs,
 )

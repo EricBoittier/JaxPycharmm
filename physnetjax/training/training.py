@@ -49,8 +49,8 @@ def decide_batching(batch_method, batch_args_dict):
             x["key"],
             x["data"],
             x["batch_size"],
-            x["batch_shape"],
-            x["batch_nbl_len"],
+            batch_args_dict["batch_shape"],
+            batch_args_dict["batch_nbl_len"],
             num_atoms=x["num_atoms"],
             data_keys=x["data_keys"],
         )
@@ -63,7 +63,6 @@ def decide_batching(batch_method, batch_args_dict):
             data_keys=x["data_keys"],
         )
     return _prepare_batches
-
 
 
 def train_model(
