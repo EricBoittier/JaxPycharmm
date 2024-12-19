@@ -349,7 +349,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                         break
                     print(key, val.shape)
                     if key in {"R", "F"}:
-                        batch[key][idx_counter:idx_counter + int(n[i]), :] = val
+                        batch[key][idx_counter:idx_counter + int(n[i])] = val
                     if key in {"Z"}:
                         batch[key][idx_counter:idx_counter + int(n[i])] = val
                     idx_counter += int(n[i])
