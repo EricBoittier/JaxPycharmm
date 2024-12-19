@@ -164,6 +164,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
                 for d in data
             ]
         )
+    print("output[MolecularData.FORCES].shape", output[MolecularData.FORCES].shape)
 
     _ = check_keys(E_KEYS, data_keys)
     if _ is not None:
