@@ -150,11 +150,11 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
     # coordinates
     _ = check_keys(R_KEYS,data_keys)
     if _ is not None:
-        # print(_.shape)
+        print(data[0][_])
         output[MolecularData.COORDINATES] = np.array(
             [pad_coordinates(d[_], MAX_N_ATOMS) for d in data]
         )
-
+    print("output[MolecularData.COORDINATES]", output[MolecularData.COORDINATES].shape)
     _ = check_keys(F_KEYS, data_keys)
     if _ is not None:
         print(data[0][_])
