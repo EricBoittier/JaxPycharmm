@@ -113,6 +113,11 @@ def train_step(
         )
 
     updates, opt_state = optimizer_update(grad, opt_state, params)
+    # check for nans in updates
+    print("Checking for nans in updates")
+    for k, v in updates.items():
+        if jnp.isnan(v).any():
+            print(f"Found nan in {k}")
     # update "reduce on plateau" state
     updates = otu.tree_scalar_mul(transform_state.scale, updates)
     params = optax.apply_updates(params, updates)

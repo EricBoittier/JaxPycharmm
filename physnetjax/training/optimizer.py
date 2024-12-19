@@ -13,7 +13,7 @@ base_schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
 )
 base_optimizer = optax.chain(
     #    optax.adaptive_grad_clip(1.0),
-    optax.clip_by_global_norm(1.0),
+    optax.clip_by_global_norm(10.0),
     optax.amsgrad(learning_rate=base_schedule_fn, b1=0.9, b2=0.99, eps=1e-3),
 )
 
