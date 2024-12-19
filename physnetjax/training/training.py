@@ -9,8 +9,9 @@ import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from rich.console import Console
 from rich.live import Live
+from scipy.special import kwargs
 
-from physnetjax.data.batches import prepare_batches
+from physnetjax.data.batches import prepare_batches, prepare_batches_advanced_minibatching
 from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.restart.restart import orbax_checkpointer, restart_training
 from physnetjax.training.evalstep import eval_step
@@ -41,6 +42,29 @@ CONVERSION = {
     "forces": 1 / (ase.units.kcal / ase.units.mol),
 }
 
+def decide_batching(batch_method, batch_args_dict):
+    if (batch_method == "advanced" and isinstance(batch_args_dict, dict) and
+            "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict):
+        _prepare_batches = lambda x: prepare_batches_advanced_minibatching(
+            x["key"],
+            x["data"],
+            x["batch_size"],
+            x["batch_shape"],
+            x["batch_nbl_len"],
+            num_atoms=x["num_atoms"],
+            data_keys=x["data_keys"],
+        )
+    else:
+        _prepare_batches = lambda x: prepare_batches(
+            x["key"],
+            x["data"],
+            x["batch_size"],
+            num_atoms=x["num_atoms"],
+            data_keys=x["data_keys"],
+        )
+    return _prepare_batches
+
+
 
 def train_model(
     key,
@@ -66,13 +90,15 @@ def train_model(
     objective="valid_forces_mae",
     ckpt_dir=BASE_CKPT_DIR,
     log_tb=True,
+    batch_method = "default",
+    batch_args_dict = None,
     data_keys=("R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"),
 ):
     """Train a model."""
     data_keys = tuple(data_keys)
 
-    console = None
-    # if not isinstance(model.debug, list):
+    _prepare_batches = decide_batching(batch_method, batch_args_dict)
+
     console = Console(width=200, color_system="auto")
 
     if console is not None:
@@ -125,12 +151,15 @@ def train_model(
 
     # Batches for the validation set need to be prepared only once.
     key, shuffle_key = jax.random.split(key)
-    valid_batches = prepare_batches(
-        shuffle_key,
-        valid_data,
-        batch_size,
-        num_atoms=num_atoms,
-        data_keys=data_keys,
+    kwargs = {
+        "key": shuffle_key,
+        "data": valid_data,
+        "batch_size": batch_size,
+        "num_atoms": num_atoms,
+        "data_keys": data_keys,
+    }
+    valid_batches = _prepare_batches(
+        kwargs
     )
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
@@ -187,12 +216,15 @@ def train_model(
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
             key, shuffle_key = jax.random.split(key)
-            train_batches = prepare_batches(
-                shuffle_key,
-                train_data,
-                batch_size,
-                num_atoms=num_atoms,
-                data_keys=data_keys,
+            kwargs = {
+                "key": shuffle_key,
+                "data": train_data,
+                "batch_size": batch_size,
+                "num_atoms": num_atoms,
+                "data_keys": data_keys,
+            }
+            train_batches = _prepare_batches(
+                kwargs
             )
             # Loop over train batches.
             train_loss = 0.0

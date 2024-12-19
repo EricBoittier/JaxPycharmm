@@ -59,7 +59,7 @@ def test_prepare_batches_advanced_minibatching_basepairs():
 
     NATOMS = 30
     BATCH_SIZE = 3
-    BATCH_SHAPE = int(BATCH_SIZE * NATOMS // 1.5)
+    BATCH_SHAPE = int((BATCH_SIZE - 1) * NATOMS)
     NB_LEN = 870 * 3
 
     from physnetjax.data.data import prepare_datasets
@@ -81,7 +81,7 @@ def test_prepare_batches_advanced_minibatching_basepairs():
         batch_size=BATCH_SIZE,
         batch_shape=BATCH_SHAPE,
         batch_nbl_len=NB_LEN,
-        data_keys=("R", "Z", "N", "F"),
+        data_keys=("R", "Z", "N", "F", "E"),
     )
 
     assert len(output) == int(len(train_data["R"])) // BATCH_SIZE
@@ -107,13 +107,11 @@ def test_prepare_batches_advanced_minibatching():
 
     # Configurable Constants
     NATOMS = 110
-    DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
     RANDOM_SEED = 42
     key = jax.random.PRNGKey(RANDOM_SEED)
-
-    # # Environment configuration
-    # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    BATCH_SIZE = 3
+    BATCH_SHAPE = int((BATCH_SIZE - 1) * NATOMS)
+    NB_LEN = int((NATOMS*(NATOMS - 1) * (BATCH_SIZE-1))//1.6)
 
     # JAX Configuration Check
     def check_jax_configuration():
@@ -133,16 +131,49 @@ def test_prepare_batches_advanced_minibatching():
 
     ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
     ds.read_preprocess()
-    output1 = prepare_spice_dataset(ds, subsample_size=100, max_atoms=NATOMS)
-    output2 = prepare_spice_dataset(ds, subsample_size=1000, max_atoms=NATOMS)
+    output1 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
+    output2 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
     key, shuffle_key = jax.random.split(key)
-    valid_batches = prepare_batches_advanced_minibatching(
+    output = prepare_batches_advanced_minibatching(
         shuffle_key,
         output2,
-        20,
+        batch_size=BATCH_SIZE,
+        batch_shape=BATCH_SHAPE,
+        batch_nbl_len=NB_LEN,
         num_atoms=110,
         data_keys=("Z", "R", "E", "F", "N"),
     )
-    print(valid_batches)
-    assert len(valid_batches) < 1000
+
+    print("New method:")
+
+    for i, _ in enumerate(output):
+        for k, v in _.items():
+            print(i, k, v.shape)
+
+    assert len(output) < 1000
+
+    for k in output[0]:
+        assert len(output[0][k]) == len(output[1][k]), f"Lengths of {k} should match."
+
+    assert len(output[0]["dst_idx"]) > 0
+    assert len(output[0]["dst_idx"]) == len(output[0]["src_idx"])
+    assert len(output[1]["dst_idx"]) == len(output[0]["src_idx"])
+    assert len(output[0]["dst_idx"]) == NB_LEN
+    assert len(output[1]["R"]) == BATCH_SHAPE
+    assert len(output[1]["Z"]) == BATCH_SHAPE
+    assert len(output[1]["N"]) == BATCH_SIZE
+
+    print("Old method:")
+
+    output = prepare_batches(
+        shuffle_key,
+        output2,
+        batch_size=BATCH_SIZE,
+        num_atoms=110,
+        data_keys=("Z", "R", "E", "F", "N"),
+    )
+
+    for i, _ in enumerate(output):
+        for k, v in _.items():
+            print(i, k, v.shape)
 

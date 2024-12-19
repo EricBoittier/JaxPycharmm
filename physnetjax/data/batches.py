@@ -281,24 +281,26 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     PADDING_VALUE = batch_shape + 1  # Padding value for unfilled batch elements
     batch = {"dst_idx": np.full(batch_nbl_len, PADDING_VALUE),
              "src_idx": np.full(batch_nbl_len, PADDING_VALUE),
-             "batch_mask": np.zeros(PADDING_VALUE, dtype=int)}
+             "batch_mask": np.zeros(batch_nbl_len, dtype=int)}
     n = data["N"][perm]
     # Determine stopping indices for padding
     cum_sum_n = np.cumsum(n)
-    stop_idx = np.where(cum_sum_n > (num_atoms * batch_shape // 2))[0]
+    stop_idx = np.nonzero(cum_sum_n > batch_shape)[0]
     excluded_indices = set(stop_idx[stop_idx > 0] - 1)
-
+    n[stop_idx] = 0
     # Fill `dst_idx` and `src_idx` arrays
     idx_counter = 0
     an_counter = 0
     for i, n_atoms in enumerate(n):
         n_atoms = int(n_atoms)
+        if n_atoms == 0:
+            break
         tmp_dst, tmp_src = dst_src_lookup[int(n_atoms)]
-        len_current_nbl = len(tmp_dst)
+        len_current_nbl = int(n_atoms) * (int(n_atoms) - 1)
         if idx_counter + len_current_nbl > batch_nbl_len:
             n[i] = 0
             break
-        batch["batch_mask"][idx_counter:idx_counter + len_current_nbl] = 1
+        batch["batch_mask"][idx_counter:idx_counter + len_current_nbl] = np.ones_like(tmp_dst)
         batch["dst_idx"][idx_counter:idx_counter + len_current_nbl] = tmp_dst + an_counter
         batch["src_idx"][idx_counter:idx_counter + len_current_nbl] = tmp_src + an_counter
         idx_counter += len_current_nbl
@@ -310,7 +312,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
             if key == "N":
                 batch[key] = n
             elif key == "E":
-                batch[key] = data[key][perm].reshape(batch_shape, 1)
+                batch[key] = data[key][perm]
             elif key == "D":
                 batch[key] = data[key][perm]
             else:
@@ -345,8 +347,10 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
     batch["atom_mask"] = atom_mask
     # mask for batches (atom wise)
-    batch_mask_atoms = np.concatenate([np.arange(x) for x in batch["N"]])
-    batch["batch_segments"] = batch_mask_atoms
+    batch_mask_atoms = np.concatenate([np.ones(x) * i for i, x in enumerate(batch["N"])])
+    batch["batch_segments"] = np.pad(
+        batch_mask_atoms,
+        (0, batch_shape - len(batch_mask_atoms)))
     return batch
 
 
@@ -356,11 +360,8 @@ def prepare_batches_advanced_minibatching(
         batch_size,
         batch_shape,
         batch_nbl_len,
-        include_id=False,
         data_keys=None,
         num_atoms=60,
-        dst_idx=None,
-        src_idx=None,
 ) -> list:
     """
     Prepare batches for training.
@@ -384,7 +385,6 @@ def prepare_batches_advanced_minibatching(
                          batch_shape, batch_nbl_len, num_atoms)
         )
 
-    print(output)
     return output
 
 
