@@ -328,10 +328,10 @@ class EF(nn.Module):
                 batch_segments,
                 batch_size,
             )
-            # repulsion *= batch_mask[..., None]
-            if not self.debug and "repulsion" in self.debug:
-                jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
-                jax.debug.print("Repulsion: {x}", x=repulsion)
+            # # repulsion *= batch_mask[..., None]
+            # if not self.debug and "repulsion" in self.debug:
+            #     jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
+            #     jax.debug.print("Repulsion: {x}", x=repulsion)
 
         else:
             repulsion = 0.0
@@ -495,10 +495,10 @@ class EF(nn.Module):
             num_segments=batch_size,
         )
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
-        if not self.debug and "ele" in self.debug:
-            jax.debug.print(
-                f"{atomic_electrostatics}", atomic_electrostatics=atomic_electrostatics
-            )
+        # if not self.debug and "ele" in self.debug:
+        #     jax.debug.print(
+        #         f"{atomic_electrostatics}", atomic_electrostatics=atomic_electrostatics
+        #     )
         return atomic_electrostatics, batch_electrostatics
 
     def _calculate_dipole(
@@ -582,16 +582,16 @@ class EF(nn.Module):
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
 
         # Debug input shapes
-        if not self.debug and "idx" in self.debug:
-        # if True:
-            jax.debug.print("atomic_numbers {x}", x=atomic_numbers.shape)
-            jax.debug.print("positions {x}", x=positions.shape)
-            jax.debug.print("dst_idx {x}", x=dst_idx.shape)
-            jax.debug.print("src_idx {x}", x=src_idx.shape)
-            jax.debug.print("batch_segments {x}", x=batch_segments.shape)
-            jax.debug.print("batch_size {x}", x=batch_size)
-            jax.debug.print("batch_mask {x}", x=batch_mask.shape)
-            jax.debug.print("atom_mask {x}", x=atom_mask.shape)
+        # if not self.debug and "idx" in self.debug:
+        # # if True:
+        #     jax.debug.print("atomic_numbers {x}", x=atomic_numbers.shape)
+        #     jax.debug.print("positions {x}", x=positions.shape)
+        #     jax.debug.print("dst_idx {x}", x=dst_idx.shape)
+        #     jax.debug.print("src_idx {x}", x=src_idx.shape)
+        #     jax.debug.print("batch_segments {x}", x=batch_segments.shape)
+        #     jax.debug.print("batch_size {x}", x=batch_size)
+        #     jax.debug.print("batch_mask {x}", x=batch_mask.shape)
+        #     jax.debug.print("atom_mask {x}", x=atom_mask.shape)
 
         # Calculate energies and forces
         (_, (energy, charges, electrostatics, repulsion)), forces = energy_and_forces(
@@ -638,26 +638,25 @@ class EF(nn.Module):
             "sum_charges": sum_charges,
         }
         # Debug output values
-        if not self.debug:
-        # if True:
-            # if "forces" in self.debug:
-            debug_forces(output, forces)
-            # if "energy" in self.debug:
-            jax.debug.print("Energy: {x}", x=energy)
-            # if "charges" in self.debug and charges is not None:
-            #     jax.debug.print("Charges shape: {x}", x=charges.shape)
+
+        # # if "forces" in self.debug:
+        # debug_forces(output, forces)
+        # # if "energy" in self.debug:
+        # jax.debug.print("Energy: {x}", x=energy)
+        # # if "charges" in self.debug and charges is not None:
+        # #     jax.debug.print("Charges shape: {x}", x=charges.shape)
         return output
 
 
-def debug_forces(output, forces):
-    for k in output.keys():
-        if output[k] is not None:
-            hasnans = jnp.isnan(output[k]).any()
-            hasninf = ~jnp.isfinite(output[k]).any()
-            jax.debug.print(
-                "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
-                k=k,
-                nans=hasnans,
-                ninf=hasninf,
-            )
-    jax.debug.print("Forces shape: {x}", x=forces.shape)
+# def debug_forces(output, forces):
+#     for k in output.keys():
+#         if output[k] is not None:
+#             hasnans = jnp.isnan(output[k]).any()
+#             hasninf = ~jnp.isfinite(output[k]).any()
+#             jax.debug.print(
+#                 "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
+#                 k=k,
+#                 nans=hasnans,
+#                 ninf=hasninf,
+#             )
+#     jax.debug.print("Forces shape: {x}", x=forces.shape)
