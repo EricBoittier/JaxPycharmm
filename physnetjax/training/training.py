@@ -9,7 +9,6 @@ from flax.training import orbax_utils, train_state
 from rich.console import Console
 from rich.live import Live
 
-from physnetjax.data.batches import get_prepare_batches_fn, prepare_batches_advanced_minibatching
 from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.restart.restart import orbax_checkpointer, restart_training
 from physnetjax.training.evalstep import eval_step
@@ -42,28 +41,28 @@ CONVERSION = {
     "forces": 1 / (ase.units.kcal / ase.units.mol),
 }
 
-def decide_batching(batch_method, batch_args_dict):
-    if (batch_method == "advanced" and isinstance(batch_args_dict, dict) and
-            "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict):
-        _prepare_batches = lambda x: prepare_batches_advanced_minibatching(
-            x["key"],
-            x["data"],
-            x["batch_size"],
-            batch_args_dict["batch_shape"],
-            batch_args_dict["batch_nbl_len"],
-            num_atoms=x["num_atoms"],
-            data_keys=x["data_keys"],
-        )
-    else:
-        prepare_batches = get_prepare_batches_fn()
-        _prepare_batches = lambda x: prepare_batches(
-            x["key"],
-            x["data"],
-            x["batch_size"],
-            num_atoms=x["num_atoms"],
-            data_keys=x["data_keys"],
-        )
-    return _prepare_batches
+# def decide_batching(batch_method, batch_args_dict):
+#     if (batch_method == "advanced" and isinstance(batch_args_dict, dict) and
+#             "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict):
+#         _prepare_batches = lambda x: prepare_batches_advanced_minibatching(
+#             x["key"],
+#             x["data"],
+#             x["batch_size"],
+#             batch_args_dict["batch_shape"],
+#             batch_args_dict["batch_nbl_len"],
+#             num_atoms=x["num_atoms"],
+#             data_keys=x["data_keys"],
+#         )
+#     else:
+#         prepare_batches = get_prepare_batches_fn()
+#         _prepare_batches = lambda x: prepare_batches(
+#             x["key"],
+#             x["data"],
+#             x["batch_size"],
+#             num_atoms=x["num_atoms"],
+#             data_keys=x["data_keys"],
+#         )
+#     return _prepare_batches
 
 
 def train_model(
@@ -97,7 +96,23 @@ def train_model(
     """Train a model."""
     data_keys = tuple(data_keys)
 
-    _prepare_batches = decide_batching(batch_method, batch_args_dict)
+    # Decide batching method
+    if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
+        "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict:
+        from physnetjax.data.batches import prepare_batches_advanced_minibatching
+        _prepare_batches = lambda x: prepare_batches_advanced_minibatching(
+            x["key"],
+            x["data"],
+            x["batch_size"],
+            batch_args_dict["batch_shape"],
+            batch_args_dict["batch_nbl_len"],
+            num_atoms=x["num_atoms"],
+            data_keys=x["data_keys"],
+        )
+    else:
+        from physnetjax.data.batches import get_prepare_batches_fn
+        _prepare_batches = get_prepare_batches_fn()
+
 
     console = Console(width=200, color_system="auto")
 

@@ -75,28 +75,27 @@ MAX_N_ATOMS = 37
                 raw_data[data_type].append(result[data_type.value])
 
     def pad_data_by_key(data_key: MolecularData, pad_function,
-                        singleton,
                         *pad_args):
         """Pad raw data of a single type to ensure uniform sizes."""
-        print(data_key, len(raw_data[data_key]), raw_data[data_key][0].shape)
-        if singleton:
-            return np.array([pad_function(item, *pad_args) for item in raw_data[data_key]])
-        tmp_out = []
+        out = []
         for item in raw_data[data_key]:
-            for i in range(len(item)):
-                tmp_out.append(pad_function(item[i], *pad_args))
-        out = np.stack(tmp_out)
-        print(out.shape)
-        return out
+            p = pad_function(item, *pad_args)
+            out.append(p)
 
-    singleton = False
+        # stack the arrays to create a single array
+        output_array = np.vstack(out)
+
+        return output_array
+
+
+    singleton = True
 
     processed_data = {
         MolecularData.ATOMIC_NUMBERS: pad_data_by_key(
-            MolecularData.ATOMIC_NUMBERS, pad_atomic_numbers, singleton, MAX_N_ATOMS
+            MolecularData.ATOMIC_NUMBERS, pad_atomic_numbers, MAX_N_ATOMS
         ),
         MolecularData.COORDINATES: pad_data_by_key(
-            MolecularData.COORDINATES, pad_coordinates, singleton, MAX_N_ATOMS
+            MolecularData.COORDINATES, pad_coordinates, MAX_N_ATOMS
         ),
     }
 

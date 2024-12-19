@@ -16,13 +16,7 @@ def test_process_dataset():
     mock_key = data_key
     mock_train_size = 10
     mock_valid_size = 5
-    mock_filename = [
-        MAIN_PATH / Path("data/basepairs/at_prod.npz"),
-        MAIN_PATH / Path("data/basepairs/at_reag.npz"),
-        MAIN_PATH / Path("data/basepairs/at_retune.npz"),
-        MAIN_PATH / Path("data/basepairs/rattle_neb_at.npz"),
-        MAIN_PATH / Path("data/basepairs/rattle_neb_gc.npz"),
-    ]
+    mock_filename = list(MAIN_PATH.glob("data/basepairs/*.npz"))
     print(mock_filename)
 
     return mock_filename

@@ -49,13 +49,6 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
         Z = load[zkey]
         n_atoms = Z.shape[1]
 
-        # if int(len(R)) != n_atoms:
-        #     print(f"Number of atoms in R and Z do not match for {filepath}")
-        #     return None, n_atoms
-        #
-        # if not (3 < n_atoms < 1000):
-        #     return None, n_atoms
-
         output = {
             MolecularData.COORDINATES.value: R,
             MolecularData.ATOMIC_NUMBERS.value: Z,

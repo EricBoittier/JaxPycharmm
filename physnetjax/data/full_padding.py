@@ -49,10 +49,12 @@ def pad_coordinates(coords: NDArray, max_atoms: int) -> NDArray:
     Returns:
         Padded coordinates array with shape (max_atoms, 3)
     """
+    if len(coords.shape) == 3:
+        return pad_array(coords, max_atoms, axis=1)
     return pad_array(coords, max_atoms)
 
 
-def pad_forces(forces: NDArray, n_atoms: int, max_atoms: int) -> NDArray:
+def pad_forces(forces: NDArray, max_atoms: int) -> NDArray:
     """
     Pad and convert forces array from Hartree/Bohr to eV/Angstrom.
 

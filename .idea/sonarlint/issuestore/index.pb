@@ -11,8 +11,6 @@ L
 example_training/test_cf3.py,5/3/539d83aa7fda89dea83a9cc69858c6b9f3d9af54
 L
 example_training/test_mlp.py,5/2/522cde7a977456e7f2e2d4045f8839d8dd8f4b3a
-E
-tests/test_openqdc.py,1/b/1be2a12f79e4993aaba9d3fa4690da7408c70dbe
 V
 &example_training/test_cf3_fullbatch.py,6/c/6cb9998d350b99559c6db67ffc31cbcfd63c998c
 G
