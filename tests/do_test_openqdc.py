@@ -29,7 +29,9 @@ ds.read_preprocess()
 
 dataset = ds[0]
 
-print(dataset.e0s_dispatcher)
+print(dataset)
+
+print(dataset.e0s_dict)
 
 # datadicts = [dict(ds[_]) for _ in ds.subsample(50)]
 # output1 = process_in_memory(datadicts, max_atoms=NATOMS)
