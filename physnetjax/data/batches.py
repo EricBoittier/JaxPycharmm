@@ -311,37 +311,40 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
         if key in data:
             if key == "N":
                 batch[key] = n
+            elif key in {"dst_idx", "src_idx"}:
+                pass
             elif key == "E":
                 batch[key] = data[key][perm]
             elif key == "D":
                 batch[key] = data[key][perm]
+                shape = (1, 3)
+            elif key in {"R", "F"}:
+                shape = (batch_shape, 3)
             else:
-                shape = (batch_shape, 3) if key in {"R", "F"} else (batch_shape, 1)
-                if key in {"D"}:
-                    shape = (1, 3)
-                if key in {"dst_idx", "src_idx"}:
-                    pass
-                batch[key] = np.zeros(shape)
-                idx_counter = 0
-                for i, permutation_index in enumerate(perm):
-                    if i not in excluded_indices:
-                        start = int(0)
-                        stop = int(n[i])
-                        val = data[key][permutation_index]
-                        if key in {"R", "F"}:
-                            val = val[start:stop, :].reshape(
-                                int(n[i]), 3
-                            )
-                        elif key in {"D"}:
-                            val = val.reshape(1, 3)
-                        else:
-                            val = val[start:stop].reshape(int(n[i]), 1)
+                shape = (batch_shape, 1)
 
-                        if idx_counter + int(n[i]) > batch_shape:
-                            # print("breaking at", i, "idx_counter", idx_counter, "n[i]", n[i])
-                            break
-                        batch[key][idx_counter:idx_counter + int(n[i])] = val
-                        idx_counter += int(n[i])
+            batch[key] = np.zeros(shape)
+            idx_counter = 0
+
+            for i, permutation_index in enumerate(perm):
+                if i not in excluded_indices:
+                    start = int(0)
+                    stop = int(n[i])
+                    val = data[key][permutation_index]
+                    if key in {"R", "F"}:
+                        val = val[start:stop, :].reshape(
+                            int(n[i]), 3
+                        )
+                    elif key in {"D"}:
+                        val = val.reshape(1, 3)
+                    else:
+                        val = val[start:stop].reshape(int(n[i]), 1)
+
+                    if idx_counter + int(n[i]) > batch_shape:
+                        # print("breaking at", i, "idx_counter", idx_counter, "n[i]", n[i])
+                        break
+                    batch[key][idx_counter:idx_counter + int(n[i])] = val
+                    idx_counter += int(n[i])
 
     # mask for atoms
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
