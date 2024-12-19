@@ -294,7 +294,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     for i, n_atoms in enumerate(n):
         n_atoms = int(n_atoms)
         if n_atoms == 0 or n_atoms > batch_size:
-            break
+            raise ValueError(f"Invalid number of atoms: {n_atoms}")
         tmp_dst, tmp_src = dst_src_lookup[int(n_atoms)]
         len_current_nbl = int(n_atoms) * (int(n_atoms) - 1)
         if idx_counter + len_current_nbl > batch_nbl_len:
@@ -338,7 +338,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     elif key in {"D"}:
                         val = val.reshape(1, 3)
                     elif key in {"E", "N"}:
-                        val = val.reshape((batch_size,))
+                        val = val.reshape(batch_size)
                     elif key in {"Z"}:
                         val = val[start:stop].reshape(int(n[i]))
                     else:
