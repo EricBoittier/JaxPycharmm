@@ -639,7 +639,8 @@ class EF(nn.Module):
         }
         # print("output", output)
         # Debug output values
-        if isinstance(self.debug, list):
+        # if isinstance(self.debug, list):
+        if True:
             if "forces" in self.debug:
                 debug_forces(output, forces)
             if "energy" in self.debug:
