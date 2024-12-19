@@ -27,8 +27,8 @@ from physnetjax.utils.pretty_printer import (
     print_dict_as_table,
     training_printer,
 )
-import lovely_jax as lj
-lj.monkey_patch()
+# import lovely_jax as lj
+# lj.monkey_patch()
 
 schedule_fn = base_schedule_fn
 transform = base_transform
