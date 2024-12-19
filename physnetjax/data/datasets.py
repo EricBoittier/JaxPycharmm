@@ -155,6 +155,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
 
     _ = check_keys(F_KEYS, data_keys)
     if _ is not None:
+        print(data[0][_])
         output[MolecularData.FORCES] = np.vstack(
             [
                 pad_forces(
