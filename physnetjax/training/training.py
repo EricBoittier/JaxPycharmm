@@ -106,7 +106,6 @@ def train_model(
     start_time = time.time()
     if not isinstance(model.debug, list):
         console.print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time)))
-        console.print(cubes)
 
     best_loss = 10000
     do_charges = model.charges

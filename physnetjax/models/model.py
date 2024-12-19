@@ -329,7 +329,7 @@ class EF(nn.Module):
                 batch_size,
             )
             # repulsion *= batch_mask[..., None]
-            if isinstance(self.debug, list) and "repulsion" in self.debug:
+            if not self.debug and "repulsion" in self.debug:
                 jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
                 jax.debug.print("Repulsion: {x}", x=repulsion)
 
@@ -495,7 +495,7 @@ class EF(nn.Module):
             num_segments=batch_size,
         )
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
-        if isinstance(self.debug, list) and "ele" in self.debug:
+        if not self.debug and "ele" in self.debug:
             jax.debug.print(
                 f"{atomic_electrostatics}", atomic_electrostatics=atomic_electrostatics
             )
@@ -582,8 +582,7 @@ class EF(nn.Module):
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
 
         # Debug input shapes
-        if isinstance(self.debug, list) and "idx" in self.debug:
-        # if True:
+        if not self.debug and "idx" in self.debug:
             jax.debug.print("atomic_numbers {x}", x=atomic_numbers.shape)
             jax.debug.print("positions {x}", x=positions.shape)
             jax.debug.print("dst_idx {x}", x=dst_idx.shape)
@@ -638,7 +637,7 @@ class EF(nn.Module):
             "sum_charges": sum_charges,
         }
         # Debug output values
-        if isinstance(self.debug, list):
+        if not self.debug:
             if "forces" in self.debug:
                 debug_forces(output, forces)
             if "energy" in self.debug:
