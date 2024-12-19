@@ -4,19 +4,13 @@ import jax
 import jax.numpy as jnp
 import orbax
 
-# from jax import config
-# config.update('jax_enable_x64', True)
 from physnetjax.training.loss import (
-    dipole_calc,
     mean_absolute_error,
     mean_squared_loss,
     mean_squared_loss_QD,
 )
 
 DTYPE = jnp.float32
-
-orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer()
-
 
 @functools.partial(jax.jit, static_argnames=("model_apply", "batch_size", "charges"))
 def eval_step(

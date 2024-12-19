@@ -190,6 +190,10 @@ def train_model(
     )
 
     print_shapes(valid_batches[0], valid_batches[-1])
+    import lovely_jax as lj
+    lj.monkey_patch()
+    console.print(valid_data["E"])
+    console.print(valid_data["F"])
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
     params = model.init(
