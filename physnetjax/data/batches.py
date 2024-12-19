@@ -309,16 +309,16 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     # Handle additional batch data
     for key in data_keys:
         if key in data:
-            if key == "N":
+            if key in {"N", "E"}:
                 shape = (batch_size,)
             elif key in {"dst_idx", "src_idx"}:
                 break
-            elif key == "E":
-                shape = (batch_size,)
             elif key == "D":
                 shape = (batch_size, 3)
             elif key in {"R", "F"}:
                 shape = (batch_shape, 3)
+            elif key == "Z":
+                shape = (batch_shape,)
             else:
                 raise ValueError(f"Invalid key: {key}")
 
