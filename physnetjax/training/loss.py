@@ -29,8 +29,10 @@ def mean_squared_loss(
     energy_prediction: jnp.ndarray,
     energy_target: jnp.ndarray,
     forces_prediction: jnp.ndarray,
+    energy_weight: float,
     forces_target: jnp.ndarray,
     forces_weight: float,
+    atomic_mask: jnp.ndarray,
 ) -> float:
     """
     Calculate the mean squared loss for energy and forces predictions.
@@ -48,10 +50,10 @@ def mean_squared_loss(
     energy_loss = jnp.mean(
         optax.l2_loss(energy_prediction.squeeze(), energy_target.squeeze())
     )
-    forces_loss = jnp.mean(
+    forces_loss = jnp.sum(
         optax.l2_loss(forces_prediction.squeeze(), forces_target.squeeze())
-    )
-    return energy_loss + forces_weight * forces_loss
+    ) / atomic_mask.sum()
+    return energy_weight * energy_loss + forces_weight * forces_loss
 
 
 def mean_squared_loss_D(

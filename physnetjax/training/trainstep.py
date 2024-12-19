@@ -100,6 +100,8 @@ def train_step(
                 forces_prediction=output["forces"],
                 forces_target=batch["F"],
                 forces_weight=forces_weight,
+                energy_weight=energy_weight,
+                atomic_mask=batch["atom_mask"],
             )
             return loss, (output["energy"], output["forces"])
 
