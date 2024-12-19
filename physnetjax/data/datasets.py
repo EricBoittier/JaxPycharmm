@@ -139,6 +139,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
     output = {}
     data_keys = list(data[0].keys()) if isinstance(data, list) else list(data.keys())
 
+    # atomic numbers
     _ = check_keys(Z_KEYS,data_keys)
     if _ is not None:
         Z = [np.array([z[_]]) for z in data]
@@ -146,6 +147,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
             [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))]
         ).squeeze()
         output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
+    # coordinates
     _ = check_keys(R_KEYS,data_keys)
     if _ is not None:
         # print(_.shape)
@@ -156,7 +158,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
     _ = check_keys(F_KEYS, data_keys)
     if _ is not None:
         print(data[0][_])
-        output[MolecularData.FORCES] = np.vstack(
+        output[MolecularData.FORCES] = np.array(
             [
                 pad_forces(
                     d[_],
