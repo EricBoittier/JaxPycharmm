@@ -7,8 +7,9 @@ from ase.units import Bohr, Hartree, kcal
 from numpy.typing import NDArray
 from tqdm import tqdm
 
-from physnetjax.utils.enums import check_keys, Z_KEYS, R_KEYS, D_KEYS, E_KEYS, COM_KEYS, ESP_GRID_KEYS, ESP_KEYS, \
-    Q_KEYS
+from physnetjax.utils.enums import (check_keys, Z_KEYS, R_KEYS, F_KEYS,
+                                    D_KEYS, E_KEYS, COM_KEYS, ESP_GRID_KEYS, ESP_KEYS, \
+    Q_KEYS)
 from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
 
 # Constants
