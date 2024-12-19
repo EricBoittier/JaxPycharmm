@@ -638,13 +638,14 @@ class EF(nn.Module):
             "sum_charges": sum_charges,
         }
         # Debug output values
-        if not self.debug:
-            if "forces" in self.debug:
-                debug_forces(output, forces)
-            if "energy" in self.debug:
-                jax.debug.print("Energy: {x}", x=energy)
-            if "charges" in self.debug and charges is not None:
-                jax.debug.print("Charges shape: {x}", x=charges.shape)
+        # if not self.debug:
+        if True:
+            # if "forces" in self.debug:
+            debug_forces(output, forces)
+            # if "energy" in self.debug:
+            jax.debug.print("Energy: {x}", x=energy)
+            # if "charges" in self.debug and charges is not None:
+            #     jax.debug.print("Charges shape: {x}", x=charges.shape)
         return output
 
 
