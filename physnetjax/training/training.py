@@ -189,7 +189,7 @@ def train_model(
         kwargs
     )
 
-    # valid_batch_shapes =
+    print_shapes(valid_batches[0], valid_batches[-1])
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
     params = model.init(
