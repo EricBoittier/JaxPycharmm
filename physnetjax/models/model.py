@@ -580,14 +580,14 @@ class EF(nn.Module):
         import lovely_jax as lj
         lj.monkey_patch()
 
-        jax.debug.print("atomic_numbers {x}", x=atomic_numbers[::,1])
-        jax.debug.print("positions {x}", x=positions[::,1])
-        jax.debug.print("dst_idx {x}", x=dst_idx[::,1])
-        jax.debug.print("src_idx {x}", x=src_idx[::,1])
-        jax.debug.print("batch_segments {x}", x=batch_segments[::,1])
-        jax.debug.print("batch_size {x}", x=batch_size[::,1])
-        jax.debug.print("batch_mask {x}", x=batch_mask[::,1])
-        jax.debug.print("atom_mask {x}", x=atom_mask[::,1])
+        jax.debug.print("atomic_numbers {x}", x=atomic_numbers[::1])
+        jax.debug.print("positions {x}", x=positions[::1])
+        jax.debug.print("dst_idx {x}", x=dst_idx[::1])
+        jax.debug.print("src_idx {x}", x=src_idx[::1])
+        jax.debug.print("batch_segments {x}", x=batch_segments[::1])
+        jax.debug.print("batch_size {x}", x=batch_size[::1])
+        jax.debug.print("batch_mask {x}", x=batch_mask[::1])
+        jax.debug.print("atom_mask {x}", x=atom_mask[::1])
 
 
 
