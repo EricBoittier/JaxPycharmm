@@ -72,8 +72,8 @@ def train_model(
     data_keys = tuple(data_keys)
 
     console = None
-    if not isinstance(model.debug, list):
-        console = Console(width=200, color_system="auto")
+    # if not isinstance(model.debug, list):
+    console = Console(width=200, color_system="auto")
 
     if console is not None:
         console.print("Training Routine")
