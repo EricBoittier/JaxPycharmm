@@ -312,7 +312,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
             if key == "N":
                 batch[key] = n
             elif key in {"dst_idx", "src_idx"}:
-                pass
+                break
             elif key == "E":
                 batch[key] = data[key][perm]
             elif key == "D":
@@ -332,7 +332,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     stop = int(n[i])
                     val = data[key][permutation_index]
                     if key in {"R", "F"}:
-                        print("R/F", val.shape)
+                        print(i, key, "R/F", val.shape, val)
                         val = val[start:stop, :].reshape(
                             int(n[i]), 3
                         )
@@ -343,7 +343,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     elif key in {"Z"}:
                         val = val[start:stop].reshape(int(n[i]), 1)
                     else:
-                        pass
+                        break
 
                     if idx_counter + int(n[i]) > batch_shape:
                         break
