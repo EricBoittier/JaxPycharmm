@@ -276,7 +276,7 @@ def compute_dst_src_lookup(data):
 
 
 def create_batch(perm, dst_src_lookup, data, data_keys,
-                 batch_shape, batch_nbl_len, num_atoms):
+                 batch_shape, batch_nbl_len, num_atoms, batch_size):
     """Create a single batch based on a given permutation of indices."""
     PADDING_VALUE = batch_shape + 1  # Padding value for unfilled batch elements
     batch = {"dst_idx": np.full(batch_nbl_len, PADDING_VALUE),
@@ -293,7 +293,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     an_counter = 0
     for i, n_atoms in enumerate(n):
         n_atoms = int(n_atoms)
-        if n_atoms == 0:
+        if n_atoms == 0 or n_atoms > batch_size:
             break
         tmp_dst, tmp_src = dst_src_lookup[int(n_atoms)]
         len_current_nbl = int(n_atoms) * (int(n_atoms) - 1)
@@ -310,13 +310,13 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     for key in data_keys:
         if key in data:
             if key == "N":
-                shape = (batch_shape,)
+                shape = (batch_size,)
             elif key in {"dst_idx", "src_idx"}:
                 break
             elif key == "E":
-                shape = (batch_shape, 1)
+                shape = (batch_size, 1)
             elif key == "D":
-                shape = (1, 3)
+                shape = (batch_size, 3)
             elif key in {"R", "F"}:
                 shape = (batch_shape, 3)
             else:
@@ -394,7 +394,7 @@ def prepare_batches_advanced_minibatching(
     for perm in perms:
         output.append(
             create_batch(perm, dst_src_lookup, data, data_keys,
-                         batch_shape, batch_nbl_len, num_atoms)
+                         batch_shape, batch_nbl_len, num_atoms, batch_size)
         )
 
     return output
