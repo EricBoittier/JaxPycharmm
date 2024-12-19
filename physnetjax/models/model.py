@@ -577,6 +577,15 @@ class EF(nn.Module):
             batch_mask = jnp.ones_like(dst_idx)
             atom_mask = jnp.ones_like(atomic_numbers)
 
+        print(atomic_numbers)
+        print(positions)
+        print(dst_idx)
+        print(src_idx)
+        print(batch_segments)
+        print(batch_size)
+        print(batch_mask)
+        print(atom_mask)
+
         # Since we want to also predict forces, i.e. the gradient of the energy w.r.t. positions (argument 1), we use
         # jax.value_and_grad to create a function for predicting both energy and forces for us.
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
@@ -640,6 +649,8 @@ class EF(nn.Module):
         # Debug output values
 
         # # if "forces" in self.debug:
+        print(forces)
+        print(energy)
         debug_forces(output, forces)
         # # if "energy" in self.debug:
         # jax.debug.print("Energy: {x}", x=energy)
