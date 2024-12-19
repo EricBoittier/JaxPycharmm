@@ -178,13 +178,14 @@ def train_model(
         "num_atoms": num_atoms,
         "data_keys": data_keys,
     }
-    if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
-        "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict:
+    if batch_method == "advanced":
         kwargs.update(batch_args_dict)
 
     valid_batches = _prepare_batches(
         kwargs
     )
+
+    valid_batch_shapes = None
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
     params = model.init(
