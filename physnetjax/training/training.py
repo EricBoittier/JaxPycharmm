@@ -9,6 +9,7 @@ from flax.training import orbax_utils, train_state
 from rich.console import Console
 from rich.live import Live
 
+from physnetjax.data.data import print_shapes
 from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.restart.restart import orbax_checkpointer, restart_training
 from physnetjax.training.evalstep import eval_step
@@ -95,6 +96,9 @@ def train_model(
 ):
     """Train a model."""
     data_keys = tuple(data_keys)
+
+    print_shapes(train_data, valid_data)
+
 
     if batch_method is None:
         raise ValueError("batch_method must be specified")
@@ -185,7 +189,7 @@ def train_model(
         kwargs
     )
 
-    valid_batch_shapes = None
+    # valid_batch_shapes =
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
     params = model.init(
