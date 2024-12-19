@@ -101,7 +101,7 @@ def train_model(
 
     # Decide batching method
     if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
-        "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict:
+        "batch_shape" in batch_args_dict and "nb_len" in batch_args_dict:
         print("Using advanced batching method")
         from physnetjax.data.batches import prepare_batches_advanced_minibatching
         def _prepare_batches(x):
