@@ -27,7 +27,9 @@ NATOMS = 96
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
 
-print()
+dataset = ds[0]
+
+print(dataset.e0s_dispatcher)
 
 # datadicts = [dict(ds[_]) for _ in ds.subsample(50)]
 # output1 = process_in_memory(datadicts, max_atoms=NATOMS)
