@@ -347,7 +347,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
 
                     if idx_counter + int(n[i]) > batch_shape:
                         break
-                    print(key, val.shape)
+                    # print(key, val.shape)
                     if key in {"R", "F"}:
                         batch[key][idx_counter:idx_counter + int(n[i])] = val
                     if key in {"Z"}:
