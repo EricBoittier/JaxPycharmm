@@ -1,15 +1,13 @@
 import time
 import uuid
-from pathlib import Path
 
-import ase
+import ase.units
 import e3x
 import jax
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from rich.console import Console
 from rich.live import Live
-from scipy.special import kwargs
 
 from physnetjax.data.batches import prepare_batches, prepare_batches_advanced_minibatching
 from physnetjax.logger.tensorboard_logging import write_tb_log
