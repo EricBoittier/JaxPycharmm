@@ -71,13 +71,20 @@ def train_model(
     """Train a model."""
     data_keys = tuple(data_keys)
 
-    console = Console(width=200, color_system="auto")
-    console.print("Training Routine")
-    console.print(computer)
-    print_paths()
+    console = None
+    if not isinstance(model.debug, list):
+        console = Console(width=200, color_system="auto")
+
+    if console is not None:
+        console.print("Training Routine")
+        console.print(computer)
+        print_paths()
+
     start_time = time.time()
-    console.print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time)))
-    console.print(cubes)
+    if not isinstance(model.debug, list):
+        console.print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time)))
+        console.print(cubes)
+
     best_loss = 10000
     do_charges = model.charges
     # Initialize model parameters and optimizer state.
@@ -89,29 +96,29 @@ def train_model(
         transform=transform,
     )
     # pretty_print(optimizer, transform, schedule_fn)
-
-    pretty_print_optimizer(optimizer, transform, schedule_fn, console)
-    table, table2 = training_printer(
-        learning_rate,
-        energy_weight,
-        forces_weight,
-        dipole_weight,
-        charges_weight,
-        batch_size,
-        num_atoms,
-        restart,
-        conversion,
-        print_freq,
-        name,
-        best,
-        objective,
-        data_keys,
-        ckpt_dir,
-        train_data,
-        valid_data,
-    )
-    console.print(table)
-    console.print(table2)
+    if console is not None:
+        pretty_print_optimizer(optimizer, transform, schedule_fn, console)
+        table, table2 = training_printer(
+            learning_rate,
+            energy_weight,
+            forces_weight,
+            dipole_weight,
+            charges_weight,
+            batch_size,
+            num_atoms,
+            restart,
+            conversion,
+            print_freq,
+            name,
+            best,
+            objective,
+            data_keys,
+            ckpt_dir,
+            train_data,
+            valid_data,
+        )
+        console.print(table)
+        console.print(table2)
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
@@ -169,9 +176,12 @@ def train_model(
 
     model_attributes = model.return_attributes()
     table = print_dict_as_table(model_attributes, title="Model Attributes")
-    console.print(table)
+    if console is not None:
+        console.print(table)
 
-    with Live(auto_refresh=False) as live:
+    from contextlib import nullcontext
+
+    with Live(auto_refresh=False) as live if console is not None else nullcontext():
         # if True:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
@@ -312,7 +322,7 @@ def train_model(
 
                 best_ = True
 
-            if best_ or (epoch % print_freq == 0):
+            if best_ or (epoch % print_freq == 0) and console is not None:
                 combined = epoch_printer.update(
                     epoch,
                     train_loss,
