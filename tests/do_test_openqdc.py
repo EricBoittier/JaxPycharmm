@@ -32,7 +32,7 @@ dataset = ds[0]
 print(dataset)
 
 print(dir(ds))
-print(ds.__isolated_atom_energies__)
+print(ds._e0s_dispatcher)
 print(dataset.e0)
 
 # datadicts = [dict(ds[_]) for _ in ds.subsample(50)]
