@@ -580,14 +580,14 @@ class EF(nn.Module):
         import lovely_jax as lj
         lj.monkey_patch()
 
-        jax.debug.print("atomic_numbers {x}", x=atomic_numbers)
-        jax.debug.print("positions {x}", x=positions)
-        jax.debug.print("dst_idx {x}", x=dst_idx)
-        jax.debug.print("src_idx {x}", x=src_idx)
-        jax.debug.print("batch_segments {x}", x=batch_segments)
-        jax.debug.print("batch_size {x}", x=batch_size)
-        jax.debug.print("batch_mask {x}", x=batch_mask)
-        jax.debug.print("atom_mask {x}", x=atom_mask)
+        jax.debug.print("atomic_numbers {x}", x=atomic_numbers[::,1])
+        jax.debug.print("positions {x}", x=positions[::,1])
+        jax.debug.print("dst_idx {x}", x=dst_idx[::,1])
+        jax.debug.print("src_idx {x}", x=src_idx[::,1])
+        jax.debug.print("batch_segments {x}", x=batch_segments[::,1])
+        jax.debug.print("batch_size {x}", x=batch_size[::,1])
+        jax.debug.print("batch_mask {x}", x=batch_mask[::,1])
+        jax.debug.print("atom_mask {x}", x=atom_mask[::,1])
 
 
 
@@ -657,7 +657,8 @@ class EF(nn.Module):
         # # if "forces" in self.debug:
         print(forces)
         print(energy)
-        debug_forces(output, forces)
+
+        # debug_forces(output, forces)
         # # if "energy" in self.debug:
         # jax.debug.print("Energy: {x}", x=energy)
         # # if "charges" in self.debug and charges is not None:
@@ -665,15 +666,15 @@ class EF(nn.Module):
         return output
 
 
-def debug_forces(output, forces):
-    for k in output.keys():
-        if output[k] is not None:
-            hasnans = jnp.isnan(output[k]).any()
-            hasninf = ~jnp.isfinite(output[k]).any()
-            jax.debug.print(
-                "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
-                k=k,
-                nans=hasnans,
-                ninf=hasninf,
-            )
-    jax.debug.print("Forces shape: {x}", x=forces.shape)
+# def debug_forces(output, forces):
+#     for k in output.keys():
+#         if output[k] is not None:
+#             hasnans = jnp.isnan(output[k]).any()
+#             hasninf = ~jnp.isfinite(output[k]).any()
+#             jax.debug.print(
+#                 "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
+#                 k=k,
+#                 nans=hasnans,
+#                 ninf=hasninf,
+#             )
+#     jax.debug.print("Forces shape: {x}", x=forces.shape)
