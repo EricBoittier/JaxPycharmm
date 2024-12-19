@@ -68,7 +68,7 @@ def pad_forces(forces: NDArray, max_atoms: int) -> NDArray:
     """
     if len(forces.shape) == 3:
         return pad_array(forces, max_atoms, axis=1)
-    return pad_array(forces, max_atoms, axis=1)
+    return pad_array(forces, max_atoms, axis=0)
 
 
 
