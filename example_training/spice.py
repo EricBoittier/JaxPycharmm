@@ -37,8 +37,8 @@ def prepare_spice_dataset(dataset, subsample_size, max_atoms):
 
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
-output1 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
-output2 = prepare_spice_dataset(ds, subsample_size=10, max_atoms=NATOMS)
+output1 = prepare_spice_dataset(ds, subsample_size=1000, max_atoms=NATOMS)
+output2 = prepare_spice_dataset(ds, subsample_size=100, max_atoms=NATOMS)
 
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
@@ -56,7 +56,7 @@ model = EF(
     total_charge=0,
     n_res=5,
     zbl=False,
-    debug=["forces", "idx"]
+    # debug=["forces", "idx"]
 )
 
 batch_kwargs = {
@@ -70,7 +70,7 @@ params = train_model(
     model,
     output1,
     output2,
-    num_epochs=int(2),
+    num_epochs=int(10**6),
     learning_rate=0.001,
     energy_weight=NATOMS,
     schedule_fn="constant",

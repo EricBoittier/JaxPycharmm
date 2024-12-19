@@ -582,8 +582,8 @@ class EF(nn.Module):
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
 
         # Debug input shapes
-        # if not self.debug and "idx" in self.debug:
-        if True:
+        if not self.debug and "idx" in self.debug:
+        # if True:
             jax.debug.print("atomic_numbers {x}", x=atomic_numbers.shape)
             jax.debug.print("positions {x}", x=positions.shape)
             jax.debug.print("dst_idx {x}", x=dst_idx.shape)
@@ -638,8 +638,8 @@ class EF(nn.Module):
             "sum_charges": sum_charges,
         }
         # Debug output values
-        # if not self.debug:
-        if True:
+        if not self.debug:
+        # if True:
             # if "forces" in self.debug:
             debug_forces(output, forces)
             # if "energy" in self.debug:
