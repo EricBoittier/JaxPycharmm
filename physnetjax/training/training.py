@@ -89,12 +89,15 @@ def train_model(
     objective="valid_forces_mae",
     ckpt_dir=BASE_CKPT_DIR,
     log_tb=True,
-    batch_method = "default",
+    batch_method = None,
     batch_args_dict = None,
     data_keys=("R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"),
 ):
     """Train a model."""
     data_keys = tuple(data_keys)
+
+    if batch_method is None:
+        raise ValueError("batch_method must be specified")
 
     # Decide batching method
     if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
