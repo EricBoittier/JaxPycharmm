@@ -36,7 +36,8 @@ check_jax_configuration()
 def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=None,
                           key=jax.random.PRNGKey(42)):
     """Prepare the dataset by preprocessing and subsampling."""
-    key - int(key.flatten()[0])
+    if len(key) > 1:
+        key = key[0]
     indices = dataset.subsample(subsample_size, key=key)
     if ignore_indices is not None:
         indices = [_ for _ in indices if _ not in ignore_indices]
