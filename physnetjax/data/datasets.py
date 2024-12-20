@@ -163,9 +163,9 @@ def process_in_memory(
 
     key_f = check_keys(F_KEYS, data_keys)
     if key_f is not None:
-        forces = np.array([d[key_f].squeeze() for d in data], dtype=np.float32)
-        output[MolecularData.FORCES] = pad_forces(forces, MAX_N_ATOMS)
-
+        output[MolecularData.FORCES] = np.array(
+            [pad_forces(d[key_f].squeeze(), MAX_N_ATOMS) for d in data]
+        )
     key_e = check_keys(E_KEYS, data_keys)
     if key_e is not None:
         # do the conversion from hartree to eV...
