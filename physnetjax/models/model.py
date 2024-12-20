@@ -239,6 +239,9 @@ class EF(nn.Module):
         batch_segments: jnp.ndarray,
         graph_mask: jnp.ndarray,
     ) -> jnp.ndarray:
+        jax.debug.print("Message passing iteration {x}", x=iteration)
+        jax.debug.print("x {x}", x=x)
+        jax.debug.print("basis {x}", x=basis)
         """Perform one iteration of message passing."""
         # if it is the last iteration
         if iteration == self.num_iterations - 1:
@@ -654,8 +657,8 @@ class EF(nn.Module):
         # Debug output values
 
         # # if "forces" in self.debug:
-        print(forces)
-        print(energy)
+        # print(forces)
+        # print(energy)
 
         # debug_forces(output, forces)
         # # if "energy" in self.debug:
