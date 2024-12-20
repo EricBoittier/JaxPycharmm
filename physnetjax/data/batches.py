@@ -267,6 +267,7 @@ def prepare_batches_jit(
 import numpy as np
 import jax
 
+
 def compute_dst_src_lookup(data):
     """Pre-compute destination-source indices for all unique numbers of atoms."""
     dst_src_lookup = {}
@@ -276,13 +277,23 @@ def compute_dst_src_lookup(data):
     return dst_src_lookup
 
 
-def create_batch(perm, dst_src_lookup, data, data_keys,
-                 batch_shape, batch_nbl_len, num_atoms, batch_size):
+def create_batch(
+    perm,
+    dst_src_lookup,
+    data,
+    data_keys,
+    batch_shape,
+    batch_nbl_len,
+    num_atoms,
+    batch_size,
+):
     """Create a single batch based on a given permutation of indices."""
     PADDING_VALUE = batch_shape + 1  # Padding value for unfilled batch elements
-    batch = {"dst_idx": np.full(batch_nbl_len, PADDING_VALUE),
-             "src_idx": np.full(batch_nbl_len, PADDING_VALUE),
-             "batch_mask": np.zeros(batch_nbl_len, dtype=int)}
+    batch = {
+        "dst_idx": np.full(batch_nbl_len, PADDING_VALUE),
+        "src_idx": np.full(batch_nbl_len, PADDING_VALUE),
+        "batch_mask": np.zeros(batch_nbl_len, dtype=int),
+    }
     n = data["N"][perm]
     # Determine stopping indices for padding
     cum_sum_n = np.cumsum(n)
@@ -301,9 +312,15 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
         if idx_counter + len_current_nbl > batch_nbl_len:
             n[i] = 0
             break
-        batch["batch_mask"][idx_counter:idx_counter + len_current_nbl] = np.ones_like(tmp_dst)
-        batch["dst_idx"][idx_counter:idx_counter + len_current_nbl] = tmp_dst + an_counter
-        batch["src_idx"][idx_counter:idx_counter + len_current_nbl] = tmp_src + an_counter
+        batch["batch_mask"][idx_counter : idx_counter + len_current_nbl] = np.ones_like(
+            tmp_dst
+        )
+        batch["dst_idx"][idx_counter : idx_counter + len_current_nbl] = (
+            tmp_dst + an_counter
+        )
+        batch["src_idx"][idx_counter : idx_counter + len_current_nbl] = (
+            tmp_src + an_counter
+        )
         idx_counter += len_current_nbl
         an_counter += n_atoms
 
@@ -333,9 +350,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     val = data[key][permutation_index]
                     if key in {"R", "F"}:
                         # print(i, key, val.shape, val)
-                        val = val[start:stop, :].reshape(
-                            int(n[i]), 3
-                        )
+                        val = val[start:stop, :].reshape(int(n[i]), 3)
                     elif key in {"D"}:
                         val = val.reshape(1, 3)
                     elif key in {"E", "N"}:
@@ -351,9 +366,9 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                         break
                     # print(key, val.shape)
                     if key in {"R", "F"}:
-                        batch[key][idx_counter:idx_counter + int(n[i])] = val
+                        batch[key][idx_counter : idx_counter + int(n[i])] = val
                     if key in {"Z"}:
-                        batch[key][idx_counter:idx_counter + int(n[i])] = val
+                        batch[key][idx_counter : idx_counter + int(n[i])] = val
                     if key in {"E"}:
                         batch[key] = val
 
@@ -367,21 +382,24 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
     batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(-1)
 
     # print("batch[N]", batch["N"])
-    batch_mask_atoms = np.concatenate([np.ones(int(x)) * i for i, x in enumerate(batch["N"])])
+    batch_mask_atoms = np.concatenate(
+        [np.ones(int(x)) * i for i, x in enumerate(batch["N"])]
+    )
     padded_batch_segs = np.pad(
-        batch_mask_atoms,
-        (0, batch_shape - len(batch_mask_atoms)))
+        batch_mask_atoms, (0, batch_shape - len(batch_mask_atoms))
+    )
     batch["batch_segments"] = np.array(padded_batch_segs, dtype=np.int32)
     return batch
 
+
 def prepare_batches_advanced_minibatching(
-        key,
-        data,
-        batch_size,
-        batch_shape,
-        batch_nbl_len,
-        data_keys=None,
-        num_atoms=60,
+    key,
+    data,
+    batch_size,
+    batch_shape,
+    batch_nbl_len,
+    data_keys=None,
+    num_atoms=60,
 ) -> list:
     """
     Prepare batches for training.
@@ -394,18 +412,27 @@ def prepare_batches_advanced_minibatching(
     steps_per_epoch = max(data_size // batch_size, 1)
 
     # Generate and reshape permutations
-    perms = jax.random.permutation(key, data_size)[:steps_per_epoch * batch_size]
+    perms = jax.random.permutation(key, data_size)[: steps_per_epoch * batch_size]
     perms = perms.reshape((steps_per_epoch, batch_size))
 
     # Build batches
     output = []
     for perm in perms:
         output.append(
-            create_batch(perm, dst_src_lookup, data, data_keys,
-                         batch_shape, batch_nbl_len, num_atoms, batch_size)
+            create_batch(
+                perm,
+                dst_src_lookup,
+                data,
+                data_keys,
+                batch_shape,
+                batch_nbl_len,
+                num_atoms,
+                batch_size,
+            )
         )
 
     return output
+
 
 # import numpy as np
 # import jax

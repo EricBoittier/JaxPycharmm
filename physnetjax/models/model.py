@@ -660,5 +660,3 @@ class EF(nn.Module):
         # jax.debug.print("Ref. Forces {x}", x=batch["F"])
 
         return output
-
-

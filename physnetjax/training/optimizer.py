@@ -42,9 +42,6 @@ def get_optimizer(
     **kwargs,
 ):
 
-    # start_step: int = 0, # Removed
-    **kwargs,
-):
     if isinstance(clip_global, bool):
         clip_global = 10.0 if clip_global else None
     elif isinstance(clip_global, float) and clip_global > 0:
@@ -176,7 +173,6 @@ def get_optimizer(
                 f"Invalid transform: {transform}. Must be None, a valid optax.GradientTransformation object, "
                 f"or one of the supported string options ('reduce_on_plateau')."
             )
-
 
     optimizer_kwargs = {
         "optimizer": optimizer,

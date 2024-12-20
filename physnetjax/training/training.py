@@ -169,12 +169,11 @@ def train_model(
     if batch_method == "advanced":
         train_params_dict.update(batch_args_dict)
     training_style_dict = {
-    "restart": restart,
-    "best": best,
-    "data_keys": data_keys,
-    "objective": objective,
+        "restart": restart,
+        "best": best,
+        "data_keys": data_keys,
+        "objective": objective,
     }
-
 
     if console is not None:
         print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=True)

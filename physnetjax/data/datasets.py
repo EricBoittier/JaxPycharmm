@@ -128,8 +128,10 @@ def process_dataset(
 
     return processed_data
 
-def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
-                      openqdc=False) -> Dict[MolecularData, NDArray]:
+
+def process_in_memory(
+    data: List[Dict] | Dict, max_atoms=None, openqdc=False
+) -> Dict[MolecularData, NDArray]:
     """
     Process a list of dictionaries containing data.
     """
@@ -141,7 +143,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
     data_keys = list(data[0].keys()) if isinstance(data, list) else list(data.keys())
 
     # atomic numbers
-    _ = check_keys(Z_KEYS,data_keys)
+    _ = check_keys(Z_KEYS, data_keys)
     if _ is not None:
         Z = [np.array([z[_]]) for z in data]
         output[MolecularData.ATOMIC_NUMBERS] = np.array(
@@ -149,7 +151,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
         ).squeeze()
         output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
     # coordinates
-    _ = check_keys(R_KEYS,data_keys)
+    _ = check_keys(R_KEYS, data_keys)
     if _ is not None:
         # print(data[0][_])
         output[MolecularData.COORDINATES] = np.array(
@@ -177,11 +179,10 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
         # in the openqdc library...
         if openqdc:
             output[MolecularData.ENERGY] = np.array(
-                [d[_] - float(d["e0"].sum() * 0.0367492929) for d in data])
-        else:
-            output[MolecularData.ENERGY] = np.array(
-                [d[_] for d in data]
+                [d[_] - float(d["e0"].sum() * 0.0367492929) for d in data]
             )
+        else:
+            output[MolecularData.ENERGY] = np.array([d[_] for d in data])
 
     _ = check_keys(D_KEYS, data_keys)
     if _ is not None:

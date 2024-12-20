@@ -1,4 +1,5 @@
 import os
+
 # # Environment configuration
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".95"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
@@ -20,6 +21,7 @@ DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
 BATCH_SIZE = 32
 
+
 # JAX Configuration Check
 def check_jax_configuration():
     devices = jax.local_devices()
@@ -32,8 +34,9 @@ check_jax_configuration()
 
 
 # Dataset preparation
-def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=None,
-                          key=jax.random.PRNGKey(42)):
+def prepare_spice_dataset(
+    dataset, subsample_size, max_atoms, ignore_indices=None, key=jax.random.PRNGKey(42)
+):
     """Prepare the dataset by preprocessing and subsampling."""
     key = key[0] if len(key) > 1 else key
     indices = dataset.subsample(subsample_size, seed=key)
@@ -58,8 +61,11 @@ training_set, training_set_idxs = prepare_spice_dataset(
 data_key, _ = jax.random.split(data_key, 2)
 # load the validation set
 validation_set, validation_set_idxs = prepare_spice_dataset(
-    ds, subsample_size=NVALID, max_atoms=NATOMS,
-    ignore_indices=training_set_idxs, key=data_key
+    ds,
+    subsample_size=NVALID,
+    max_atoms=NATOMS,
+    ignore_indices=training_set_idxs,
+    key=data_key,
 )
 
 # Model initialization
