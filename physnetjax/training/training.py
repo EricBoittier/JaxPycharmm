@@ -198,14 +198,14 @@ def train_model(
 
     print_shapes(valid_batches[0], name="Validation Batches")
 
-    console.print(p_(valid_data["E"], title="Energy"))
-    console.print(p_(valid_data["F"], title="Forces"))
+    console.print(p_(lj.lovely(valid_data["E"]), title="Energy"))
+    console.print(p_(lj.lovely(valid_data["F"]), title="Forces"))
     if model.charges:
-        console.print(p_(valid_data["D"], title="Dipoles"))
-    console.print(p_(valid_data["Z"], title="Atomic Numbers"))
-    console.print(p_(valid_data["R"], title="Positions"))
-    console.print(p_(valid_data["src_idx"], title="Source Indices"))
-    console.print(p_(valid_data["dst_idx"], title="Destination Indices"))
+        console.print(p_(lj.lovely(valid_data["D"]), title="Dipoles"))
+    console.print(p_(lj.lovely(valid_data["Z"]), title="Atomic Numbers"))
+    console.print(p_(lj.lovely(valid_data["R"]), title="Positions"))
+    console.print(p_(lj.lovely(valid_data["src_idx"]), title="Source Indices"))
+    console.print(p_(lj.lovely(valid_data["dst_idx"]), title="Destination Indices"))
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
     params = model.init(
