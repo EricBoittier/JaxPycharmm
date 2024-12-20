@@ -194,9 +194,6 @@ class EF(nn.Module):
             features=self.features,
             dtype=DTYPE,
         )(atomic_numbers)
-        # x = x.reshape((x.shape[0], 1, 1, x.shape[-1]))
-        jax.debug.print("Atomic numbers {x}", x=atomic_numbers)
-        jax.debug.print("Atomic features {x}", x=x)
 
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(
