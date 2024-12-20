@@ -128,7 +128,8 @@ name = None
 
 
 
-def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
+def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
+                      openqdc=False) -> Dict[MolecularData, NDArray]:
     """
     Process a list of dictionaries containing data.
     """
@@ -171,7 +172,16 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None):
 
     _ = check_keys(E_KEYS, data_keys)
     if _ is not None:
-        output[MolecularData.ENERGY] = np.array([d[_] for d in data])
+        # do the conversion from hartree to eV...
+        # t0d0 check if this is correct, subject to changes
+        # in the openqdc library...
+        if openqdc:
+            output[MolecularData.ENERGY] = np.array(
+                [d[_] - float(d["e0"].sum() * 0.0367492929) for d in data])
+        else:
+            output[MolecularData.ENERGY] = np.array(
+                [d[_] for d in data]
+            )
 
     _ = check_keys(D_KEYS, data_keys)
     if _ is not None:
