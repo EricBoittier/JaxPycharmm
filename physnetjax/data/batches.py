@@ -306,7 +306,8 @@ def create_batch(
     for i, n_atoms in enumerate(n):
         n_atoms = int(n_atoms)
         if n_atoms == 0 or n_atoms > batch_shape:
-            raise ValueError(f"Invalid number of atoms: {n_atoms}")
+            break
+            # raise ValueError(f"Invalid number of atoms: {n_atoms}")
         tmp_dst, tmp_src = dst_src_lookup[int(n_atoms)]
         len_current_nbl = int(n_atoms) * (int(n_atoms) - 1)
         if idx_counter + len_current_nbl > batch_nbl_len:
