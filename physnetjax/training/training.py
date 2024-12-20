@@ -4,7 +4,7 @@ import uuid
 import ase.units
 import e3x
 import jax
-import rich.panel
+from rich.panel import Panel as p_
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from rich.console import Console
@@ -197,7 +197,6 @@ def train_model(
     valid_batches = _prepare_batches(kwargs)
 
     print_shapes(valid_batches[0], name="Validation Batches")
-    import rich.panel.Panel as p_
 
     console.print(p_(valid_data["E"], title="Energy"))
     console.print(p_(valid_data["F"], title="Forces"))
