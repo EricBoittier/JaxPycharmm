@@ -140,6 +140,7 @@ def process_in_memory(
     if max_atoms is None:
         MAX_N_ATOMS = 0
     output = {}
+    assert len(data) > 0, "No data provided."
     data_keys = list(data[0].keys()) if isinstance(data, list) else list(data.keys())
 
     # atomic numbers
