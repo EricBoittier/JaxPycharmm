@@ -49,7 +49,8 @@ training_set, training_set_idxs = prepare_spice_dataset(
     ds, subsample_size=100, max_atoms=NATOMS
 )
 validation_set, validation_set_idxs = prepare_spice_dataset(
-    ds, subsample_size=100, max_atoms=NATOMS
+    ds, subsample_size=100, max_atoms=NATOMS,
+    ignore_indices=training_set_idxs
 )
 
 # Random key initialization
