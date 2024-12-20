@@ -659,28 +659,12 @@ class EF(nn.Module):
             "sum_charges": sum_charges,
         }
         # Debug output values
+        jax.debug.print("Energy {x}", x=energy)
+        jax.debug.print("Forces {x}", x=forces)
+        # batches
+        jax.debug.print("Ref. Energy {x}", x=batch["E"])
+        jax.debug.print("Ref. Forces {x}", x=batch["F"])
 
-        # # if "forces" in self.debug:
-        # print(forces)
-        # print(energy)
-
-        # debug_forces(output, forces)
-        # # if "energy" in self.debug:
-        # jax.debug.print("Energy: {x}", x=energy)
-        # # if "charges" in self.debug and charges is not None:
-        # #     jax.debug.print("Charges shape: {x}", x=charges.shape)
         return output
 
 
-# def debug_forces(output, forces):
-#     for k in output.keys():
-#         if output[k] is not None:
-#             hasnans = jnp.isnan(output[k]).any()
-#             hasninf = ~jnp.isfinite(output[k]).any()
-#             jax.debug.print(
-#                 "Key: {k} - Has NaNs: {nans}, Has Non-finite: {ninf}",
-#                 k=k,
-#                 nans=hasnans,
-#                 ninf=hasninf,
-#             )
-#     jax.debug.print("Forces shape: {x}", x=forces.shape)
