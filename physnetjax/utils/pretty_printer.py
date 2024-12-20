@@ -337,8 +337,9 @@ def training_printer(
     # table2.add_column("Print Freq", style="blue")
     # table2.add_column("Name", style="yellow4")
     table2.add_column("Best", style="bright_magenta")
-    table2.add_column("Objective", style="light_goldenrod3")
     table2.add_column("Data Keys", style="yellow4")
+    table2.add_column("Objective", style="light_goldenrod3")
+
     # table2.add_column("Ckpt Dir", style="blue")
     # table2.add_column("Objective", style="green")
     # table2.add_column("Saving", style="light_goldenrod3")
