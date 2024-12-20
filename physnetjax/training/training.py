@@ -77,9 +77,9 @@ def train_model(
     num_epochs=1,
     learning_rate=0.001,
     energy_weight=1.0,
-    forces_weight=52.91772105638412,
-    dipole_weight=27.211386024367243,
-    charges_weight=14.399645351950548,
+    forces_weight=52.91,
+    dipole_weight=27.21,
+    charges_weight=14.39,
     batch_size=1,
     num_atoms=60,
     restart=False,
@@ -156,9 +156,8 @@ def train_model(
         optimizer=optimizer,
         transform=transform,
     )
-    print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=False)
     if console is not None:
-        print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=False)
+        print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=True)
         table, table2 = training_printer(
             learning_rate,
             energy_weight,
