@@ -16,9 +16,9 @@ NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
 NTRAIN = 1000
 NVALID = 100
-DEFAULT_DATA_KEYS = ("Z", "R", "D", "E", "F", "N")
+DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 50
+BATCH_SIZE = 32
 
 # JAX Configuration Check
 def check_jax_configuration():
@@ -102,7 +102,7 @@ params = train_model(
     optimizer="amsgrad",
     batch_size=BATCH_SIZE,
     num_atoms=NATOMS,
-    data_keys=DEFAULT_DATA_KEYS,
+    data_keys=DATA_KEYS,
     print_freq=1,
     objective="valid_loss",
     best=1e6,
