@@ -331,7 +331,7 @@ def training_printer(
     table.add_column("Batch Size", style="light_goldenrod3")
     table.add_column("Num Atoms", style="light_yellow3")
 
-    table2 = Table(title="PhysNetJax Training Data")
+    table2 = Table(title="PhysNetJax Training Style")
     table2.add_column("Restart", style="spring_green3", no_wrap=False)
     # table2.add_column("Conversion", style="red")
     # table2.add_column("Print Freq", style="blue")

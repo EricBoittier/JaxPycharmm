@@ -156,29 +156,29 @@ def train_model(
         optimizer=optimizer,
         transform=transform,
     )
+
+    train_params_dict = {
+        "energy_weight": energy_weight,
+        "forces_weight": forces_weight,
+        "dipole_weight": dipole_weight,
+        "charges_weight": charges_weight,
+        "batch_size": batch_size,
+        "num_atoms": num_atoms,
+    }
+    if batch_method == "advanced":
+        train_params_dict.update(batch_args_dict)
+    training_style_dict = {
+    "restart": restart,
+    "best": best,
+    "data_keys": data_keys,
+    "objective": objective,
+    }
+
+
     if console is not None:
         print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=True)
-        table, table2 = training_printer(
-            learning_rate,
-            energy_weight,
-            forces_weight,
-            dipole_weight,
-            charges_weight,
-            batch_size,
-            num_atoms,
-            restart,
-            conversion,
-            print_freq,
-            name,
-            best,
-            objective,
-            data_keys,
-            ckpt_dir,
-            train_data,
-            valid_data,
-        )
-        console.print(table)
-        console.print(table2)
+        print_dict_as_table(train_params_dict, title="Training Parameters", plot=True)
+        print_dict_as_table(training_style_dict, title="Training Style", plot=True)
 
     uuid_ = str(uuid.uuid4())
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
