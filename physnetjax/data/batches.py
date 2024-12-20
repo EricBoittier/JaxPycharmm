@@ -381,7 +381,7 @@ def create_batch(
     batch["atom_mask"] = atom_mask
     # mask for batches (atom wise)
     batch["N"] = np.array(n, dtype=np.int32).reshape(-1)
-    batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(-1)
+    batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(batch_shape, 1)
 
     # print("batch[N]", batch["N"])
     batch_mask_atoms = np.concatenate(
