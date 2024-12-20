@@ -10,14 +10,14 @@ from physnetjax.data.datasets import process_in_memory
 from physnetjax.models.model import EF
 from physnetjax.training.training import train_model
 
-# total number of samples, SpiceV2 = 2008628
-# Configurable Constants
+# Constants
 NATOMS = 110
-NTRAIN = 100000
+# total number of samples, SpiceV2 = 2008628
+NTRAIN = 200_000
 NVALID = 1000
-DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
+DEFAULT_DATA_KEYS = ("Z", "R", "D", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 20
+BATCH_SIZE = 10
 
 # # Environment configuration
 # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
