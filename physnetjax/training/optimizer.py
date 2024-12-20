@@ -40,7 +40,7 @@ def get_optimizer(
         clip_global = 10.0 if clip_global else None
 
     if schedule_fn is None:
-        schedule_fn = optax.schedules.constant_schedule(learning_rate)
+        _schedule_fn = optax.schedules.constant_schedule(learning_rate)
 
     if isinstance(schedule_fn, str):
         if schedule_fn == "warmup":
@@ -120,6 +120,19 @@ def get_optimizer(
             accumulation_size=5,
             min_scale=0.01,
         )
+    elif isinstance(transform, str):
+        if transform == "reduce_on_plateau":
+            _transform = optax.contrib.reduce_on_plateau(
+                patience=5,
+                cooldown=5,
+                factor=0.9,
+                rtol=1e-4,
+                accumulation_size=5,
+                min_scale=0.01,
+            )
+        else:
+            raise ValueError(f"Unknown transform: { transform }")
+
 
     optimizer_kwargs = {
         "optimizer": optimizer,
