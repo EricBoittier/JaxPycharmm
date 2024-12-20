@@ -662,8 +662,8 @@ class EF(nn.Module):
         jax.debug.print("Energy {x}", x=energy)
         jax.debug.print("Forces {x}", x=forces)
         # batches
-        jax.debug.print("Ref. Energy {x}", x=batch["E"])
-        jax.debug.print("Ref. Forces {x}", x=batch["F"])
+        # jax.debug.print("Ref. Energy {x}", x=batch["E"])
+        # jax.debug.print("Ref. Forces {x}", x=batch["F"])
 
         return output
 
