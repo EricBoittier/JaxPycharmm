@@ -368,6 +368,8 @@ def create_batch(
                         break
 
                     # print(key, val.shape)
+                    if key in {"N"}:
+                        batch[key][i] = val
                     if key in {"R", "F"}:
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
                     if key in {"Z"}:
@@ -380,10 +382,9 @@ def create_batch(
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
     batch["atom_mask"] = atom_mask
     # mask for batches (atom wise)
-    batch["N"] = np.array(n, dtype=np.int32).reshape(-1)
+    batch["N"] = np.array(n, dtype=np.int32).reshape(batch_size)
     batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(batch_shape, 1)
 
-    # print("batch[N]", batch["N"])
     batch_mask_atoms = np.concatenate(
         [np.ones(int(x)) * i for i, x in enumerate(batch["N"])]
     )

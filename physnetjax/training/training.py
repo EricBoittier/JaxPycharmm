@@ -202,6 +202,7 @@ def train_model(
     jax.debug.print("Z: {x}", x=valid_data["Z"])
     jax.debug.print("R: {x}", x=valid_data["R"])
     jax.debug.print("E: {x}", x=valid_data["E"])
+    jax.debug.print("N: {x}", x=valid_data["N"])
     jax.debug.print("F: {x}", x=valid_data["F"])
     if model.charges:
         jax.debug.print("D: {x}", x=valid_data["D"])
