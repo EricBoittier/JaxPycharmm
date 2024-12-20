@@ -197,6 +197,7 @@ def train_model(
     valid_batches = _prepare_batches(kwargs)
 
     print_shapes(valid_batches[0], name="Validation Batch[0]")
+    jax.debug.print("Extra Validation Info:")
     jax.debug.print("Z: {x}", x=valid_data["Z"])
     jax.debug.print("R: {x}", x=valid_data["R"])
     jax.debug.print("E: {x}", x=valid_data["E"])
