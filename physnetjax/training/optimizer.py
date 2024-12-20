@@ -108,7 +108,6 @@ def get_optimizer(
             _chain.append(
                 optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3)
             )
-
         _optimizer = optax.chain(*_chain)
 
     if transform is None:
@@ -136,10 +135,13 @@ def get_optimizer(
 
     optimizer_kwargs = {
         "optimizer": optimizer,
+        "_": _optimizer,
         "schedule_fn": schedule_fn,
+        "_": _schedule_fn,
         "transform": transform,
+        "_": _transform,
         "clip_global": clip_global,
-        "start_step": start_step,
+        # "start_step": start_step,
         "b1": 0.9,
         "b2": 0.99,
         "eps": 1e-3,
