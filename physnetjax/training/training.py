@@ -4,6 +4,7 @@ import uuid
 import ase.units
 import e3x
 import jax
+import rich.panel
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from rich.console import Console
@@ -188,10 +189,16 @@ def train_model(
         kwargs
     )
 
-    print_shapes(valid_batches[0], valid_batches[-1])
-
-    console.print(valid_data["E"])
-    console.print(valid_data["F"])
+    print_shapes(valid_batches[0], name="Validation Batches")
+    import rich.panel.Panel as p_
+    console.print(p_(valid_data["E"], title="Energy"))
+    console.print(p_(valid_data["F"], title="Forces"))
+    if model.charges:
+        console.print(p_(valid_data["D"], title="Dipoles"))
+    console.print(p_(valid_data["Z"], title="Atomic Numbers"))
+    console.print(p_(valid_data["R"], title="Positions"))
+    console.print(p_(valid_data["src_idx"], title="Source Indices"))
+    console.print(p_(valid_data["dst_idx"], title="Destination Indices"))
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
     params = model.init(
