@@ -88,6 +88,8 @@ batch_kwargs = {
 print("Model initialized")
 print(batch_kwargs)
 
+del ds
+
 # Model training
 params = train_model(
     train_key,
