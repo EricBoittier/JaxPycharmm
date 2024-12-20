@@ -33,9 +33,11 @@ check_jax_configuration()
 
 
 # Dataset preparation
-def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=None):
+def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=None,
+                          key=jax.random.PRNGKey(42)):
     """Prepare the dataset by preprocessing and subsampling."""
-    indices = dataset.subsample(subsample_size)
+    key - int(key.flatten()[0])
+    indices = dataset.subsample(subsample_size, key=key)
     if ignore_indices is not None:
         indices = [_ for _ in indices if _ not in ignore_indices]
     d = [dict(ds[_]) for _ in indices]
@@ -45,16 +47,20 @@ def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=Non
 
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
-training_set, training_set_idxs = prepare_spice_dataset(
-    ds, subsample_size=100, max_atoms=NATOMS
-)
-validation_set, validation_set_idxs = prepare_spice_dataset(
-    ds, subsample_size=100, max_atoms=NATOMS,
-    ignore_indices=training_set_idxs
-)
 
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
+# load the training set
+training_set, training_set_idxs = prepare_spice_dataset(
+    ds, subsample_size=100, max_atoms=NATOMS, key=data_key
+)
+# get a new data key
+data_key, _ = jax.random.split(data_key, 2)
+# load the validation set
+validation_set, validation_set_idxs = prepare_spice_dataset(
+    ds, subsample_size=100, max_atoms=NATOMS,
+    ignore_indices=training_set_idxs, key=data_key
+)
 
 # Model initialization
 model = EF(
