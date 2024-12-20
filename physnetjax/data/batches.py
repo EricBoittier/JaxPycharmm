@@ -358,6 +358,7 @@ def create_batch(
                         # pad with zeros to make the batch size
                         val = np.pad(val, (0, batch_size - len(val)))
                     elif key in {"Z"}:
+                        print(key, start, stop, val.shape)
                         val = val[start:stop].reshape(int(n[i]))
                     else:
                         break
