@@ -150,7 +150,7 @@ def train_model(
     do_charges = model.charges
     # Initialize model parameters and optimizer state.
     key, init_key = jax.random.split(key)
-    optimizer, transform, schedule_fn = get_optimizer(
+    optimizer, transform, schedule_fn, optimizer_kwargs = get_optimizer(
         learning_rate=learning_rate,
         schedule_fn=schedule_fn,
         optimizer=optimizer,
@@ -158,7 +158,7 @@ def train_model(
     )
     # pretty_print(optimizer, transform, schedule_fn)
     if console is not None:
-        pretty_print_optimizer(optimizer, transform, schedule_fn, console)
+        print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=False)
         table, table2 = training_printer(
             learning_rate,
             energy_weight,
@@ -304,8 +304,6 @@ def train_model(
                     ema_params=ema_params,
                     debug=True,
                 )
-                # jax.debug.print("Ref. Energy {x}", x=batch["E"])
-                # jax.debug.print("Ref. Forces {x}", x=batch["F"])
                 train_loss += (loss - train_loss) / (i + 1)
                 train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
                 train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)

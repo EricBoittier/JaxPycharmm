@@ -44,7 +44,7 @@ def get_optimizer(
 
     if isinstance(schedule_fn, str):
         if schedule_fn == "warmup":
-            schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
+            _schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
                 init_value=learning_rate,
                 peak_value=learning_rate * 3,
                 warmup_steps=100,
@@ -61,21 +61,21 @@ def get_optimizer(
                 }
                 for _ in range(5)
             ]
-            schedule_fn = optax.schedules.sgdr_schedule(cosine_dicts=cosine_dicts)
+            _schedule_fn = optax.schedules.sgdr_schedule(cosine_dicts=cosine_dicts)
         elif schedule_fn == "exponential":
-            schedule_fn = optax.schedules.exponential_decay_schedule(
+            _schedule_fn = optax.schedules.exponential_decay_schedule(
                 init_value=learning_rate, decay_rate=0.995
             )
         elif schedule_fn == "polynomial":
-            schedule_fn = optax.schedules.polynomial_decay_schedule(
+            _schedule_fn = optax.schedules.polynomial_decay_schedule(
                 init_value=learning_rate, end_value=0.0, power=1.0, transition_steps=100
             )
         elif schedule_fn == "cosine":
-            schedule_fn = optax.schedules.cosine_decay_schedule(
+            _schedule_fn = optax.schedules.cosine_decay_schedule(
                 init_value=learning_rate, decay_steps=5000, alpha=0.3
             )
         elif schedule_fn == "warmup_cosine":
-            schedule_fn = optax.schedules.warmup_cosine_decay_schedule(
+            _schedule_fn = optax.schedules.warmup_cosine_decay_schedule(
                 init_value=learning_rate,
                 peak_value=learning_rate * 1.5,
                 end_value=learning_rate * 0.1,
@@ -83,12 +83,12 @@ def get_optimizer(
                 decay_steps=5000,
             )
         elif schedule_fn == "constant":
-            schedule_fn = optax.schedules.constant_schedule(learning_rate)
+            _schedule_fn = optax.schedules.constant_schedule(learning_rate)
         else:
             raise ValueError(f"Unknown schedule_fn: {schedule_fn}")
 
     if optimizer is None:
-        optimizer = optax.chain(
+        _optimizer = optax.chain(
             # optax.adaptive_grad_clip(1.0),
             optax.clip_by_global_norm(clip_global),
             optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
@@ -109,10 +109,10 @@ def get_optimizer(
                 optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3)
             )
 
-        optimizer = optax.chain(*_chain)
+        _optimizer = optax.chain(*_chain)
 
     if transform is None:
-        transform = optax.contrib.reduce_on_plateau(
+        _transform = optax.contrib.reduce_on_plateau(
             patience=5,
             cooldown=5,
             factor=0.9,
@@ -121,7 +121,19 @@ def get_optimizer(
             min_scale=0.01,
         )
 
-    return optimizer, transform, schedule_fn
+    optimizer_kwargs = {
+        "optimizer": optimizer,
+        "schedule_fn": schedule_fn,
+        "transform": transform,
+        "clip_global": clip_global,
+        "start_step": start_step,
+        "learning_rate": schedule_fn,
+        "b1": 0.9,
+        "b2": 0.99,
+        "eps": 1e-3,
+    }
+
+    return _optimizer, _transform, _schedule_fn, optimizer_kwargs
 
 
 def cycled_cosine_annealing_schedule(init_lr, period=200):
