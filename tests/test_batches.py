@@ -1,6 +1,10 @@
-from physnetjax.data.batches import prepare_batches, prepare_batches_advanced_minibatching
+from physnetjax.data.batches import (
+    prepare_batches,
+    prepare_batches_advanced_minibatching,
+)
 import numpy as np
 import jax
+
 
 def test_prepare_batches_advanced_minibatching_dummy():
     NSAMPLES = 10
@@ -11,7 +15,10 @@ def test_prepare_batches_advanced_minibatching_dummy():
 
     R_shape1 = (NSAMPLES, NATOMS, 3)
     D_shape1 = (NSAMPLES, 1, 3)
-    Z_shape1 = (NSAMPLES, NATOMS,)
+    Z_shape1 = (
+        NSAMPLES,
+        NATOMS,
+    )
 
     dummy_data = {
         "R": np.random.rand(*R_shape1),
@@ -45,6 +52,7 @@ def test_prepare_batches_advanced_minibatching_dummy():
     assert len(output[1]["N"]) == BATCH_SIZE
     assert len(output[1]["D"]) == BATCH_SIZE
 
+
 def test_prepare_batches_advanced_minibatching_basepairs():
     from physnetjax.directories import MAIN_PATH
     from pathlib import Path
@@ -63,6 +71,7 @@ def test_prepare_batches_advanced_minibatching_basepairs():
     NB_LEN = 870 * 3
 
     from physnetjax.data.data import prepare_datasets
+
     print(mock_filename)
     key = jax.random.PRNGKey(42)
 
@@ -111,7 +120,7 @@ def test_prepare_batches_advanced_minibatching():
     key = jax.random.PRNGKey(RANDOM_SEED)
     BATCH_SIZE = 3
     BATCH_SHAPE = int((BATCH_SIZE - 1) * NATOMS)
-    NB_LEN = int((NATOMS*(NATOMS - 1) * (BATCH_SIZE-1))//1.6)
+    NB_LEN = int((NATOMS * (NATOMS - 1) * (BATCH_SIZE - 1)) // 1.6)
 
     # JAX Configuration Check
     def check_jax_configuration():
@@ -176,4 +185,3 @@ def test_prepare_batches_advanced_minibatching():
     for i, _ in enumerate(output):
         for k, v in _.items():
             print(i, k, v.shape)
-

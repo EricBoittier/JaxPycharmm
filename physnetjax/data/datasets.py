@@ -11,8 +11,18 @@ from physnetjax.data.data import ATOM_ENERGIES_HARTREE
 from physnetjax.data.full_padding import pad_atomic_numbers, pad_coordinates, pad_forces
 from physnetjax.data.read_npz import process_npz_file
 from physnetjax.utils.pretty_printer import print_dict_as_table
-from physnetjax.utils.enums import check_keys, Z_KEYS, R_KEYS, D_KEYS, E_KEYS, COM_KEYS, ESP_GRID_KEYS, ESP_KEYS, \
-    Q_KEYS, F_KEYS
+from physnetjax.utils.enums import (
+    check_keys,
+    Z_KEYS,
+    R_KEYS,
+    D_KEYS,
+    E_KEYS,
+    COM_KEYS,
+    ESP_GRID_KEYS,
+    ESP_KEYS,
+    Q_KEYS,
+    F_KEYS,
+)
 from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
 
 # Constants
@@ -27,9 +37,7 @@ OUTPUT_FILE_PATTERN = "processed_data_batch_{}.npz"
 
 
 def process_dataset(
-    npz_files: List[Path], batch_index: int = 0,
-MAX_N_ATOMS = 37,
-name = None
+    npz_files: List[Path], batch_index: int = 0, MAX_N_ATOMS=37, name=None
 ) -> Dict[MolecularData, NDArray]:
     """
     Process a batch of NPZ files and combine their data.
@@ -75,8 +83,7 @@ name = None
             if data_type.value in result:
                 raw_data[data_type].append(result[data_type.value])
 
-    def pad_data_by_key(data_key: MolecularData, pad_function,
-                        *pad_args):
+    def pad_data_by_key(data_key: MolecularData, pad_function, *pad_args):
         """Pad raw data of a single type to ensure uniform sizes."""
         out = []
         for item in raw_data[data_key]:
@@ -87,7 +94,6 @@ name = None
         output_array = np.vstack(out)
 
         return output_array
-
 
     processed_data = {
         MolecularData.ATOMIC_NUMBERS: pad_data_by_key(
@@ -123,13 +129,9 @@ name = None
     return processed_data
 
 
-
-
-
-
-
-def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
-                      openqdc=False) -> Dict[MolecularData, NDArray]:
+def process_in_memory(
+    data: List[Dict] | Dict, max_atoms=None, openqdc=False
+) -> Dict[MolecularData, NDArray]:
     """
     Process a list of dictionaries containing data.
     """
@@ -141,7 +143,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
     data_keys = list(data[0].keys()) if isinstance(data, list) else list(data.keys())
 
     # atomic numbers
-    _ = check_keys(Z_KEYS,data_keys)
+    _ = check_keys(Z_KEYS, data_keys)
     if _ is not None:
         Z = [np.array([z[_]]) for z in data]
         output[MolecularData.ATOMIC_NUMBERS] = np.array(
@@ -149,7 +151,7 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
         ).squeeze()
         output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
     # coordinates
-    _ = check_keys(R_KEYS,data_keys)
+    _ = check_keys(R_KEYS, data_keys)
     if _ is not None:
         # print(data[0][_])
         output[MolecularData.COORDINATES] = np.array(
@@ -177,11 +179,10 @@ def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
         # in the openqdc library...
         if openqdc:
             output[MolecularData.ENERGY] = np.array(
-                [d[_] - float(d["e0"].sum() * 0.0367492929) for d in data])
-        else:
-            output[MolecularData.ENERGY] = np.array(
-                [d[_] for d in data]
+                [d[_] - float(d["e0"].sum() * 0.0367492929) for d in data]
             )
+        else:
+            output[MolecularData.ENERGY] = np.array([d[_] for d in data])
 
     _ = check_keys(D_KEYS, data_keys)
     if _ is not None:

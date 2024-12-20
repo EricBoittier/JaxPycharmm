@@ -29,6 +29,7 @@ from physnetjax.utils.pretty_printer import (
     training_printer,
 )
 import lovely_jax as lj
+
 lj.monkey_patch()
 
 schedule_fn = base_schedule_fn
@@ -91,8 +92,8 @@ def train_model(
     objective="valid_forces_mae",
     ckpt_dir=BASE_CKPT_DIR,
     log_tb=True,
-    batch_method = None,
-    batch_args_dict = None,
+    batch_method=None,
+    batch_args_dict=None,
     data_keys=("R", "Z", "F", "E", "D", "dst_idx", "src_idx", "batch_segments"),
 ):
     """Train a model."""
@@ -101,30 +102,35 @@ def train_model(
     print_shapes(train_data, name="Train Data")
     print_shapes(valid_data, name="Validation Data")
 
-
     if batch_method is None:
         raise ValueError("batch_method must be specified")
 
     # Decide batching method
-    if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
-        "batch_shape" in batch_args_dict and "nb_len" in batch_args_dict:
+    if (
+        batch_method == "advanced"
+        and isinstance(batch_args_dict, dict)
+        and "batch_shape" in batch_args_dict
+        and "nb_len" in batch_args_dict
+    ):
         print("Using advanced batching method")
         from physnetjax.data.batches import prepare_batches_advanced_minibatching
+
         def _prepare_batches(x):
             return prepare_batches_advanced_minibatching(
-            x["key"],
-            x["data"],
-            x["batch_size"],
-            batch_args_dict["batch_shape"],
-            batch_args_dict["nb_len"],
-            num_atoms=x["num_atoms"],
-            data_keys=x["data_keys"],
-        )
+                x["key"],
+                x["data"],
+                x["batch_size"],
+                batch_args_dict["batch_shape"],
+                batch_args_dict["nb_len"],
+                num_atoms=x["num_atoms"],
+                data_keys=x["data_keys"],
+            )
+
     else:
         print("Using default batching method")
         from physnetjax.data.batches import get_prepare_batches_fn
-        _prepare_batches = get_prepare_batches_fn()
 
+        _prepare_batches = get_prepare_batches_fn()
 
     console = Console(width=200, color_system="auto")
 
@@ -135,7 +141,9 @@ def train_model(
 
     start_time = time.time()
     if not isinstance(model.debug, list):
-        console.print("Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time)))
+        console.print(
+            "Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time))
+        )
 
     best_loss = 10000
     do_charges = model.charges
@@ -186,12 +194,11 @@ def train_model(
     }
     if batch_method == "advanced":
         kwargs.update(batch_args_dict)
-    valid_batches = _prepare_batches(
-        kwargs
-    )
+    valid_batches = _prepare_batches(kwargs)
 
     print_shapes(valid_batches[0], name="Validation Batches")
     import rich.panel.Panel as p_
+
     console.print(p_(valid_data["E"], title="Energy"))
     console.print(p_(valid_data["F"], title="Forces"))
     if model.charges:
@@ -246,7 +253,7 @@ def train_model(
 
     from contextlib import nullcontext
 
-    with Live(auto_refresh=False) if console is not None else nullcontext() as live :
+    with Live(auto_refresh=False) if console is not None else nullcontext() as live:
         # if True:
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
@@ -259,12 +266,14 @@ def train_model(
                 "num_atoms": num_atoms,
                 "data_keys": data_keys,
             }
-            if batch_method == "advanced" and isinstance(batch_args_dict, dict) and \
-                    "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict:
+            if (
+                batch_method == "advanced"
+                and isinstance(batch_args_dict, dict)
+                and "batch_shape" in batch_args_dict
+                and "batch_nbl_len" in batch_args_dict
+            ):
                 kwargs.update(batch_args_dict)
-            train_batches = _prepare_batches(
-                kwargs
-            )
+            train_batches = _prepare_batches(kwargs)
             # Loop over train batches.
             train_loss = 0.0
             train_energy_mae = 0.0

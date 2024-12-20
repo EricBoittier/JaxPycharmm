@@ -25,7 +25,7 @@ import numpy as np
 import optax
 import orbax
 
-from physnetjax.data.data import  prepare_datasets
+from physnetjax.data.data import prepare_datasets
 from physnetjax.models.model import EF
 from physnetjax.training.training import train_model  # from model import dipole_calc
 
@@ -35,13 +35,19 @@ data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 
 from pathlib import Path
 
-#files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
+# files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
 NATOMS = 30
-files = [Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz'),
- Path('/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz')]
+files = [
+    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_prod.npz"),
+    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_reag.npz"),
+    Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/at_retune.npz"),
+    Path(
+        "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_at.npz"
+    ),
+    Path(
+        "/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs/rattle_neb_gc.npz"
+    ),
+]
 
 
 train_data, valid_data = prepare_datasets(
@@ -99,7 +105,7 @@ params = train_model(
     batch_size=1,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-#    restart=restart,
+    #    restart=restart,
     name="efa0basepairs",
     print_freq=1,
     objective="valid_loss",

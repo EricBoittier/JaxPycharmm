@@ -8,9 +8,18 @@ from numpy.ma.core import nonzero
 from numpy.typing import NDArray
 from tqdm import tqdm
 
-from physnetjax.utils.enums import (check_keys, Z_KEYS, R_KEYS, F_KEYS,
-                                    D_KEYS, E_KEYS, COM_KEYS, ESP_GRID_KEYS, ESP_KEYS, \
-    Q_KEYS)
+from physnetjax.utils.enums import (
+    check_keys,
+    Z_KEYS,
+    R_KEYS,
+    F_KEYS,
+    D_KEYS,
+    E_KEYS,
+    COM_KEYS,
+    ESP_GRID_KEYS,
+    ESP_KEYS,
+    Q_KEYS,
+)
 from physnetjax.utils.enums import KEY_TRANSLATION, MolecularData
 
 # Constants
@@ -83,6 +92,5 @@ def process_npz_file(filepath: Path) -> Tuple[Union[dict, None], int]:
         if comkey is not None:
             asemol = ase.Atoms(Z, R)
             output[MolecularData.CENTER_OF_MASS.value] = asemol.get_center_of_mass()
-
 
         return output, n_atoms

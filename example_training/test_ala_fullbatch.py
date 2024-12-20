@@ -70,7 +70,6 @@ if __name__ == "__main__":
         zbl=False,
     )
 
-
     restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-414ad170-d9f2-4eda-b2ee-5cc17158bdfb"
     restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-878b75bc-025b-4a6e-b676-ea80acac8305"
     # Train model

@@ -1,4 +1,5 @@
 import os
+
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 
 
@@ -19,6 +20,7 @@ BATCH_SIZE = 20
 # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
+
 # JAX Configuration Check
 def check_jax_configuration():
     devices = jax.local_devices()
@@ -30,19 +32,25 @@ def check_jax_configuration():
 check_jax_configuration()
 
 
-
 # Dataset preparation
-def prepare_spice_dataset(dataset, subsample_size, max_atoms):
+def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=None):
     """Prepare the dataset by preprocessing and subsampling."""
-    d = dataset.subsample(subsample_size)
-    d = [dict(ds[_]) for _ in d]
-    return process_in_memory(d, max_atoms=max_atoms)
+    indices = dataset.subsample(subsample_size)
+    if ignore_indices is not None:
+        indices = [_ for _ in indices if _ not in ignore_indices]
+    d = [dict(ds[_]) for _ in indices]
+    res = process_in_memory(d, max_atoms=max_atoms, openqdc=True)
+    return res, indices
 
 
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
-output1 = prepare_spice_dataset(ds, subsample_size=100, max_atoms=NATOMS)
-output2 = prepare_spice_dataset(ds, subsample_size=100, max_atoms=NATOMS)
+training_set, training_set_idxs = prepare_spice_dataset(
+    ds, subsample_size=100, max_atoms=NATOMS
+)
+validation_set, validation_set_idxs = prepare_spice_dataset(
+    ds, subsample_size=100, max_atoms=NATOMS
+)
 
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
@@ -63,8 +71,8 @@ model = EF(
 )
 
 batch_kwargs = {
-    "batch_shape" : int((BATCH_SIZE - 1) * NATOMS),
-    "nb_len" : int((NATOMS * (NATOMS - 1) * (BATCH_SIZE - 1)) // 1.6)
+    "batch_shape": int((BATCH_SIZE - 1) * NATOMS),
+    "nb_len": int((NATOMS * (NATOMS - 1) * (BATCH_SIZE - 1)) // 1.6),
 }
 
 print("Model initialized")
@@ -74,9 +82,9 @@ print(batch_kwargs)
 params = train_model(
     train_key,
     model,
-    output1,
-    output2,
-    num_epochs= int(10**2),
+    training_set,
+    validation_set,
+    num_epochs=int(10**2),
     learning_rate=0.001,
     energy_weight=1,
     schedule_fn="constant",

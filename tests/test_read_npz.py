@@ -9,6 +9,7 @@ from physnetjax.data.datasets import process_dataset
 from physnetjax.directories import MAIN_PATH
 from physnetjax.data.read_npz import process_npz_file
 
+
 # fixed data for testing
 @pytest.fixture
 def test_process_dataset():
@@ -26,6 +27,5 @@ def test_process_npz_file(test_process_dataset):
 
     # out, natoms = process_npz_file(test_process_dataset[0])
     # print(out, natoms)
-    _ = process_dataset(test_process_dataset, name = "basepairs-concatenated")
+    _ = process_dataset(test_process_dataset, name="basepairs-concatenated")
     print(_)
-

@@ -71,8 +71,6 @@ def pad_forces(forces: NDArray, max_atoms: int) -> NDArray:
     return pad_array(forces, max_atoms)
 
 
-
-
 def pad_atomic_numbers(atomic_numbers: NDArray, max_atoms: int) -> NDArray:
     """
     Pad atomic numbers array to maximum number of atoms.

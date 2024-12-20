@@ -50,9 +50,10 @@ def mean_squared_loss(
     energy_loss = jnp.mean(
         optax.l2_loss(energy_prediction.flatten(), energy_target.flatten())
     )
-    forces_loss = jnp.sum(
-        optax.l2_loss(forces_prediction.flatten(), forces_target.flatten())
-    ) / atomic_mask.sum()
+    forces_loss = (
+        jnp.sum(optax.l2_loss(forces_prediction.flatten(), forces_target.flatten()))
+        / atomic_mask.sum()
+    )
     return energy_weight * energy_loss + forces_weight * forces_loss
 
 
