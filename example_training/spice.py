@@ -14,11 +14,11 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 1000
-NVALID = 100
+NTRAIN = 10
+NVALID = 10
 DEFAULT_DATA_KEYS = ("Z", "R", "D", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 
 # JAX Configuration Check
 def check_jax_configuration():
