@@ -115,14 +115,13 @@ def get_optimizer(
             _chain.append(optax.clip_by_global_norm(clip_global))
             # _chain.append(optax.adaptive_grad_clip(clip_global))
         if optimizer == "adam":
-            _chain.append(optax.adam(learning_rate=schedule_fn))
+            _chain.append(optax.adam(learning_rate=_schedule_fn))
         elif optimizer == "adamw":
-            _chain.append(optax.adamw(learning_rate=schedule_fn))
+            _chain.append(optax.adamw(learning_rate=_schedule_fn))
         elif optimizer == "amsgrad":
             _chain.append(
-                optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3)
+                optax.amsgrad(learning_rate=_schedule_fn, b1=0.9, b2=0.99, eps=1e-3)
             )
-        _optimizer = optax.chain(*_chain)
         _optimizer = optax.chain(*_chain)
     else:
         _optimizer = optimizer
@@ -159,7 +158,6 @@ def get_optimizer(
             )
 
     else:
-        _transform = transform
         _transform = optax.contrib.reduce_on_plateau(
             patience=5,
             cooldown=5,
@@ -177,7 +175,6 @@ def get_optimizer(
         "transform": transform,
         "reduce_transform": _transform,
         "clip_global": clip_global,
-        # "start_step": start_step,
         "b1": 0.9,
         "b2": 0.99,
         "eps": 1e-3,
