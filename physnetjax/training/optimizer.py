@@ -51,10 +51,6 @@ def get_optimizer(
 
     if schedule_fn is None:
         _schedule_fn = optax.schedules.constant_schedule(learning_rate)
-    elif isinstance(schedule_fn, optax.Schedule):
-        _schedule_fn = schedule_fn
-        _schedule_fn = optax.schedules.constant_schedule(learning_rate)
-
     elif isinstance(schedule_fn, str):
         if schedule_fn == "warmup":
             _schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
@@ -102,19 +98,14 @@ def get_optimizer(
                 f"Invalid schedule_fn: {schedule_fn}. Must be None, a valid optax.Schedule object, "
                 f"or one of the supported string options ('warmup', 'cosine_annealing', 'exponential', etc.)."
             )
+    else:
+        _schedule_fn = schedule_fn
+        _schedule_fn = optax.schedules.constant_schedule(learning_rate)
 
     if optimizer is None:
         _optimizer = optax.chain(
             optax.clip_by_global_norm(clip_global),
             optax.amsgrad(learning_rate=_schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
-        )
-    elif isinstance(optimizer, optax.GradientTransformation):
-        _optimizer = optimizer
-    if optimizer is None:
-        _optimizer = optax.chain(
-            # optax.adaptive_grad_clip(1.0),
-            optax.clip_by_global_norm(clip_global),
-            optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
         )
     elif isinstance(optimizer, str):
         _chain = []
@@ -134,10 +125,12 @@ def get_optimizer(
         _optimizer = optax.chain(*_chain)
         _optimizer = optax.chain(*_chain)
     else:
-        raise ValueError(
-            f"Invalid optimizer: {optimizer}. Must be None, a valid optax.GradientTransformation object, "
-            f"or one of the supported string options ('adam', 'adamw', 'amsgrad')."
-        )
+        _optimizer = optimizer
+    # else:
+    #     raise ValueError(
+    #         f"Invalid optimizer: {optimizer}. Must be None, a valid optax.GradientTransformation object, "
+    #         f"or one of the supported string options ('adam', 'adamw', 'amsgrad')."
+    #     )
 
     if transform is None:
         _transform = optax.contrib.reduce_on_plateau(
@@ -148,16 +141,7 @@ def get_optimizer(
             accumulation_size=accumulation_size,
             min_scale=min_scale,
         )
-    elif isinstance(transform, optax.GradientTransformation):
-        _transform = transform
-        _transform = optax.contrib.reduce_on_plateau(
-            patience=5,
-            cooldown=5,
-            factor=0.9,
-            rtol=1e-4,
-            accumulation_size=5,
-            min_scale=0.01,
-        )
+
     elif isinstance(transform, str):
         if transform == "reduce_on_plateau":
             _transform = optax.contrib.reduce_on_plateau(
@@ -173,6 +157,17 @@ def get_optimizer(
                 f"Invalid transform: {transform}. Must be None, a valid optax.GradientTransformation object, "
                 f"or one of the supported string options ('reduce_on_plateau')."
             )
+
+    else:
+        _transform = transform
+        _transform = optax.contrib.reduce_on_plateau(
+            patience=5,
+            cooldown=5,
+            factor=0.9,
+            rtol=1e-4,
+            accumulation_size=5,
+            min_scale=0.01,
+        )
 
     optimizer_kwargs = {
         "optimizer": optimizer,
