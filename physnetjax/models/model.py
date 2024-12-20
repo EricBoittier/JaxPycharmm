@@ -194,6 +194,10 @@ class EF(nn.Module):
             features=self.features,
             dtype=DTYPE,
         )(atomic_numbers)
+        # x = x.reshape((x.shape[0], 1, 1, x.shape[-1]))
+        jax.debug.print("Atomic numbers {x}", x=atomic_numbers)
+        jax.debug.print("Atomic features {x}", x=x)
+
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(
                 x, basis, dst_idx, src_idx, i, positions, batch_segments, graph_mask
@@ -585,14 +589,14 @@ class EF(nn.Module):
 
         lj.monkey_patch()
 
-        # jax.debug.print("atomic_numbers {x}", x=atomic_numbers[::])
-        # jax.debug.print("positions {x}", x=positions[::])
-        # jax.debug.print("dst_idx {x}", x=dst_idx[::])
-        # jax.debug.print("src_idx {x}", x=src_idx[::])
-        # jax.debug.print("batch_segments {x}", x=batch_segments[::])
-        # # jax.debug.print("batch_size {x}", x=batch_size[::1])
-        # jax.debug.print("batch_mask {x}", x=batch_mask[::])
-        # jax.debug.print("atom_mask {x}", x=atom_mask[::])
+        jax.debug.print("atomic_numbers {x}", x=atomic_numbers[::])
+        jax.debug.print("positions {x}", x=positions[::])
+        jax.debug.print("dst_idx {x}", x=dst_idx[::])
+        jax.debug.print("src_idx {x}", x=src_idx[::])
+        jax.debug.print("batch_segments {x}", x=batch_segments[::])
+        # jax.debug.print("batch_size {x}", x=batch_size[::1])
+        jax.debug.print("batch_mask {x}", x=batch_mask[::])
+        jax.debug.print("atom_mask {x}", x=atom_mask[::])
 
         # Since we want to also predict forces, i.e. the gradient of the energy w.r.t. positions (argument 1), we use
         # jax.value_and_grad to create a function for predicting both energy and forces for us.

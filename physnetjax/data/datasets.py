@@ -128,10 +128,8 @@ def process_dataset(
 
     return processed_data
 
-
-def process_in_memory(
-    data: List[Dict] | Dict, max_atoms=None, openqdc=False
-) -> Dict[MolecularData, NDArray]:
+def process_in_memory(data: List[Dict] | Dict, max_atoms=None,
+                      openqdc=False) -> Dict[MolecularData, NDArray]:
     """
     Process a list of dictionaries containing data.
     """
@@ -140,66 +138,69 @@ def process_in_memory(
     if max_atoms is None:
         MAX_N_ATOMS = 0
     output = {}
-    assert len(data) > 0, "No data provided."
     data_keys = list(data[0].keys()) if isinstance(data, list) else list(data.keys())
 
-    def process_atomic_numbers(data, key, max_atoms):
-        for z in data:
-            yield pad_atomic_numbers(np.array([z[key]]), max_atoms)
-
-    key_Z = check_keys(Z_KEYS, data_keys)
-    if key_Z is not None:
+    # atomic numbers
+    _ = check_keys(Z_KEYS,data_keys)
+    if _ is not None:
+        Z = [np.array([z[_]]) for z in data]
         output[MolecularData.ATOMIC_NUMBERS] = np.array(
-            list(process_atomic_numbers(data, key_Z, MAX_N_ATOMS))
-        )
-        Z = [np.array([z[key_Z]]) for z in data]
-
+            [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))]
+        ).squeeze()
         output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
-        del Z
-
     # coordinates
-    key_r = check_keys(R_KEYS, data_keys)
-    coords = np.empty((len(data), MAX_N_ATOMS, 3),
-                      dtype=np.float32)  # Assuming 3D coordinates
-    for i, d in enumerate(data):
-        coords[i] = pad_coordinates(d[key_r], MAX_N_ATOMS)
-    output[MolecularData.COORDINATES] = coords
-
-    key_f = check_keys(F_KEYS, data_keys)
-    if key_f is not None:
-        output[MolecularData.FORCES] = np.array(
-            [pad_forces(d[key_f].squeeze(), MAX_N_ATOMS) for d in data]
+    _ = check_keys(R_KEYS,data_keys)
+    if _ is not None:
+        # print(data[0][_])
+        output[MolecularData.COORDINATES] = np.array(
+            [pad_coordinates(d[_], MAX_N_ATOMS) for d in data]
         )
-    key_e = check_keys(E_KEYS, data_keys)
-    if key_e is not None:
+    # print("output[MolecularData.COORDINATES]", output[MolecularData.COORDINATES].shape)
+    _ = check_keys(F_KEYS, data_keys)
+    if _ is not None:
+        # print(data[0][_])
+        output[MolecularData.FORCES] = np.array(
+            [
+                pad_forces(
+                    d[_].squeeze(),
+                    MAX_N_ATOMS,
+                )
+                for d in data
+            ]
+        )
+    # print("output[MolecularData.FORCES].shape", output[MolecularData.FORCES].shape)
+
+    _ = check_keys(E_KEYS, data_keys)
+    if _ is not None:
         # do the conversion from hartree to eV...
         # t0d0 check if this is correct, subject to changes
         # in the openqdc library...
         if openqdc:
             output[MolecularData.ENERGY] = np.array(
-                [d[key_e] - float(d["e0"].sum() * 0.0367492929) for d in data])
+                [d[_] - float(d["e0"].sum() * 0.0367492929) for d in data])
         else:
             output[MolecularData.ENERGY] = np.array(
-                [d[key_e] for d in data]
+                [d[_] for d in data]
             )
-    key_d = check_keys(D_KEYS, data_keys)
-    if key_d is not None:
+
+    _ = check_keys(D_KEYS, data_keys)
+    if _ is not None:
         output[MolecularData.DIPOLE] = np.array([d[_] for d in data])
 
-    key_q = check_keys(Q_KEYS, data_keys)
-    if key_q is not None:
+    _ = check_keys(Q_KEYS, data_keys)
+    if _ is not None:
         output[MolecularData.QUADRUPOLE] = np.array([d[_] for d in data])
 
-    key_esp = check_keys(ESP_KEYS, data_keys)
-    if key_esp is not None:
+    _ = check_keys(ESP_KEYS, data_keys)
+    if _ is not None:
         output[MolecularData.ESP] = np.array([d[_] for d in data])
 
-    key_espgrid = check_keys(ESP_GRID_KEYS, data_keys)
-    if key_espgrid is not None:
+    _ = check_keys(ESP_GRID_KEYS, data_keys)
+    if _ is not None:
         output[MolecularData.ESP_GRID] = np.array([d[_] for d in data])
 
-    key_com = check_keys(COM_KEYS, data_keys)
-    if key_com is not None:
+    _ = check_keys(COM_KEYS, data_keys)
+    if _ is not None:
         output[MolecularData.CENTER_OF_MASS] = np.array
 
     keys = list(output.keys())
@@ -209,6 +210,88 @@ def process_in_memory(
         output[k_new] = output.pop(k_old)
 
     return output
+
+
+# def process_in_memory(
+#     data: List[Dict] | Dict, max_atoms=None, openqdc=False
+# ) -> Dict[MolecularData, NDArray]:
+#     """
+#     Process a list of dictionaries containing data.
+#     """
+#     if max_atoms is not None:
+#         MAX_N_ATOMS = max_atoms
+#     if max_atoms is None:
+#         MAX_N_ATOMS = 0
+#     output = {}
+#     assert len(data) > 0, "No data provided."
+#     data_keys = list(data[0].keys()) if isinstance(data, list) else list(data.keys())
+#
+#     def process_atomic_numbers(data, key, max_atoms):
+#         for z in data:
+#             yield pad_atomic_numbers(np.array([z[key]]), max_atoms).T
+#
+#     key_Z = check_keys(Z_KEYS, data_keys)
+#     if key_Z is not None:
+#         output[MolecularData.ATOMIC_NUMBERS] = np.array(
+#             list(process_atomic_numbers(data, key_Z, MAX_N_ATOMS))
+#         )
+#         Z = [np.array([z[key_Z]]) for z in data]
+#
+#         output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
+#         del Z
+#
+#     # coordinates
+#     key_r = check_keys(R_KEYS, data_keys)
+#     coords = np.empty((len(data), MAX_N_ATOMS, 3),
+#                       dtype=np.float32)  # Assuming 3D coordinates
+#     for i, d in enumerate(data):
+#         coords[i] = pad_coordinates(d[key_r], MAX_N_ATOMS)
+#     output[MolecularData.COORDINATES] = coords
+#
+#     key_f = check_keys(F_KEYS, data_keys)
+#     if key_f is not None:
+#         output[MolecularData.FORCES] = np.array(
+#             [pad_forces(d[key_f].squeeze(), MAX_N_ATOMS) for d in data]
+#         )
+#     key_e = check_keys(E_KEYS, data_keys)
+#     if key_e is not None:
+#         # do the conversion from hartree to eV...
+#         # t0d0 check if this is correct, subject to changes
+#         # in the openqdc library...
+#         if openqdc:
+#             output[MolecularData.ENERGY] = np.array(
+#                 [d[key_e] - float(d["e0"].sum() * 0.0367492929) for d in data])
+#         else:
+#             output[MolecularData.ENERGY] = np.array(
+#                 [d[key_e] for d in data]
+#             )
+#     key_d = check_keys(D_KEYS, data_keys)
+#     if key_d is not None:
+#         output[MolecularData.DIPOLE] = np.array([d[_] for d in data])
+#
+#     key_q = check_keys(Q_KEYS, data_keys)
+#     if key_q is not None:
+#         output[MolecularData.QUADRUPOLE] = np.array([d[_] for d in data])
+#
+#     key_esp = check_keys(ESP_KEYS, data_keys)
+#     if key_esp is not None:
+#         output[MolecularData.ESP] = np.array([d[_] for d in data])
+#
+#     key_espgrid = check_keys(ESP_GRID_KEYS, data_keys)
+#     if key_espgrid is not None:
+#         output[MolecularData.ESP_GRID] = np.array([d[_] for d in data])
+#
+#     key_com = check_keys(COM_KEYS, data_keys)
+#     if key_com is not None:
+#         output[MolecularData.CENTER_OF_MASS] = np.array
+#
+#     keys = list(output.keys())
+#     for k_old in keys:
+#         k_old = MolecularData[str(k_old).split(".")[-1]]
+#         k_new = KEY_TRANSLATION[k_old]
+#         output[k_new] = output.pop(k_old)
+#
+#     return output
 
 
 def process_dataset_key(
