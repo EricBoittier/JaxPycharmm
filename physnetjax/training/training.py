@@ -113,7 +113,7 @@ def train_model(
         and "batch_shape" in batch_args_dict
         and "nb_len" in batch_args_dict
     ):
-        print("Using advanced batching method")
+        print("Using append batching method")
         from physnetjax.data.batches import prepare_batches_advanced_minibatching
 
         def _prepare_batches(x):
@@ -128,7 +128,7 @@ def train_model(
             )
 
     else:
-        print("Using default batching method")
+        print("Using default (fat) batching method")
         from physnetjax.data.batches import get_prepare_batches_fn
 
         _prepare_batches = get_prepare_batches_fn()
