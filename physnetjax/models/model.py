@@ -239,6 +239,9 @@ class EF(nn.Module):
         batch_segments: jnp.ndarray,
         graph_mask: jnp.ndarray,
     ) -> jnp.ndarray:
+        jax.debug.print("Message passing iteration {x}", x=iteration)
+        jax.debug.print("x {x}", x=x)
+        jax.debug.print("basis {x}", x=basis)
         """Perform one iteration of message passing."""
         # if it is the last iteration
         if iteration == self.num_iterations - 1:
