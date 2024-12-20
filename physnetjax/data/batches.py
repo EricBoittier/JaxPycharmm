@@ -365,10 +365,12 @@ def create_batch(
 
                     if idx_counter + int(n[i]) > batch_shape:
                         break
+
                     # print(key, val.shape)
                     if key in {"R", "F"}:
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
                     if key in {"Z"}:
+                        print(key, val.shape, val)
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
 
                     idx_counter += int(n[i])
