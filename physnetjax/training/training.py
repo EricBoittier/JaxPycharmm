@@ -98,7 +98,8 @@ def train_model(
     """Train a model."""
     data_keys = tuple(data_keys)
 
-    print_shapes(train_data, valid_data)
+    print_shapes(train_data, name="Train Data")
+    print_shapes(valid_data, name="Validation Data")
 
 
     if batch_method is None:
