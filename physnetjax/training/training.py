@@ -1,5 +1,6 @@
 import time
 import uuid
+import gc
 
 import ase.units
 import e3x
@@ -251,7 +252,7 @@ def train_model(
     from contextlib import nullcontext
 
     with Live(auto_refresh=False) if console is not None else nullcontext() as live:
-        # if True:
+        gc.collect()
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
@@ -306,7 +307,7 @@ def train_model(
                 train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
                 train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
                 train_dipoles_mae += (dipole_mae - train_dipoles_mae) / (i + 1)
-
+            gc.collect()
             # Evaluate on validation set.
             valid_loss = 0.0
             valid_energy_mae = 0.0
@@ -420,6 +421,7 @@ def train_model(
                     save_time,
                 )
                 live.update(combined, refresh=True)
+                gc.collect()
 
     # Return final model parameters.
     return ema_params

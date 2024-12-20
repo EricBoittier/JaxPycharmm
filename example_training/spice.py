@@ -1,6 +1,5 @@
 import os
-
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".95"
 
 
 import jax
@@ -13,11 +12,11 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 200_000
+NTRAIN = 100_000
 NVALID = 1000
 DEFAULT_DATA_KEYS = ("Z", "R", "D", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 10
+BATCH_SIZE = 30
 
 # # Environment configuration
 # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
