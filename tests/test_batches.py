@@ -1,5 +1,5 @@
 from physnetjax.data.batches import (
-    prepare_batches,
+    # prepare_batches,
     prepare_batches_advanced_minibatching,
 )
 import numpy as np
@@ -172,16 +172,16 @@ def test_prepare_batches_advanced_minibatching():
     assert len(output[1]["Z"]) == BATCH_SHAPE
     assert len(output[1]["N"]) == BATCH_SIZE
 
-    print("Old method:")
-
-    output = prepare_batches(
-        shuffle_key,
-        output2,
-        batch_size=BATCH_SIZE,
-        num_atoms=110,
-        data_keys=("Z", "R", "E", "F", "N"),
-    )
-
-    for i, _ in enumerate(output):
-        for k, v in _.items():
-            print(i, k, v.shape)
+    # print("Old method:")
+    #
+    # output = prepare_batches(
+    #     shuffle_key,
+    #     output2,
+    #     batch_size=BATCH_SIZE,
+    #     num_atoms=110,
+    #     data_keys=("Z", "R", "E", "F", "N"),
+    # )
+    #
+    # for i, _ in enumerate(output):
+    #     for k, v in _.items():
+    #         print(i, k, v.shape)
