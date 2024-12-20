@@ -203,8 +203,6 @@ def train_model(
     jax.debug.print("F: {x}", x=valid_data["F"])
     if model.charges:
         jax.debug.print("D: {x}", x=valid_data["D"])
-    jax.debug.print("src_idx: {x}", x=valid_data["src_idx"])
-    jax.debug.print("dst_idx: {x}", x=valid_data["dst_idx"])
 
     dst_idx, src_idx = e3x.ops.sparse_pairwise_indices(num_atoms)
     params = model.init(
