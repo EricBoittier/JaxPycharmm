@@ -33,16 +33,32 @@ def get_optimizer(
     optimizer: optax.GradientTransformation | str | None = None,
     transform: optax.GradientTransformation | str | None = None,
     clip_global: bool | float = True,
-    start_step: int = 0,
+    patience: int = 5,
+    cooldown: int = 5,
+    factor: float = 0.9,
+    rtol: float = 1e-4,
+    accumulation_size: int = 5,
+    min_scale: float = 0.01,
+    **kwargs,
+):
+
+    # start_step: int = 0, # Removed
     **kwargs,
 ):
     if isinstance(clip_global, bool):
         clip_global = 10.0 if clip_global else None
+    elif isinstance(clip_global, float) and clip_global > 0:
+        pass
+    else:
+        raise ValueError("clip_global must be a bool or positive float.")
 
     if schedule_fn is None:
         _schedule_fn = optax.schedules.constant_schedule(learning_rate)
+    elif isinstance(schedule_fn, optax.Schedule):
+        _schedule_fn = schedule_fn
+        _schedule_fn = optax.schedules.constant_schedule(learning_rate)
 
-    if isinstance(schedule_fn, str):
+    elif isinstance(schedule_fn, str):
         if schedule_fn == "warmup":
             _schedule_fn = optax.schedules.warmup_exponential_decay_schedule(
                 init_value=learning_rate,
@@ -85,8 +101,18 @@ def get_optimizer(
         elif schedule_fn == "constant":
             _schedule_fn = optax.schedules.constant_schedule(learning_rate)
         else:
-            raise ValueError(f"Unknown schedule_fn: {schedule_fn}")
+            raise ValueError(
+                f"Invalid schedule_fn: {schedule_fn}. Must be None, a valid optax.Schedule object, "
+                f"or one of the supported string options ('warmup', 'cosine_annealing', 'exponential', etc.)."
+            )
 
+    if optimizer is None:
+        _optimizer = optax.chain(
+            optax.clip_by_global_norm(clip_global),
+            optax.amsgrad(learning_rate=_schedule_fn, b1=0.9, b2=0.99, eps=1e-7),
+        )
+    elif isinstance(optimizer, optax.GradientTransformation):
+        _optimizer = optimizer
     if optimizer is None:
         _optimizer = optax.chain(
             # optax.adaptive_grad_clip(1.0),
@@ -109,8 +135,24 @@ def get_optimizer(
                 optax.amsgrad(learning_rate=schedule_fn, b1=0.9, b2=0.99, eps=1e-3)
             )
         _optimizer = optax.chain(*_chain)
+        _optimizer = optax.chain(*_chain)
+    else:
+        raise ValueError(
+            f"Invalid optimizer: {optimizer}. Must be None, a valid optax.GradientTransformation object, "
+            f"or one of the supported string options ('adam', 'adamw', 'amsgrad')."
+        )
 
     if transform is None:
+        _transform = optax.contrib.reduce_on_plateau(
+            patience=patience,
+            cooldown=cooldown,
+            factor=factor,
+            rtol=rtol,
+            accumulation_size=accumulation_size,
+            min_scale=min_scale,
+        )
+    elif isinstance(transform, optax.GradientTransformation):
+        _transform = transform
         _transform = optax.contrib.reduce_on_plateau(
             patience=5,
             cooldown=5,
@@ -130,16 +172,19 @@ def get_optimizer(
                 min_scale=0.01,
             )
         else:
-            raise ValueError(f"Unknown transform: { transform }")
+            raise ValueError(
+                f"Invalid transform: {transform}. Must be None, a valid optax.GradientTransformation object, "
+                f"or one of the supported string options ('reduce_on_plateau')."
+            )
 
 
     optimizer_kwargs = {
         "optimizer": optimizer,
-        "_": _optimizer,
+        "optimized_chain": _optimizer,
         "schedule_fn": schedule_fn,
-        "_": _schedule_fn,
+        "scheduling_function": _schedule_fn,
         "transform": transform,
-        "_": _transform,
+        "reduce_transform": _transform,
         "clip_global": clip_global,
         # "start_step": start_step,
         "b1": 0.9,
