@@ -152,9 +152,11 @@ def process_in_memory(
         output[MolecularData.ATOMIC_NUMBERS] = np.array(
             list(process_atomic_numbers(data, key_Z, MAX_N_ATOMS))
         )
-    Z = [d[key_Z] for d in data]
-    output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
-    del Z
+        Z = [np.array([z[key_Z]]) for z in data]
+
+        output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
+        del Z
+
     # coordinates
     key_r = check_keys(R_KEYS, data_keys)
     coords = np.empty((len(data), MAX_N_ATOMS, 3),
