@@ -143,35 +143,28 @@ def process_in_memory(
     assert len(data) > 0, "No data provided."
     data_keys = list(data[0].keys()) if isinstance(data, list) else list(data.keys())
 
-    # atomic numbers
-    _ = check_keys(Z_KEYS, data_keys)
-    if _ is not None:
-        Z = [np.array([z[_]]) for z in data]
+    def process_atomic_numbers(data, key, max_atoms):
+        for z in data:
+            yield pad_atomic_numbers(np.array([z[key]]), max_atoms)
+
+    key_Z = check_keys(Z_KEYS, data_keys)
+    if key_Z is not None:
         output[MolecularData.ATOMIC_NUMBERS] = np.array(
-            [pad_atomic_numbers(Z[i], MAX_N_ATOMS) for i in range(len(Z))]
-        ).squeeze()
-        output[MolecularData.NUMBER_OF_ATOMS] = np.array([[_.shape[1]] for _ in Z])
+            list(process_atomic_numbers(data, key_Z, MAX_N_ATOMS))
+        )
+
     # coordinates
-    _ = check_keys(R_KEYS, data_keys)
-    if _ is not None:
-        # print(data[0][_])
-        output[MolecularData.COORDINATES] = np.array(
-            [pad_coordinates(d[_], MAX_N_ATOMS) for d in data]
-        )
+    key_r = check_keys(R_KEYS, data_keys)
+    coords = np.empty((len(data), MAX_N_ATOMS, 3),
+                      dtype=np.float32)  # Assuming 3D coordinates
+    for i, d in enumerate(data):
+        coords[i] = pad_coordinates(d[key_r], MAX_N_ATOMS)
+    output[MolecularData.COORDINATES] = coords
     # print("output[MolecularData.COORDINATES]", output[MolecularData.COORDINATES].shape)
-    _ = check_keys(F_KEYS, data_keys)
+    key_f = check_keys(F_KEYS, data_keys)
     if _ is not None:
-        # print(data[0][_])
-        output[MolecularData.FORCES] = np.array(
-            [
-                pad_forces(
-                    d[_].squeeze(),
-                    MAX_N_ATOMS,
-                )
-                for d in data
-            ]
-        )
-    # print("output[MolecularData.FORCES].shape", output[MolecularData.FORCES].shape)
+        forces = np.array([d[key_f].squeeze() for d in data], dtype=np.float32)
+        output[MolecularData.FORCES] = pad_forces(forces, MAX_N_ATOMS)
 
     _ = check_keys(E_KEYS, data_keys)
     if _ is not None:
@@ -179,12 +172,12 @@ def process_in_memory(
         # t0d0 check if this is correct, subject to changes
         # in the openqdc library...
         if openqdc:
-            output[MolecularData.ENERGY] = np.array(
-                [d[_] - float(d["e0"].sum() * 0.0367492929) for d in data]
-            )
+            for d in data:
+                energy = d[_] - d["e0"].sum() * 0.0367492929
+                output[MolecularData.ENERGY].append(energy)
         else:
-            output[MolecularData.ENERGY] = np.array([d[_] for d in data])
-
+            for d in data:
+                output[MolecularData.ENERGY].append(d[_])
     _ = check_keys(D_KEYS, data_keys)
     if _ is not None:
         output[MolecularData.DIPOLE] = np.array([d[_] for d in data])
