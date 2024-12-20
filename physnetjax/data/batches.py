@@ -381,7 +381,8 @@ def create_batch(
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
     batch["atom_mask"] = atom_mask.reshape(-1)
     # mask for batches (atom wise)
-    batch["N"] = np.array(n, dtype=np.int32).reshape(batch_size)
+    batch["E"] = np.array(batch["E"]).reshape(batch_size, 1)
+    batch["N"] = np.array(n, dtype=np.int32).reshape(batch_size,1)
     batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(batch_shape, 1)
 
     batch_mask_atoms = np.concatenate(
