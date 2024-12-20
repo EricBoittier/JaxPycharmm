@@ -37,7 +37,7 @@ def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=Non
                           key=jax.random.PRNGKey(42)):
     """Prepare the dataset by preprocessing and subsampling."""
     key = key[0] if len(key) > 1 else key
-    indices = dataset.subsample(subsample_size, key=key)
+    indices = dataset.subsample(subsample_size, seed=key)
     if ignore_indices is not None:
         indices = [_ for _ in indices if _ not in ignore_indices]
     d = [dict(ds[_]) for _ in indices]
