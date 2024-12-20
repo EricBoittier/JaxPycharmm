@@ -15,8 +15,8 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 1000
-NVALID = 100
+NTRAIN = 10000
+NVALID = 500
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
 BATCH_SIZE = 32
@@ -53,20 +53,27 @@ ds.read_preprocess()
 
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
-# load the training set
-training_set, training_set_idxs = prepare_spice_dataset(
-    ds, subsample_size=NTRAIN, max_atoms=NATOMS, key=data_key
-)
-# get a new data key
-data_key, _ = jax.random.split(data_key, 2)
+
+
 # load the validation set
 validation_set, validation_set_idxs = prepare_spice_dataset(
     ds,
     subsample_size=NVALID,
     max_atoms=NATOMS,
-    ignore_indices=training_set_idxs,
     key=data_key,
 )
+
+# get a new data key
+data_key, _ = jax.random.split(data_key, 2)
+# load the training set
+training_set, training_set_idxs = prepare_spice_dataset(
+    ds,
+    subsample_size=NTRAIN,
+    max_atoms=NATOMS,
+    key=data_key,
+    ignore_indices=validation_set_idxs,
+)
+
 
 # Model initialization
 model = EF(
@@ -101,7 +108,7 @@ params = train_model(
     model,
     training_set,
     validation_set,
-    num_epochs=int(10**2),
+    num_epochs=int(10**4),
     learning_rate=0.001,
     energy_weight=1,
     schedule_fn="constant",
