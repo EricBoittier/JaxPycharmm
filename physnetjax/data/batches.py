@@ -336,7 +336,7 @@ def create_batch(
             elif key in {"R", "F"}:
                 shape = (batch_shape, 3)
             elif key == "Z":
-                shape = (batch_shape,)
+                shape = (batch_shape, 1)
             else:
                 raise ValueError(f"Invalid key: {key}")
 
@@ -359,7 +359,7 @@ def create_batch(
                         val = np.pad(val, (0, batch_size - len(val)))
                     elif key in {"Z"}:
                         print(key, start, stop, val.shape)
-                        val = val[start:stop].reshape(int(n[i]))
+                        val = val[start:stop] #.reshape(int(n[i]))
                     else:
                         break
 

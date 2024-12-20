@@ -1,5 +1,7 @@
 import os
+# # Environment configuration
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".95"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 import jax
@@ -17,11 +19,6 @@ NVALID = 1000
 DEFAULT_DATA_KEYS = ("Z", "R", "D", "E", "F", "N")
 RANDOM_SEED = 42
 BATCH_SIZE = 20
-
-# # Environment configuration
-# os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
 
 # JAX Configuration Check
 def check_jax_configuration():
