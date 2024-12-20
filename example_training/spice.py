@@ -10,8 +10,11 @@ from physnetjax.data.datasets import process_in_memory
 from physnetjax.models.model import EF
 from physnetjax.training.training import train_model
 
+# total number of samples, SpiceV2 = 2008628
 # Configurable Constants
 NATOMS = 110
+NTRAIN = 100000
+NVALID = 1000
 DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
 RANDOM_SEED = 42
 BATCH_SIZE = 20
@@ -48,17 +51,18 @@ def prepare_spice_dataset(dataset, subsample_size, max_atoms, ignore_indices=Non
 ds = Spice(energy_unit="ev", distance_unit="ang", array_format="jax")
 ds.read_preprocess()
 
+
 # Random key initialization
 data_key, train_key = jax.random.split(jax.random.PRNGKey(RANDOM_SEED), 2)
 # load the training set
 training_set, training_set_idxs = prepare_spice_dataset(
-    ds, subsample_size=100, max_atoms=NATOMS, key=data_key
+    ds, subsample_size=NTRAIN, max_atoms=NATOMS, key=data_key
 )
 # get a new data key
 data_key, _ = jax.random.split(data_key, 2)
 # load the validation set
 validation_set, validation_set_idxs = prepare_spice_dataset(
-    ds, subsample_size=100, max_atoms=NATOMS,
+    ds, subsample_size=NVALID, max_atoms=NATOMS,
     ignore_indices=training_set_idxs, key=data_key
 )
 
