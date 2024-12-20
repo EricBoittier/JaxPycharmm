@@ -160,14 +160,14 @@ def process_in_memory(
     for i, d in enumerate(data):
         coords[i] = pad_coordinates(d[key_r], MAX_N_ATOMS)
     output[MolecularData.COORDINATES] = coords
-    # print("output[MolecularData.COORDINATES]", output[MolecularData.COORDINATES].shape)
+
     key_f = check_keys(F_KEYS, data_keys)
-    if _ is not None:
+    if key_f is not None:
         forces = np.array([d[key_f].squeeze() for d in data], dtype=np.float32)
         output[MolecularData.FORCES] = pad_forces(forces, MAX_N_ATOMS)
 
-    _ = check_keys(E_KEYS, data_keys)
-    if _ is not None:
+    key_e = check_keys(E_KEYS, data_keys)
+    if key_e is not None:
         # do the conversion from hartree to eV...
         # t0d0 check if this is correct, subject to changes
         # in the openqdc library...
@@ -178,24 +178,24 @@ def process_in_memory(
         else:
             for d in data:
                 output[MolecularData.ENERGY].append(d[_])
-    _ = check_keys(D_KEYS, data_keys)
-    if _ is not None:
+    key_d = check_keys(D_KEYS, data_keys)
+    if key_d is not None:
         output[MolecularData.DIPOLE] = np.array([d[_] for d in data])
 
-    _ = check_keys(Q_KEYS, data_keys)
-    if _ is not None:
+    key_q = check_keys(Q_KEYS, data_keys)
+    if key_q is not None:
         output[MolecularData.QUADRUPOLE] = np.array([d[_] for d in data])
 
-    _ = check_keys(ESP_KEYS, data_keys)
-    if _ is not None:
+    key_esp = check_keys(ESP_KEYS, data_keys)
+    if key_esp is not None:
         output[MolecularData.ESP] = np.array([d[_] for d in data])
 
-    _ = check_keys(ESP_GRID_KEYS, data_keys)
-    if _ is not None:
+    key_espgrid = check_keys(ESP_GRID_KEYS, data_keys)
+    if key_espgrid is not None:
         output[MolecularData.ESP_GRID] = np.array([d[_] for d in data])
 
-    _ = check_keys(COM_KEYS, data_keys)
-    if _ is not None:
+    key_com = check_keys(COM_KEYS, data_keys)
+    if key_com is not None:
         output[MolecularData.CENTER_OF_MASS] = np.array
 
     keys = list(output.keys())
