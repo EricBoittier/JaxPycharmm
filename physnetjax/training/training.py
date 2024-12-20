@@ -156,7 +156,7 @@ def train_model(
         optimizer=optimizer,
         transform=transform,
     )
-    # pretty_print(optimizer, transform, schedule_fn)
+    print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=False)
     if console is not None:
         print_dict_as_table(optimizer_kwargs, title="Optimizer Arguments", plot=False)
         table, table2 = training_printer(
