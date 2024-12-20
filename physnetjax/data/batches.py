@@ -306,7 +306,8 @@ def create_batch(
     for i, n_atoms in enumerate(n):
         n_atoms = int(n_atoms)
         if n_atoms == 0 or n_atoms > batch_shape:
-            raise ValueError(f"Invalid number of atoms: {n_atoms}")
+            break
+            # raise ValueError(f"Invalid number of atoms: {n_atoms}")
         tmp_dst, tmp_src = dst_src_lookup[int(n_atoms)]
         len_current_nbl = int(n_atoms) * (int(n_atoms) - 1)
         if idx_counter + len_current_nbl > batch_nbl_len:
@@ -336,7 +337,7 @@ def create_batch(
             elif key in {"R", "F"}:
                 shape = (batch_shape, 3)
             elif key == "Z":
-                shape = (batch_shape,)
+                shape = (batch_shape, 1)
             else:
                 raise ValueError(f"Invalid key: {key}")
 
@@ -358,27 +359,32 @@ def create_batch(
                         # pad with zeros to make the batch size
                         val = np.pad(val, (0, batch_size - len(val)))
                     elif key in {"Z"}:
-                        val = val[start:stop].reshape(int(n[i]))
+                        print(key, start, stop, val.shape)
+                        val = val[:,start:stop].reshape(int(n[i]), 1)
                     else:
                         break
 
                     if idx_counter + int(n[i]) > batch_shape:
                         break
-                    # print(key, val.shape)
+
                     if key in {"R", "F"}:
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
-                    if key in {"Z"}:
+                    elif key in {"Z"}:
+                        print(key, val.shape, val)
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
+                    elif key in {"E"}:
+                        batch[key][i] = val
+
                     idx_counter += int(n[i])
 
     # mask for atoms
     atom_mask = jnp.where(batch["Z"] > 0, 1, 0)
-    batch["atom_mask"] = atom_mask
+    batch["atom_mask"] = atom_mask.reshape(-1)
     # mask for batches (atom wise)
-    batch["N"] = np.array(n, dtype=np.int32).reshape(-1)
-    batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(-1)
+    batch["E"] = np.array(batch["E"]).reshape(batch_size, 1)
+    batch["N"] = np.array(n, dtype=np.int32).reshape(batch_size,1)
+    batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(batch_shape, 1)
 
-    # print("batch[N]", batch["N"])
     batch_mask_atoms = np.concatenate(
         [np.ones(int(x)) * i for i, x in enumerate(batch["N"])]
     )

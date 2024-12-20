@@ -1,6 +1,7 @@
 import os
-
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
+# # Environment configuration
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".95"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 import jax
@@ -10,19 +11,14 @@ from physnetjax.data.datasets import process_in_memory
 from physnetjax.models.model import EF
 from physnetjax.training.training import train_model
 
-# total number of samples, SpiceV2 = 2008628
-# Configurable Constants
+# Constants
 NATOMS = 110
-NTRAIN = 100000
-NVALID = 1000
-DEFAULT_DATA_KEYS = ["Z", "R", "D", "E", "F", "N"]
+# total number of samples, SpiceV2 = 2008628
+NTRAIN = 10
+NVALID = 10
+DEFAULT_DATA_KEYS = ("Z", "R", "D", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 20
-
-# # Environment configuration
-# os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".99"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
+BATCH_SIZE = 1
 
 # JAX Configuration Check
 def check_jax_configuration():
@@ -80,14 +76,18 @@ model = EF(
     n_res=2,
     zbl=False,
 )
-
+bs = max(BATCH_SIZE - 1, 1)
+nb_frac = 1.6
 batch_kwargs = {
-    "batch_shape": int((BATCH_SIZE - 1) * NATOMS),
-    "nb_len": int((NATOMS * (NATOMS - 1) * (BATCH_SIZE - 1)) // 1.6),
+    "batch_shape": int(bs * NATOMS),
+    # number of pairs in the largest graph, divided by nb_frac
+    "nb_len": int((NATOMS * (NATOMS - 1) * bs) // nb_frac),
 }
 
 print("Model initialized")
 print(batch_kwargs)
+
+del ds
 
 # Model training
 params = train_model(
