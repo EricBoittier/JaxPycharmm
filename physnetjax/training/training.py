@@ -150,6 +150,7 @@ def train_model(
     do_charges = model.charges
     # Initialize model parameters and optimizer state.
     key, init_key = jax.random.split(key)
+
     optimizer, transform, schedule_fn, optimizer_kwargs = get_optimizer(
         learning_rate=learning_rate,
         schedule_fn=schedule_fn,

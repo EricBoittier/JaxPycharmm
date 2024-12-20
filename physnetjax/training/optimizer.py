@@ -140,7 +140,6 @@ def get_optimizer(
         "transform": transform,
         "clip_global": clip_global,
         "start_step": start_step,
-        "learning_rate": schedule_fn,
         "b1": 0.9,
         "b2": 0.99,
         "eps": 1e-3,
