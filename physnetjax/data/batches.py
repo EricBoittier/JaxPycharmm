@@ -354,6 +354,8 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                         batch[key][idx_counter:idx_counter + int(n[i])] = val
                     if key in {"Z"}:
                         batch[key][idx_counter:idx_counter + int(n[i])] = val
+                    if key in {"E"}:
+                        batch[key][i] = val
                     idx_counter += int(n[i])
 
     # mask for atoms
