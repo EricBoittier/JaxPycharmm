@@ -27,8 +27,8 @@ from physnetjax.utils.pretty_printer import (
     print_dict_as_table,
     training_printer,
 )
-# import lovely_jax as lj
-# lj.monkey_patch()
+import lovely_jax as lj
+lj.monkey_patch()
 
 schedule_fn = base_schedule_fn
 transform = base_transform
@@ -184,14 +184,12 @@ def train_model(
     }
     if batch_method == "advanced":
         kwargs.update(batch_args_dict)
-
     valid_batches = _prepare_batches(
         kwargs
     )
 
     print_shapes(valid_batches[0], valid_batches[-1])
-    import lovely_jax as lj
-    lj.monkey_patch()
+
     console.print(valid_data["E"])
     console.print(valid_data["F"])
 
@@ -203,7 +201,6 @@ def train_model(
         dst_idx=dst_idx,
         src_idx=src_idx,
     )
-    best_loss = None
     # load from restart
     if restart:
         (
@@ -220,14 +217,12 @@ def train_model(
     # initialize
     else:
         ema_params = params
-        best_loss = 10000
         step = 1
         opt_state = optimizer.init(params)
         transform_state = transform.init(params)
         state = train_state.TrainState.create(
             apply_fn=model.apply, params=params, tx=optimizer
         )
-
     if best_loss is None:
         best_loss = best
 

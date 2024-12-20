@@ -338,6 +338,7 @@ def create_batch(perm, dst_src_lookup, data, data_keys,
                     elif key in {"D"}:
                         val = val.reshape(1, 3)
                     elif key in {"E", "N"}:
+                        val = val.flatten()
                         # pad with zeros to make the batch size
                         val = np.pad(val, (0, batch_size - len(val)))
                     elif key in {"Z"}:
