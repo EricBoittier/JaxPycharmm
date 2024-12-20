@@ -387,23 +387,18 @@ def make_dicts(data, keys, train_choice, valid_choice):
     return train_data, valid_data
 
 
-def print_shapes(train_data, valid_data):
+def print_shapes(dict, name="Data Shapes"):
     """
     Print the shapes of train and validation data.
 
     Args:
-        train_data (dict): Dictionary containing training data.
-        valid_data (dict): Dictionary containing validation data.
+        dict (dict): Dictionary containing training data.
 
     Returns:
         tuple: A tuple containing train_data and valid_data dictionaries.
     """
-    print("...")
-    print("...")
-    for k, v in train_data.items():
-        print(k, v.shape)
-    print("...")
-    for k, v in valid_data.items():
-        print(k, v.shape)
+    shapes_dict = {}
+    for k, v in dict.items():
+        shapes_dict[k] =  v.shape
 
-    return train_data, valid_data
+    print_dict_as_table(shapes_dict, title=name, plot=True)
