@@ -656,8 +656,8 @@ class EF(nn.Module):
             "sum_charges": sum_charges,
         }
         # Debug output values
-        jax.debug.print("Energy {x}", x=energy)
-        jax.debug.print("Forces {x}", x=forces)
+        # jax.debug.print("Energy {x}", x=energy)
+        # jax.debug.print("Forces {x}", x=forces)
         # batches
         # jax.debug.print("Ref. Energy {x}", x=batch["E"])
         # jax.debug.print("Ref. Forces {x}", x=batch["F"])

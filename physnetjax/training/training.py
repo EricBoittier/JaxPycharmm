@@ -304,8 +304,8 @@ def train_model(
                     ema_params=ema_params,
                     debug=True,
                 )
-                jax.debug.print("Ref. Energy {x}", x=batch["E"])
-                jax.debug.print("Ref. Forces {x}", x=batch["F"])
+                # jax.debug.print("Ref. Energy {x}", x=batch["E"])
+                # jax.debug.print("Ref. Forces {x}", x=batch["F"])
                 train_loss += (loss - train_loss) / (i + 1)
                 train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
                 train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
