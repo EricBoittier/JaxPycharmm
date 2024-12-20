@@ -368,8 +368,8 @@ def create_batch(
                         break
 
                     # print(key, val.shape)
-                    if key in {"N"}:
-                        batch[key][i] = val
+                    # if key in {"N"}:
+                    #     batch[key][i] = val
                     if key in {"R", "F"}:
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
                     if key in {"Z"}:
