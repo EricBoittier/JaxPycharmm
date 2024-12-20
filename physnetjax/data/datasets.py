@@ -173,11 +173,11 @@ def process_in_memory(
         # in the openqdc library...
         if openqdc:
             for d in data:
-                energy = d[_] - d["e0"].sum() * 0.0367492929
+                energy = d[key_e] - d["e0"].sum() * 0.0367492929
                 output[MolecularData.ENERGY].append(energy)
         else:
             for d in data:
-                output[MolecularData.ENERGY].append(d[_])
+                output[MolecularData.ENERGY].append(d[key_e])
     key_d = check_keys(D_KEYS, data_keys)
     if key_d is not None:
         output[MolecularData.DIPOLE] = np.array([d[_] for d in data])
