@@ -369,7 +369,7 @@ def create_batch(
 
                     if key in {"R", "F"}:
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
-                    if key in {"Z"}:
+                    elif key in {"Z"}:
                         print(key, val.shape, val)
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
                     elif key in {"E"}:

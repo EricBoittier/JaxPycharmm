@@ -76,10 +76,12 @@ model = EF(
     n_res=2,
     zbl=False,
 )
-
+bs = max(BATCH_SIZE - 1, 1)
+nb_frac = 1.6
 batch_kwargs = {
-    "batch_shape": int((BATCH_SIZE - 1) * NATOMS),
-    "nb_len": int((NATOMS * (NATOMS - 1) * (BATCH_SIZE - 1)) // 1.6),
+    "batch_shape": int(bs * NATOMS),
+    # number of pairs in the largest graph, divided by nb_frac
+    "nb_len": int((NATOMS * (NATOMS - 1) * bs) // nb_frac),
 }
 
 print("Model initialized")
