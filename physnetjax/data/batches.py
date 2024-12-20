@@ -359,7 +359,7 @@ def create_batch(
                         val = np.pad(val, (0, batch_size - len(val)))
                     elif key in {"Z"}:
                         print(key, start, stop, val.shape)
-                        val = val[start:stop] #.reshape(int(n[i]))
+                        val = val[:,start:stop].reshape(int(n[i]), 1)
                     else:
                         break
 
@@ -370,6 +370,7 @@ def create_batch(
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
                     if key in {"Z"}:
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
+
                     idx_counter += int(n[i])
 
     # mask for atoms
