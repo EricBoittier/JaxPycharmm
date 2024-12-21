@@ -300,6 +300,10 @@ def create_batch(
     stop_idx = np.nonzero(cum_sum_n > batch_shape)[0]
     excluded_indices = set(stop_idx[stop_idx > 0] - 1)
     n[stop_idx] = 0
+
+    """
+    Loop over the atom-wise properties and fill the batch dictionary.
+    """
     # Fill `dst_idx` and `src_idx` arrays
     idx_counter = 0
     an_counter = 0
@@ -324,6 +328,9 @@ def create_batch(
         idx_counter += len_current_nbl
         an_counter += n_atoms
 
+    """
+    Loop Over the data keys and fill the batch dictionary.
+    """
     # Handle additional batch data
     for key in data_keys:
         if key in data:
@@ -343,11 +350,17 @@ def create_batch(
             batch[key] = np.zeros(shape)
             idx_counter = 0
 
+            """
+            Subloop over the permutation indices and fill the batch dictionary.
+            """
+
             for i, permutation_index in enumerate(perm):
                 if i not in excluded_indices:
                     start = int(0)
                     stop = int(n[i])
+
                     val = data[key][permutation_index]
+
                     if key in {"R", "F"}:
                         # print(i, key, val.shape, val)
                         val = val[start:stop, :].reshape(int(n[i]), 3)
@@ -356,7 +369,7 @@ def create_batch(
                     elif key in {"E", "N"}:
                         val = val.flatten()
                         # pad with zeros to make the batch size
-                        val = np.pad(val, (0, batch_size - len(val)))
+                        # val = np.pad(val, (0, batch_size - len(val)))
                     elif key in {"Z"}:
                         val = val[start:stop].reshape(int(n[i]))
                     else:
@@ -370,7 +383,7 @@ def create_batch(
                     if key in {"Z"}:
                         batch[key][idx_counter : idx_counter + int(n[i])] = val
                     if key in {"E"}:
-                        batch[key] = val
+                        batch[key][i] = val
 
                     idx_counter += int(n[i])
 
@@ -380,7 +393,7 @@ def create_batch(
     # mask for batches (atom wise)
     batch["N"] = np.array(n, dtype=np.int32).reshape(-1)
     batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(-1)
-
+    batch["E"] = np.pad(batch["E"], (0, batch_size - len(batch["E"])))
     # print("batch[N]", batch["N"])
     batch_mask_atoms = np.concatenate(
         [np.ones(int(x)) * i for i, x in enumerate(batch["N"])]

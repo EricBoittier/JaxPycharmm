@@ -256,7 +256,7 @@ def train_model(
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
-            key, shuffle_key = jax.random.split(key)
+
             kwargs = {
                 "key": shuffle_key,
                 "data": train_data,
