@@ -661,6 +661,11 @@ dependencies = [
     { name = "zipp" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "ipykernel" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "absl-py", specifier = "==2.1.0" },
@@ -767,6 +772,9 @@ requires-dist = [
     { name = "wheel", specifier = "==0.44.0" },
     { name = "zipp", specifier = "==3.20.2" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ipykernel", specifier = ">=6.29.5" }]
 
 [[package]]
 name = "jaxtyping"
