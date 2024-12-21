@@ -15,7 +15,7 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 1000
+NTRAIN = 10000
 NVALID = 500
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
