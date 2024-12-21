@@ -15,7 +15,7 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 10000
+NTRAIN = 100000
 NVALID = 500
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
@@ -89,7 +89,7 @@ model = EF(
     n_res=2,
     zbl=False,
 )
-bs = max(BATCH_SIZE - 1, 1)
+bs = max(BATCH_SIZE * 0.7 - 1, 1)
 nb_frac = 1.6
 batch_kwargs = {
     "batch_shape": int(bs * NATOMS),
