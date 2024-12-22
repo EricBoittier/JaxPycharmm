@@ -13,6 +13,18 @@ MAX_GRID_POINTS = 10000
 BOHR_TO_ANGSTROM = 0.529177
 
 
+def determine_max_nb_length(num_atoms: int | Iterable, batch_size: int) -> int:
+    """Determine the maximum number of neighbors for a given number of atoms."""
+    if isinstance(num_atoms, int):
+        return num_atoms * (num_atoms - 1) * batch_size
+    length = 0
+    # sort descending
+    num_atoms.sort()
+    for n in num_atoms:
+        length += n * (n - 1)
+    return int(length)
+
+
 def prepare_batches_one(
     key,
     data,
