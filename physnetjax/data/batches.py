@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional
 
 import e3x.ops
 import jax
@@ -276,8 +276,8 @@ def prepare_batches_jit(
     return output
 
 
-import numpy as np
 import jax
+import numpy as np
 
 
 def compute_dst_src_lookup(data):
