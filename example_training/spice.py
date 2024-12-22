@@ -15,11 +15,11 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 100000
-NVALID = 500
+NTRAIN = 20000
+NVALID = 1000
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 32
+BATCH_SIZE = 5
 
 
 # JAX Configuration Check
@@ -77,20 +77,21 @@ training_set, training_set_idxs = prepare_spice_dataset(
 
 # Model initialization
 model = EF(
-    features=128,
-    max_degree=0,
-    num_iterations=5,
+    features=64,
+    max_degree=1,
+    num_iterations=2,
     num_basis_functions=16,
-    cutoff=5.0,
-    max_atomic_number=70,
+    cutoff=10.0,
+    max_atomic_number=53,
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=2,
+    n_res=1,
+    efa=True,
     zbl=False,
 )
-bs = max(BATCH_SIZE * 0.7 - 1, 1)
 nb_frac = 1.6
+bs = int(max(BATCH_SIZE//nb_frac, 1))
 batch_kwargs = {
     "batch_shape": int(bs * NATOMS),
     # number of pairs in the largest graph, divided by nb_frac
@@ -101,6 +102,9 @@ print("Model initialized")
 print(batch_kwargs)
 
 del ds
+
+restart = "/pchem-data/meuwly/boittier/home/pycharmm_test/ckpts/test-7e4f020e-2810-4d75-802f-58797df3152a/epoch-64"
+
 
 # Model training
 params = train_model(
@@ -117,6 +121,7 @@ params = train_model(
     num_atoms=NATOMS,
     data_keys=DATA_KEYS,
     print_freq=1,
+    #restart=restart,
     objective="valid_loss",
     best=1e6,
     batch_method="advanced",

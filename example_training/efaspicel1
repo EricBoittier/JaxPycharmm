@@ -1,0 +1,152 @@
+2024-12-22 10:11:16.169740: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:477] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1734858676.192116 2721449 cuda_dnn.cc:8310] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1734858676.199100 2721449 cuda_blas.cc:1418] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-12-22 10:11:20.822491: W external/xla/xla/service/gpu/nvptx_compiler.cc:930] The NVIDIA driver's CUDA version is 12.4 which is older than the PTX compiler version 12.6.77. Because the driver is older than the PTX compiler version, XLA is disabling parallel compilation, which may slow down compilation. You should update your NVIDIA driver or use the NVIDIA-provided CUDA forward compatibility packages.
+2024-12-22 10:11:21.202 | INFO     | openqdc.datasets.base:read_preprocess:435 - Reading preprocessed data.
+2024-12-22 10:11:21.203 | INFO     | openqdc.datasets.base:read_preprocess:436 - Dataset spicev2 with the following units:
+                     Energy: hartree,
+                     Distance: bohr,
+                     Forces: hartree/bohr
+2024-12-22 10:11:24.311 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded atomic_inputs with shape (70428909, 5), dtype float32
+2024-12-22 10:11:24.311 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded position_idx_range with shape (2008628, 2), dtype int32
+2024-12-22 10:11:24.311 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded energies with shape (2008628, 1), dtype float64
+2024-12-22 10:11:24.312 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded forces with shape (70428909, 3, 1), dtype float32
+2024-12-22 10:11:24.312 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded subset with shape (2008628,), dtype <U21
+2024-12-22 10:11:24.312 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded name with shape (2008628,), dtype <U800
+2024-12-22 10:11:24.312 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded n_atoms with shape (2008628,), dtype int32
+2024-12-22 10:11:26.547 | INFO     | openqdc.datasets.statistics:run_calculators:153 - Processing dataset statistics
+2024-12-22 10:11:26.548 | INFO     | openqdc.datasets.statistics:attempt_load:277 - Statistics for forcescalculatorstats loaded successfully
+2024-12-22 10:11:26.549 | INFO     | openqdc.datasets.statistics:attempt_load:277 - Statistics for totalenergystats loaded successfully
+2024-12-22 10:11:26.550 | INFO     | openqdc.datasets.statistics:attempt_load:277 - Statistics for formationenergystats_formation loaded successfully
+2024-12-22 10:11:26.551 | INFO     | openqdc.datasets.statistics:attempt_load:277 - Statistics for peratomformationenergystats_formation loaded successfully
+2024-12-22 10:11:26.553 | INFO     | openqdc.datasets.base:_convert_data:253 - Converting spicev2 data to the following units:
+                     Energy: ev,
+                     Distance: ang,
+                     Forces: ev/ang
+2024-12-22 10:11:29.281 | INFO     | openqdc.datasets.base:read_preprocess:435 - Reading preprocessed data.
+2024-12-22 10:11:29.282 | INFO     | openqdc.datasets.base:read_preprocess:436 - Dataset spicev2 with the following units:
+                     Energy: ev,
+                     Distance: ang,
+                     Forces: ev/ang
+2024-12-22 10:11:32.653 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded atomic_inputs with shape (70428909, 5), dtype float32
+2024-12-22 10:11:32.653 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded position_idx_range with shape (2008628, 2), dtype int32
+2024-12-22 10:11:32.653 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded energies with shape (2008628, 1), dtype float64
+2024-12-22 10:11:32.653 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded forces with shape (70428909, 3, 1), dtype float32
+2024-12-22 10:11:32.654 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded subset with shape (2008628,), dtype <U21
+2024-12-22 10:11:32.654 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded name with shape (2008628,), dtype <U800
+2024-12-22 10:11:32.654 | INFO     | openqdc.datasets.base:read_preprocess:452 - Loaded n_atoms with shape (2008628,), dtype int32
+Devices: [CudaDevice(id=0)]
+Default Backend: gpu
+All Devices: [CudaDevice(id=0)]
+Model initialized
+{'batch_shape': 428, 'nb_len': 29225}
+                                  Train Data                                  
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Z            ┃ N          ┃ R               ┃ F               ┃ E          ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ (49990, 110) │ (49990, 1) │ (49990, 110, 3) │ (49990, 110, 3) │ (49990, 1) │
+└──────────────┴────────────┴─────────────────┴─────────────────┴────────────┘
+                          Validation Data                           
+┏━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Z          ┃ N        ┃ R             ┃ F             ┃ E        ┃
+┡━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ (500, 110) │ (500, 1) │ (500, 110, 3) │ (500, 110, 3) │ (500, 1) │
+└────────────┴──────────┴───────────────┴───────────────┴──────────┘
+Using append batching method
+Training Routine
+                       .,,uod8B8bou,,.
+              ..,uod8BBBBBBBBBBBBBBBBRPFT?l!i:.
+         ,=m8BBBBBBBBBBBBBBBRPFT?!||||||||||||||
+         !...:!TVBBBRPFT||||||||||!!^^""'   ||||
+         !.......:!?|||||!!^^""'            ||||
+         !.........||||                     ||||
+         !.........||||  ##                 ||||
+         !.........||||      PhysNet        ||||
+         !.........||||      JAX            ||||
+         !.........||||                     ||||
+         !.........||||                     ||||
+         `.........||||                    ,||||
+          .;.......||||               _.-!!|||||
+   .,uodWBBBBb.....||||       _.-!!|||||||||!:'
+!YBBBBBBBBBBBBBBb..!|||:..-!!|||||||!iof68BBBBBb....
+!..YBBBBBBBBBBBBBBb!!||||||||!iof68BBBBBBRPFT?!::   `.
+!....YBBBBBBBBBBBBBBbaaitf68BBBBBBRPFT?!:::::::::     `.
+!......YBBBBBBBBBBBBBBBBBBBRPFT?!::::::;:!^"`;:::       `.
+!........YBBBBBBBBBBRPFT?!::::::::::^''...::::::;         iBBbo.
+`..........YBRPFT?!::::::::::::::::::::::::;iof68bo.      WBBBBbo.
+  `..........:::::::::::::::::::::::;iof688888888888b.     `YBBBP^'
+    `........::::::::::::::::;iof688888888888888888888b.     `
+      `......:::::::::;iof688888888888888888888888888888b.
+        `....:::;iof688888888888888888888888888888888899fT!
+          `..::!8888888888888888888888888888888899fT|!^"'
+            `' !!988888888888888888888888899fT|!^"'
+                `!!8888888888888888899fT|!^"'
+                  `!988888888899fT|!^"'
+                    `!9899fT|!^"'
+                      `!^"'
+DATA_PATH: /pchem-data/meuwly/boittier/home/pycharmm_test/data
+LOGS_PATH: /pchem-data/meuwly/boittier/home/pycharmm_test/logs
+ANALYSIS_PATH: /pchem-data/meuwly/boittier/home/pycharmm_test/analysis
+MAIN_PATH: /pchem-data/meuwly/boittier/home/pycharmm_test
+PYCHARMM_DIR: None
+Start Time:  09:14:19
+                              Optimizer Arguments                               
+┏━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━━┳━━━━━┳━━━━━━┳━━━━━━━┓
+┃ opti… ┃ opti… ┃ sche… ┃ sche… ┃ trans… ┃ redu… ┃ clip_… ┃ b1  ┃ b2   ┃ eps   ┃
+┡━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━━╇━━━━━╇━━━━━━╇━━━━━━━┩
+│ amsg… │ Grad… │ cons… │ <fun… │ None   │ Grad… │ 10.0   │ 0.9 │ 0.99 │ 0.001 │
+│       │ chai… │       │ cons… │        │ redu… │        │     │      │       │
+│       │ at    │       │ at    │        │ at    │        │     │      │       │
+│       │ 0x14… │       │ 0x14… │        │ 0x14… │        │     │      │       │
+│       │ upda… │       │       │        │ upda… │        │     │      │       │
+│       │ chai… │       │       │        │ redu… │        │     │      │       │
+│       │ at    │       │       │        │ at    │        │     │      │       │
+│       │ 0x14… │       │       │        │ 0x14… │        │     │      │       │
+└───────┴───────┴───────┴───────┴────────┴───────┴────────┴─────┴──────┴───────┘
+                              Training Parameters                               
+┏━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓
+┃ energy… ┃ forces… ┃ dipole… ┃ charge… ┃ batch_… ┃ num_at… ┃ batch_… ┃ nb_len ┃
+┡━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩
+│ 1       │ 52.91   │ 27.21   │ 14.39   │ 7       │ 110     │ 428     │ 29225  │
+└─────────┴─────────┴─────────┴─────────┴─────────┴─────────┴─────────┴────────┘
+                         Training Style                         
+┏━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ restart ┃ best      ┃ data_keys                 ┃ objective  ┃
+┡━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ False   │ 1000000.0 │ ('Z', 'R', 'E', 'F', 'N') │ valid_loss │
+└─────────┴───────────┴───────────────────────────┴────────────┘
+                              Validation Batch[0]                               
+┏━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━┳━━━━━━━┳━━━━━━┳━━━━━━━━┳━━━━━━━┓
+┃ dst_… ┃ src_… ┃ batc… ┃ Z     ┃ R     ┃ E    ┃ F     ┃ N    ┃ atom_… ┃ batc… ┃
+┡━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━╇━━━━━━━╇━━━━━━╇━━━━━━━━╇━━━━━━━┩
+│ (292… │ (292… │ (292… │ (428… │ (428, │ (7,) │ (428, │ (7,) │ (428,) │ (428… │
+│       │       │       │       │ 3)    │      │ 3)    │      │        │       │
+└───────┴───────┴───────┴───────┴───────┴──────┴───────┴──────┴────────┴───────┘
+Extra Validation Info:
+Z: Array[500, 110] i32 n=55000 (0.2Mb) x∈[0, 53] μ=1.353 σ=2.924 cpu:0
+R: Array[500, 110, 3] n=165000 (0.6Mb) x∈[-25.044, 30.914] μ=0.172 σ=2.733 cpu:0
+E: Array[500, 1] 2.0Kb x∈[-16.163, -0.383] μ=-5.932 σ=2.712 cpu:0
+N: Array[500, 1] i32 2.0Kb x∈[3, 110] μ=34.978 σ=15.707 cpu:0
+F: Array[500, 110, 3] n=165000 (0.6Mb) x∈[-0.187, 0.214] μ=-4.985e-09 σ=0.011 cpu:0
+                                                                       Model Attributes                                                                       
+┏━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━┓
+┃ features ┃ max_degree ┃ num_iterations ┃ num_basis_functions ┃ cutoff ┃ max_atomic_number ┃ charges ┃ natoms ┃ total_charge ┃ n_res ┃ zbl   ┃ debug ┃ efa  ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━┩
+│ 128      │ 1          │ 2              │ 16                  │ 10.0   │ 53                │ False   │ 110    │ 0            │ 1     │ False │ False │ True │
+└──────────┴────────────┴────────────────┴─────────────────────┴────────┴───────────────────┴─────────┴────────┴──────────────┴───────┴───────┴───────┴──────┘
+Traceback (most recent call last):
+  File "/pchem-data/meuwly/boittier/home/pycharmm_test/example_training/spice.py", line 110, in <module>
+    params = train_model(
+             ^^^^^^^^^^^^
+  File "/pchem-data/meuwly/boittier/home/pycharmm_test/physnetjax/training/training.py", line 274, in train_model
+    train_batches = _prepare_batches(kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/pchem-data/meuwly/boittier/home/pycharmm_test/physnetjax/training/training.py", line 120, in _prepare_batches
+    return prepare_batches_advanced_minibatching(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/pchem-data/meuwly/boittier/home/pycharmm_test/physnetjax/data/batches.py", line 435, in prepare_batches_advanced_minibatching
+    create_batch(
+  File "/pchem-data/meuwly/boittier/home/pycharmm_test/physnetjax/data/batches.py", line 313, in create_batch
+    raise ValueError(f"Invalid number of atoms: {n_atoms}")
+ValueError: Invalid number of atoms: 0
