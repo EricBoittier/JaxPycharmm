@@ -5,11 +5,17 @@ import gc
 import ase.units
 import e3x
 import jax
-from rich.panel import Panel as p_
+
+from jax.experimental import mesh_utils
+from jax.sharding import Mesh
+from jax.sharding import NamedSharding
+from jax.sharding import PartitionSpec as P
+
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from rich.console import Console
 from rich.live import Live
+from contextlib import nullcontext
 
 from physnetjax.data.data import print_shapes
 from physnetjax.logger.tensorboard_logging import write_tb_log
@@ -44,30 +50,6 @@ CONVERSION = {
     "energy": 1 / (ase.units.kcal / ase.units.mol),
     "forces": 1 / (ase.units.kcal / ase.units.mol),
 }
-
-# def decide_batching(batch_method, batch_args_dict):
-#     if (batch_method == "advanced" and isinstance(batch_args_dict, dict) and
-#             "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict):
-#         _prepare_batches = lambda x: prepare_batches_advanced_minibatching(
-#             x["key"],
-#             x["data"],
-#             x["batch_size"],
-#             batch_args_dict["batch_shape"],
-#             batch_args_dict["batch_nbl_len"],
-#             num_atoms=x["num_atoms"],
-#             data_keys=x["data_keys"],
-#         )
-#     else:
-#         prepare_batches = get_prepare_batches_fn()
-#         _prepare_batches = lambda x: prepare_batches(
-#             x["key"],
-#             x["data"],
-#             x["batch_size"],
-#             num_atoms=x["num_atoms"],
-#             data_keys=x["data_keys"],
-#         )
-#     return _prepare_batches
-
 
 def train_model(
     key,
@@ -115,7 +97,6 @@ def train_model(
     ):
         print("Using append batching method")
         from physnetjax.data.batches import prepare_batches_advanced_minibatching
-
         def _prepare_batches(x):
             return prepare_batches_advanced_minibatching(
                 x["key"],
@@ -126,12 +107,13 @@ def train_model(
                 num_atoms=x["num_atoms"],
                 data_keys=x["data_keys"],
             )
-
     else:
         print("Using default (fat) batching method")
         from physnetjax.data.batches import get_prepare_batches_fn
-
-        _prepare_batches = get_prepare_batches_fn()
+        _ = get_prepare_batches_fn()
+        def _prepare_batches(key, data, batch_size, num_atoms, data_keys):
+            return _(key, data=data, batch_size=batch_size,
+                     num_atoms=num_atoms, data_keys=data_keys)
 
     console = Console(width=200, color_system="auto")
 
@@ -194,7 +176,10 @@ def train_model(
     }
     if batch_method == "advanced":
         kwargs.update(batch_args_dict)
-    valid_batches = _prepare_batches(kwargs)
+        valid_batches = _prepare_batches(kwargs)
+    else:
+        valid_batches = _prepare_batches(key, valid_data, batch_size,
+                                         num_atoms, data_keys)
 
     print_shapes(valid_batches[0], name="Validation Batch[0]")
     jax.debug.print("Extra Validation Info:")
@@ -249,9 +234,52 @@ def train_model(
     if console is not None:
         console.print(table)
 
-    from contextlib import nullcontext
+    # # Replicate the model and optimizer variable on all devices
+    # def get_replicated_train_state(devices):
+    #     # All variables will be replicated on all devices
+    #     var_mesh = Mesh(devices, axis_names=("_"))
+    #     # In NamedSharding, axes not mentioned are replicated (all axes here)
+    #     var_replication = NamedSharding(var_mesh, P())
+    #
+    #     # Apply the distribution settings to the model variables
+    #     trainable_variables = jax.device_put(model.trainable_variables, var_replication)
+    #     non_trainable_variables = jax.device_put(
+    #         model.non_trainable_variables, var_replication
+    #     )
+    #     optimizer_variables = jax.device_put(optimizer.variables, var_replication)
+    #
+    #     # Combine all state in a tuple
+    #     return (trainable_variables, non_trainable_variables, optimizer_variables)
 
-    with Live(auto_refresh=False) if console is not None else nullcontext() as live:
+    num_devices = len(jax.local_devices())
+    print(f"Running on {num_devices} devices: {jax.local_devices()}")
+    devices = mesh_utils.create_device_mesh((num_devices,))
+
+    # Data will be split along the batch axis
+    data_mesh = Mesh(devices, axis_names=("batch",))  # naming axes of the mesh
+    data_sharding = NamedSharding(
+        data_mesh,
+        P(
+            "batch",
+        ),
+    )  # naming axes of the sharded partition
+
+    # Display data sharding
+    x = next(iter(train_data))
+    for y in train_data:
+        train_data[y] = jax.device_put(train_data[y],
+                                       data_sharding)
+        print(f"Data sharding for {y}")
+        if len(train_data[y].shape) < 3:
+            jax.debug.visualize_array_sharding(train_data[y])
+    print("Data sharding")
+    # jax.debug.visualize_array_sharding(
+    #     jax.numpy.reshape(sharded_x, [-1, 28 * 28]))
+    # _train_state = get_replicated_train_state(devices)
+
+
+    with (Live(auto_refresh=False) if console is not None \
+          else nullcontext() as live):
         gc.collect()
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
@@ -271,7 +299,12 @@ def train_model(
                 and "batch_nbl_len" in batch_args_dict
             ):
                 kwargs.update(batch_args_dict)
-            train_batches = _prepare_batches(kwargs)
+
+            if batch_method == "advanced":
+                train_batches = _prepare_batches(kwargs)
+            else:
+                train_batches = _prepare_batches(key, train_data, batch_size,
+                                                 num_atoms, data_keys)
             # Loop over train batches.
             train_loss = 0.0
             train_energy_mae = 0.0

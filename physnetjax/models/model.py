@@ -13,6 +13,10 @@ import flax.linen as nn
 import jax
 import jax.numpy as jnp
 from jax import Array
+# from jax.experimental import mesh_utils
+# from jax.sharding import Mesh
+# from jax.sharding import NamedSharding
+# from jax.sharding import PartitionSpec as P
 
 from physnetjax.models.euclidean_fast_attention import fast_attention as efa
 from physnetjax.models.zbl import ZBLRepulsion

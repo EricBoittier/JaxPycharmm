@@ -640,8 +640,8 @@ def prepare_batches_advanced_minibatching(
 
 # Example of optional JIT compilation if desired (and arguments are stable):
 def get_prepare_batches_fn():
-    return None
-    # prepare_batches = jax.jit(
-    #     prepare_batches_jit, static_argnames=("batch_size", "num_atoms", "data_keys")
-    # )
-    # return prepare_batches
+    # return None
+    prepare_batches = jax.jit(
+        prepare_batches_jit, static_argnames=("batch_size", "num_atoms", "data_keys")
+    )
+    return prepare_batches

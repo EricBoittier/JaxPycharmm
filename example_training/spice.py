@@ -1,5 +1,9 @@
 import os
+# Set up runtime to mimic an 8-core machine for pmap example below:
+import os
 
+flags = os.environ.get('XLA_FLAGS', '')
+os.environ['XLA_FLAGS'] = flags + " --xla_force_host_platform_device_count=8"
 # # Environment configuration
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".95"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
@@ -15,11 +19,11 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 20000
-NVALID = 1000
+NTRAIN = 200
+NVALID = 100
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 5
+BATCH_SIZE = 1
 
 
 # JAX Configuration Check
@@ -87,7 +91,7 @@ model = EF(
     natoms=NATOMS,
     total_charge=0,
     n_res=1,
-    efa=True,
+    efa=False,
     zbl=False,
 )
 nb_frac = 1.6
@@ -112,7 +116,7 @@ params = train_model(
     model,
     training_set,
     validation_set,
-    num_epochs=int(10**4),
+    num_epochs=int(10**1),
     learning_rate=0.001,
     energy_weight=1,
     schedule_fn="constant",
@@ -124,6 +128,6 @@ params = train_model(
     #restart=restart,
     objective="valid_loss",
     best=1e6,
-    batch_method="advanced",
-    batch_args_dict=batch_kwargs,
+    batch_method="default",
+    # batch_args_dict=batch_kwarcsgs,
 )
