@@ -175,7 +175,7 @@ def train_model(
         valid_batches = _prepare_batches(kwargs)
     else:
         valid_batches = _prepare_batches(key,
-                                         valid_data=valid_data,
+                                         data=valid_data,
                                          batch_size=batch_size,
                                          num_atoms=num_atoms,
                                          data_keys=data_keys)
@@ -302,8 +302,11 @@ def train_model(
             if batch_method == "advanced":
                 train_batches = _prepare_batches(kwargs)
             else:
-                train_batches = _prepare_batches(key, train_data, batch_size,
-                                                 num_atoms, data_keys)
+                train_batches = _prepare_batches(key,
+                                                 data=train_data,
+                                                 batch_size=batch_size,
+                                                 num_atoms=num_atoms,
+                                                 data_keys=data_keys)
             # Loop over train batches.
             train_loss = 0.0
             train_energy_mae = 0.0
