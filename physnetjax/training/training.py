@@ -174,8 +174,11 @@ def train_model(
         kwargs.update(batch_args_dict)
         valid_batches = _prepare_batches(kwargs)
     else:
-        valid_batches = _prepare_batches(key, valid_data, batch_size,
-                                         num_atoms, data_keys)
+        valid_batches = _prepare_batches(key,
+                                         valid_data=valid_data,
+                                         batch_size=batch_size,
+                                         num_atoms=num_atoms,
+                                         data_keys=data_keys)
 
     print_shapes(valid_batches[0], name="Validation Batch[0]")
     jax.debug.print("Extra Validation Info:")
