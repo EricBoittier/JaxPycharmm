@@ -2,8 +2,8 @@ import os
 # Set up runtime to mimic an 8-core machine for pmap example below:
 import os
 
-flags = os.environ.get('XLA_FLAGS', '')
-os.environ['XLA_FLAGS'] = flags + " --xla_force_host_platform_device_count=8"
+# flags = os.environ.get('XLA_FLAGS', '')
+# os.environ['XLA_FLAGS'] = flags + " --xla_force_host_platform_device_count=8"
 # # Environment configuration
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".95"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
