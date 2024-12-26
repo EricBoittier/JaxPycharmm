@@ -19,8 +19,8 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 200
-NVALID = 100
+NTRAIN = 20000
+NVALID = 1000
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
 BATCH_SIZE = 1
@@ -81,16 +81,16 @@ training_set, training_set_idxs = prepare_spice_dataset(
 
 # Model initialization
 model = EF(
-    features=64,
-    max_degree=1,
-    num_iterations=2,
-    num_basis_functions=16,
+    features=128,
+    max_degree=0,
+    num_iterations=5,
+    num_basis_functions=36,
     cutoff=10.0,
     max_atomic_number=53,
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=1,
+    n_res=5,
     efa=False,
     zbl=False,
 )
