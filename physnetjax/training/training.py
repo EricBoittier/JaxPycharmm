@@ -233,23 +233,9 @@ def train_model(
     if console is not None:
         console.print(table)
 
-    # # Replicate the model and optimizer variable on all devices
-    # def get_replicated_train_state(devices):
-    #     # All variables will be replicated on all devices
-    #     var_mesh = Mesh(devices, axis_names=("_"))
-    #     # In NamedSharding, axes not mentioned are replicated (all axes here)
-    #     var_replication = NamedSharding(var_mesh, P())
-    #
-    #     # Apply the distribution settings to the model variables
-    #     trainable_variables = jax.device_put(model.trainable_variables, var_replication)
-    #     non_trainable_variables = jax.device_put(
-    #         model.non_trainable_variables, var_replication
-    #     )
-    #     optimizer_variables = jax.device_put(optimizer.variables, var_replication)
-    #
-    #     # Combine all state in a tuple
-    #     return (trainable_variables, non_trainable_variables, optimizer_variables)
-
+    """
+    Data sharding
+    """
     num_devices = len(jax.local_devices())
     print(f"Running on {num_devices} devices: {jax.local_devices()}")
     devices = mesh_utils.create_device_mesh((num_devices,))
@@ -272,10 +258,7 @@ def train_model(
         if len(train_data[y].shape) < 3:
             jax.debug.visualize_array_sharding(train_data[y])
     print("Data sharding")
-    # jax.debug.visualize_array_sharding(
-    #     jax.numpy.reshape(sharded_x, [-1, 28 * 28]))
-    # _train_state = get_replicated_train_state(devices)
-
+    ####################################################################
 
     with (Live(auto_refresh=False) if console is not None \
           else nullcontext() as live):

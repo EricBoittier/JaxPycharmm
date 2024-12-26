@@ -13,7 +13,10 @@ from physnetjax.training.loss import (
 DTYPE = jnp.float32
 
 
-@functools.partial(jax.jit, static_argnames=("model_apply", "batch_size", "charges"))
+@functools.partial(
+    jax.jit, static_argnames=("model_apply",
+                              "batch_size",
+                              "charges"))
 def eval_step(
     model_apply,
     batch,
