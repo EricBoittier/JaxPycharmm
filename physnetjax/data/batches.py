@@ -645,3 +645,6 @@ def prepare_batches_advanced_minibatching(
 #         prepare_batches_jit, static_argnames=("batch_size", "num_atoms", "data_keys")
 #     )
 
+_prepare_batches = jax.jit(
+        prepare_batches_jit, static_argnames=("batch_size", "num_atoms", "data_keys")
+        )
