@@ -116,7 +116,7 @@ params = train_model(
     model,
     training_set,
     validation_set,
-    num_epochs=int(10**1),
+    num_epochs=int(10**4),
     learning_rate=0.001,
     energy_weight=1,
     schedule_fn="constant",
