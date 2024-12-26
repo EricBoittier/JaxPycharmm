@@ -113,7 +113,7 @@ def train_model(
         _prepare_batches = jax.jit(
         prepare_batches_jit, static_argnames=("batch_size", "num_atoms", "data_keys")
         )
-        return prepare_batches_jit
+        return _prepare_batches
 
     console = Console(width=200, color_system="auto")
 
