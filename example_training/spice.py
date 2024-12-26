@@ -19,11 +19,11 @@ from physnetjax.training.training import train_model
 # Constants
 NATOMS = 110
 # total number of samples, SpiceV2 = 2008628
-NTRAIN = 200 #00
-NVALID = 100 # 0
+NTRAIN = 2_000 #00
+NVALID = 1_000 # 0
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 1
+BATCH_SIZE = 32
 
 
 # JAX Configuration Check
@@ -90,7 +90,7 @@ model = EF(
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=1,
+    n_res=5,
     efa=False,
     zbl=False,
 )
