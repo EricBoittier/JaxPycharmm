@@ -109,11 +109,11 @@ def train_model(
             )
     else:
         print("Using default (fat) batching method")
-        from physnetjax.data.batches import get_prepare_batches_fn
-        _ = get_prepare_batches_fn()
-        def _prepare_batches(key, data, batch_size, num_atoms, data_keys):
-            return _(key, data=data, batch_size=batch_size,
-                     num_atoms=num_atoms, data_keys=data_keys)
+        from physnetjax.data.batches import prepare_batches_jit
+        _prepare_batches = jax.jit(
+        prepare_batches_jit, static_argnames=("batch_size", "num_atoms", "data_keys")
+        )
+        return prepare_batches_jit
 
     console = Console(width=200, color_system="auto")
 
