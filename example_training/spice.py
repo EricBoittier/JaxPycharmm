@@ -23,7 +23,7 @@ NTRAIN = 2_000 #00
 NVALID = 1_000 # 0
 DATA_KEYS = ("Z", "R", "E", "F", "N")
 RANDOM_SEED = 42
-BATCH_SIZE = 32
+BATCH_SIZE = 1
 
 
 # JAX Configuration Check
@@ -90,7 +90,7 @@ model = EF(
     charges=False,
     natoms=NATOMS,
     total_charge=0,
-    n_res=5,
+    n_res=1,
     efa=False,
     zbl=False,
 )

@@ -193,11 +193,12 @@ class EF(nn.Module):
         graph_mask: jnp.ndarray,
     ) -> jnp.ndarray:
         """Process atomic features through message passing and refinement."""
-        x = e3x.nn.Embed(
+        embed = e3x.nn.Embed(
             num_embeddings=self.max_atomic_number + 1,
             features=self.features,
             dtype=DTYPE,
-        )(atomic_numbers)
+        )
+        x = embed(atomic_numbers)
 
         for i in range(self.num_iterations):
             x = self._message_passing_iteration(
