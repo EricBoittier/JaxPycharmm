@@ -286,8 +286,7 @@ def train_model(
             ):
                 kwargs.update(batch_args_dict)
             else:
-                RaiseError("If batch method == advanced, batch_args_dict must be a dictionary with keys 'batch_shape' "
-                           "and 'batch_nbl_len'")
+                print("...")
 
             if batch_method == "advanced":
                 train_batches = _prepare_batches(kwargs)
