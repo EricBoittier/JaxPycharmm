@@ -36,6 +36,7 @@ dependencies = [
     "importlib-resources==6.4.5",
     "ipykernel==6.29.5",
     "ipython==8.28.0",
+    "jax[cuda12]",
 #    "jax-cuda12-pjrt==0.4.34",
     "jax==0.4.34",
 #    "jax-cuda12-plugin==0.4.34",
@@ -123,6 +124,14 @@ dependencies = [
     "wcwidth==0.2.13",
     "wheel==0.44.0",
     "zipp==3.20.2",
+    "toml==0.10.2",
+    "polars==0.12.0",
+    "pyarrow==6.0.0",
+    "lovely-jax",
+    "asciichartpy==0.5.0",
+    "tensorflow==2.8.0",
+    "flax",
+
 ]
 
 [tool.uv.sources]
