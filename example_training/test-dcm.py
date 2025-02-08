@@ -51,7 +51,7 @@ train_data, valid_data = prepare_datasets(
     clip_esp=False,
     natoms=NATOMS,
     clean=False,
-    subtract_atom_energies=True,
+    subtract_atom_energies=False,
     verbose=True,
 )
 

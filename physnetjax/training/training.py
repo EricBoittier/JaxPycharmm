@@ -6,6 +6,10 @@ import ase.units
 import e3x
 import jax
 
+PROFILE = True
+if PROFILE:
+    import jax.profiler
+
 from jax.experimental import mesh_utils
 from jax.sharding import Mesh
 from jax.sharding import NamedSharding
@@ -257,12 +261,10 @@ def train_model(
         print(f"Data sharding for {y}")
         if len(train_data[y].shape) < 3:
             jax.debug.visualize_array_sharding(train_data[y])
-    print("Data sharding")
     ####################################################################
 
     with (Live(auto_refresh=False) if console is not None \
           else nullcontext() as live):
-        gc.collect()
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
@@ -325,7 +327,6 @@ def train_model(
                 train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
                 train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
                 train_dipoles_mae += (dipole_mae - train_dipoles_mae) / (i + 1)
-            gc.collect()
             # Evaluate on validation set.
             valid_loss = 0.0
             valid_energy_mae = 0.0
@@ -439,7 +440,9 @@ def train_model(
                     save_time,
                 )
                 live.update(combined, refresh=True)
-                gc.collect()
+                # gc.collect()
+                if PROFILE:
+                    jax.profiler.save_device_memory_profile(f"{save_time}-memory-{epoch}.prof")
 
     # Return final model parameters.
     return ema_params
