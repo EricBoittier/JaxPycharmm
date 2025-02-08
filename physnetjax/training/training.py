@@ -6,7 +6,7 @@ import ase.units
 import e3x
 import jax
 
-PROFILE = True
+PROFILE = False
 if PROFILE:
     import jax.profiler
 
