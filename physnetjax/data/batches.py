@@ -195,6 +195,7 @@ def prepare_batches_jit(
         "F": (batch_size * num_atoms, 3),
         "E": (batch_size, 1),
         "Z": (batch_size * num_atoms,),
+        "D": (batch_size,3),
         "N": (batch_size,),
         "mono": (batch_size * num_atoms,),
     }
