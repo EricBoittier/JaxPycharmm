@@ -131,15 +131,31 @@ dependencies = [
     "asciichartpy",
     "tensorflow",
     "flax",
+    "scikit-learn",
     "pycharmm",
     "ff_energy",
+    "gpu4pyscf-cuda12x",
+    "cutensor-cu12",
+"nbformat>=4.2.0",
+"pyvolume",
+"ipyvolume",
+"chemcoord",
+"scikit-image",
+"ipython_genutils",
+"dscribe",
+"openff-toolkit",
+"openmm[cuda12]",
+	"molpipx",
+	"plotly",
 ]
 
 [tool.uv.sources]
 jax-md = { git = "https://github.com/google/jax-md.git", rev = "05221c551e71f1b5f64458c0e3533452c22efec0" }
 pycharmm = { path = "/pchem-data/meuwly/boittier/home/charmm/tool/pycharmm", editable = true }
 ff_energy = {path = "/pchem-data/meuwly/boittier/home/FF-Fit" , editable = true}
-
+molpipx = {path = "/pchem-data/meuwly/boittier/home/molpipx", editable = true}
+openff-units = {path = "https://github.com/openforcefield/openff-units.git"}
+openff-toolkit = {git = "https://github.com/openforcefield/openff-toolkit"}
 [dependency-groups]
 dev = [
     "ipykernel>=6.29.5",
