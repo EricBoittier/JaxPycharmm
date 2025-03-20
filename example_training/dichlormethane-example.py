@@ -91,7 +91,9 @@ def calc_physnet(atomic_numbers, atom_positions,
 
     ase_monomers_dict = {}
     e_monomers_dict = {}
-    
+    f_monomers_dict = {}
+    r_monomers_dict = {}
+    z_monomers_dict = {}
     for i in range(n_monomer):
         start, stop = i*5, i*5 + 5
         Z, R = atomic_numbers, atom_positions
@@ -105,12 +107,15 @@ def calc_physnet(atomic_numbers, atom_positions,
     )
         ase_monomers_dict[i] = ase_atoms_monomer
         e_monomers_dict[i] = ase_atoms_monomer.get_potential_energy()
-
-
+        f_monomers_dict[i] = ase_atoms_monomer.get_forces()
+        r_monomers_dict[i] = ase_atoms_monomer.get_positions()
+        z_monomers_dict[i] = ase_atoms_monomer.get_atomic_numbers()
     
     ase_dimers_dict = {}
     e_dimers_dict = {}
-
+    f_dimers_dict = {}
+    r_dimers_dict = {}
+    z_dimers_dict = {}
     for perm in dimer_permutations:
         a,b = perm
         monomer1 = ase_monomers_dict[a]
@@ -119,7 +124,10 @@ def calc_physnet(atomic_numbers, atom_positions,
         ase_atoms_dimer.calc = ase_calc_dimer
         ase_dimers_dict[i] = ase_atoms_dimer
         e_dimers_dict[perm] = ase_atoms_dimer.get_potential_energy()
-
+        f_dimers_dict[perm] = ase_atoms_dimer.get_forces()
+        r_dimers_dict[i] = ase_atoms_dimer.get_positions()
+        z_dimers_dict[i] = ase_atoms_dimer.get_atomic_numbers()
+        
     eint_dimers_dict = {}
     emonomers_dimers_dict = {}
     for perm in dimer_permutations:
@@ -143,9 +151,15 @@ def calc_physnet(atomic_numbers, atom_positions,
     per_dimer_energies = {
         "emonomers_dimers_dict": emonomers_dimers_dict,
         "e_dimers_dict": e_dimers_dict, 
-        "eint_dimers_dict": eint_dimers_dict
-    }
-    per_monomer = {"e_monomers": e_monomers_dict}
+        "eint_dimers_dict": eint_dimers_dict,
+        "f_dimers_dict": f_dimers_dict,
+        "r_dimers": r_dimers_dict,
+                  "z_dimers": z_dimers_dict}
+    
+    per_monomer = {"e_monomers": e_monomers_dict, 
+                   "f_monomers": f_monomers_dict,
+                  "r_monomers": r_monomers_dict,
+                  "z_monomers": z_monomers_dict}
     
     output = {"per_cluster": energies, 
               "per_dimer": per_dimer_energies, 
@@ -174,7 +188,7 @@ model = EF(
 
 
 files = [
-    Path("/pchem-data/meuwly/boittier/home/dcm_dimers_MP3_20999.npz"),
+    Path("/pchem-data/meuwly/boittier/home/dcm_dimers_MP2_20999.npz"),
 
 ]
 
@@ -459,6 +473,7 @@ def job_procedure(key, per_monomer, per_dimer, per_cluster, per_neighbour):
     _tmp_per_dimer = {
         "ele_energies": ele_energies,
         "evdw_energies": evdw_energies,
+        "mm_forces": get_forces_pycharmm(),
     }
     _tmp_per_dimer.update(physnet_energies["per_dimer"])
     per_dimer.append(_tmp_per_dimer)
