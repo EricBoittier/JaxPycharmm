@@ -1,27 +1,21 @@
+from contextlib import nullcontext
+import gc
 import time
 import uuid
-import gc
 
 import ase.units
 import e3x
 import jax
-
-PROFILE = False
-if PROFILE:
-    import jax.profiler
-
-from jax.experimental import mesh_utils
-from jax.sharding import Mesh
-from jax.sharding import NamedSharding
-from jax.sharding import PartitionSpec as P
-
+import lovely_jax as lj
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
+from jax.experimental import mesh_utils
+from jax.sharding import Mesh, NamedSharding, PartitionSpec as P
 from rich.console import Console
 from rich.live import Live
-from contextlib import nullcontext
 
 from physnetjax.data.data import print_shapes
+from physnetjax.directories import BASE_CKPT_DIR, print_paths
 from physnetjax.logger.tensorboard_logging import write_tb_log
 from physnetjax.restart.restart import orbax_checkpointer, restart_training
 from physnetjax.training.evalstep import eval_step
@@ -39,7 +33,10 @@ from physnetjax.utils.pretty_printer import (
     print_dict_as_table,
     training_printer,
 )
-import lovely_jax as lj
+
+PROFILE = False
+if PROFILE:
+    import jax.profiler
 
 lj.monkey_patch()
 
@@ -47,13 +44,18 @@ schedule_fn = base_schedule_fn
 transform = base_transform
 optimizer = base_optimizer
 
-from physnetjax.directories import BASE_CKPT_DIR, print_paths
-
 # Energy/force unit conversions
 CONVERSION = {
     "energy": 1 / (ase.units.kcal / ase.units.mol),
     "forces": 1 / (ase.units.kcal / ase.units.mol),
 }
+
+def is_valid_advanced_batch_config(batch_args_dict):
+    return (
+        isinstance(batch_args_dict, dict)
+        and "batch_shape" in batch_args_dict
+        and "batch_nbl_len" in batch_args_dict
+    )
 
 def train_model(
     key,
@@ -93,12 +95,7 @@ def train_model(
         raise ValueError("batch_method must be specified")
 
     # Decide batching method
-    if (
-        batch_method == "advanced"
-        and isinstance(batch_args_dict, dict)
-        and "batch_shape" in batch_args_dict
-        and "nb_len" in batch_args_dict
-    ):
+    if batch_method == "advanced" and is_valid_advanced_batch_config(batch_args_dict):
         print("Using append batching method")
         from physnetjax.data.batches import prepare_batches_advanced_minibatching
         def _prepare_batches(x):
@@ -106,8 +103,8 @@ def train_model(
                 x["key"],
                 x["data"],
                 x["batch_size"],
-                batch_args_dict["batch_shape"],
-                batch_args_dict["nb_len"],
+                x["batch_shape"],
+                x["batch_nbl_len"],
                 num_atoms=x["num_atoms"],
                 data_keys=x["data_keys"],
             )
@@ -128,7 +125,7 @@ def train_model(
             "Start Time: ", time.strftime("%H:%M:%S", time.gmtime(start_time))
         )
 
-    best_loss = 10000
+    best_loss = float('inf') if best else None
     do_charges = model.charges
     # Initialize model parameters and optimizer state.
     key, init_key = jax.random.split(key)
@@ -166,9 +163,10 @@ def train_model(
     CKPT_DIR = ckpt_dir / f"{name}-{uuid_}"
 
     # Batches for the validation set need to be prepared only once.
-    key, shuffle_key = jax.random.split(key)
+    key, valid_shuffle_key = jax.random.split(key)
+    key, train_shuffle_key = jax.random.split(key)
     kwargs = {
-        "key": shuffle_key,
+        "key": valid_shuffle_key,
         "data": valid_data,
         "batch_size": batch_size,
         "num_atoms": num_atoms,
@@ -224,8 +222,8 @@ def train_model(
         state = train_state.TrainState.create(
             apply_fn=model.apply, params=params, tx=optimizer
         )
-    if best_loss is None:
-        best_loss = best
+    if best_loss is None or restart:
+        best_loss = float('inf')
 
     train_time1 = time.time()
     epoch_printer = Printer()
@@ -237,33 +235,6 @@ def train_model(
     if console is not None:
         console.print(table)
 
-    SHARDING = False
-    if SHARDING:
-        """
-        Data sharding
-        """
-        num_devices = len(jax.local_devices())
-        print(f"Running on {num_devices} devices: {jax.local_devices()}")
-        devices = mesh_utils.create_device_mesh((num_devices,))
-
-        # Data will be split along the batch axis
-        data_mesh = Mesh(devices, axis_names=("batch",))  # naming axes of the mesh
-        data_sharding = NamedSharding(
-            data_mesh,
-            P(
-                "batch",
-            ),
-        )  # naming axes of the sharded partition
-
-        # Display data sharding
-        x = next(iter(train_data))
-        for y in train_data:
-            train_data[y] = jax.device_put(train_data[y],
-                                           data_sharding)
-            print(f"Data sharding for {y}")
-            if len(train_data[y].shape) < 3:
-                jax.debug.visualize_array_sharding(train_data[y])
-        ####################################################################
 
     with (Live(auto_refresh=False) if console is not None \
           else nullcontext() as live):
@@ -272,7 +243,7 @@ def train_model(
             # Prepare batches.
 
             kwargs = {
-                "key": shuffle_key,
+                "key": train_shuffle_key,
                 "data": train_data,
                 "batch_size": batch_size,
                 "num_atoms": num_atoms,
@@ -282,11 +253,10 @@ def train_model(
                 batch_method == "advanced"
                 and isinstance(batch_args_dict, dict)
                 and "batch_shape" in batch_args_dict
-                and "batch_nbl_len" in batch_args_dict
+                and "nb_len" in batch_args_dict
             ):
                 kwargs.update(batch_args_dict)
-            else:
-                print("...")
+
 
             if batch_method == "advanced":
                 train_batches = _prepare_batches(kwargs)
@@ -376,8 +346,8 @@ def train_model(
                 "valid_forces_mae": valid_forces_mae,
                 "train_energy_mae": train_energy_mae,
                 "train_forces_mae": train_forces_mae,
-                "train_diople_mae": train_dipoles_mae,
-                "valid_diople_mae": valid_dipoles_mae,
+                "train_dipole_mae": train_dipoles_mae,
+                "valid_dipole_mae": valid_dipoles_mae,
                 "train_loss": train_loss,
                 "valid_loss": valid_loss,
                 "lr": lr_eff,
@@ -444,7 +414,7 @@ def train_model(
                     save_time,
                 )
                 live.update(combined, refresh=True)
-                # gc.collect()
+                gc.collect()  # Force garbage collection to prevent memory buildup during long training runs
                 if PROFILE:
                     jax.profiler.save_device_memory_profile(f"{save_time}-memory-{epoch}.prof")
 
