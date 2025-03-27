@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "numpy>=1.26.4",
     "absl-py==2.1.0",
     "ase==3.23.0",
     "asttokens==2.4.1",
@@ -36,9 +37,10 @@ dependencies = [
     "importlib-resources==6.4.5",
     "ipykernel==6.29.5",
     "ipython==8.28.0",
-#    "jax-cuda12-pjrt==0.4.34",
+    "jax[cuda12]",
+    #    "jax-cuda12-pjrt==0.4.34",
     "jax==0.4.34",
-#    "jax-cuda12-plugin==0.4.34",
+    #    "jax-cuda12-plugin==0.4.34",
     "jax-md",
     "jaxlib==0.4.34",
     "jaxtyping==0.2.34",
@@ -56,8 +58,8 @@ dependencies = [
     "mdanalysis==2.7.0",
     "mdurl==0.1.2",
     "mizani==0.11.4",
-#    "ml-collections==0.1.1",
-#    "ml-dtypes==0.5.0",
+    #    "ml-collections==0.1.1",
+    #    "ml-dtypes==0.5.0",
     "mmtf-python==1.1.3",
     "more-itertools==10.5.0",
     "mpmath==1.3.0",
@@ -65,17 +67,16 @@ dependencies = [
     "msgpack==1.1.0",
     "nest-asyncio==1.6.0",
     "networkx==3.4.2",
-#    "numpy==1.26.4",
-#    "nvidia-cublas-cu12==12.6.3.3",
-#    "nvidia-cuda-cupti-cu12==12.6.80",
-#    "nvidia-cuda-nvcc-cu12==12.6.77",
-#    "nvidia-cuda-runtime-cu12==12.6.77",
-#    "nvidia-cudnn-cu12==9.5.0.50",
-#    "nvidia-cufft-cu12==11.3.0.4",
-#    "nvidia-cusolver-cu12==11.7.1.2",
-#    "nvidia-cusparse-cu12==12.5.4.2",
-#    "nvidia-nccl-cu12==2.23.4",
-#    "nvidia-nvjitlink-cu12==12.6.77",
+    #    "nvidia-cublas-cu12==12.6.3.3",
+    #    "nvidia-cuda-cupti-cu12==12.6.80",
+    #    "nvidia-cuda-nvcc-cu12==12.6.77",
+    #    "nvidia-cuda-runtime-cu12==12.6.77",
+    #    "nvidia-cudnn-cu12==9.5.0.50",
+    #    "nvidia-cufft-cu12==11.3.0.4",
+    #    "nvidia-cusolver-cu12==11.7.1.2",
+    #    "nvidia-cusparse-cu12==12.5.4.2",
+    #    "nvidia-nccl-cu12==2.23.4",
+    #    "nvidia-nvjitlink-cu12==12.6.77",
     "opt-einsum==3.4.0",
     "optax==0.2.3",
     "orbax-checkpoint==0.7.0",
@@ -101,7 +102,7 @@ dependencies = [
     "pytz==2024.2",
     "pyyaml==6.0.2",
     "pyzmq==26.2.0",
-    "rdkit==2024.3.5",
+    "rdkit==2023.9.4", #"rdkit==2024.3.5",
     "rich==13.9.2",
     "scipy==1.14.1",
     "seaborn==0.13.2",
@@ -123,7 +124,65 @@ dependencies = [
     "wcwidth==0.2.13",
     "wheel==0.44.0",
     "zipp==3.20.2",
+    "toml==0.10.2",
+    "polars==0.12.0",
+    #"pyarrow==6.0.0",
+    "lovely-jax",
+    "asciichartpy",
+    "tensorflow",
+    "flax",
+    "scikit-learn",
+    "pycharmm",
+    "ff_energy",
+    "gpu4pyscf-cuda12x",
+    "cutensor-cu12",
+"nbformat>=4.2.0",
+"pyvolume",
+"ipyvolume",
+"chemcoord",
+"scikit-image",
+"ipython_genutils",
+"dscribe",
+"openff-toolkit",
+"openmm-cuda-12",
+	"molpipx",
+	"plotly",
+"topsearch",
+"pubchempy",
+"torch",
+"Cython",
+"torchani",
+"openmmml",
+"pyarrow",
+"fastparquet",
+"mmml"
 ]
 
 [tool.uv.sources]
 jax-md = { git = "https://github.com/google/jax-md.git", rev = "05221c551e71f1b5f64458c0e3533452c22efec0" }
+pycharmm = { path = "/pchem-data/meuwly/boittier/home/charmm/tool/pycharmm", editable = true }
+ff_energy = {path = "/pchem-data/meuwly/boittier/home/FF-Fit" , editable = true}
+molpipx = {path = "/pchem-data/meuwly/boittier/home/molpipx", editable = true}
+#openff-units = {path = "https://github.com/openforcefield/openff-units.git"}
+openff-toolkit = {git = "https://github.com/openforcefield/openff-toolkit"}
+topography-search = {path = "/pchem-data/meuwly/boittier/home/topography-searcher", editable = true}
+openff-evaluator = {path =  "/pchem-data/meuwly/boittier/home/openff-evaluator", editable=true}
+openff-units = {path =  "/pchem-data/meuwly/boittier/home/openff-units", editable=true}
+#openmm = {path = "/pchem-data/meuwly/boittier/home/openmm", editable=true}
+openmmml = {path = "/pchem-data/meuwly/boittier/home/openmm-ml", editable=true}
+mmml = {path = "/pchem-data/meuwly/boittier/home/project-mmml/mmml", editable=true}
+
+#openmm-torch
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+#run_with_env = { cmd = "uv pip install -e /home/charmm/tool/pycharmm/setup.py", env = { "MY_ENV_VAR" = "my_value" } }
+
+

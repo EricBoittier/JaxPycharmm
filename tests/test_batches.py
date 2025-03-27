@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 from physnetjax.data.batches import (
     # prepare_batches,
     prepare_batches_advanced_minibatching,
@@ -185,3 +187,11 @@ def test_prepare_batches_advanced_minibatching():
     # for i, _ in enumerate(output):
     #     for k, v in _.items():
     #         print(i, k, v.shape)
+
+
+
+def test_determine_max_nb_length(self):
+    num_atoms = [10, 20, 30, ]
+    ans = (10 * 9 ) + (20 * 19 ) + (30 * 29 )
+    pred = determine_max_nb_length(num_atoms)
+    assert ans == pred

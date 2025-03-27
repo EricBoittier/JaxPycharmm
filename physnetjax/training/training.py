@@ -5,11 +5,21 @@ import gc
 import ase.units
 import e3x
 import jax
-from rich.panel import Panel as p_
+
+PROFILE = False
+if PROFILE:
+    import jax.profiler
+
+from jax.experimental import mesh_utils
+from jax.sharding import Mesh
+from jax.sharding import NamedSharding
+from jax.sharding import PartitionSpec as P
+
 import tensorflow as tf
 from flax.training import orbax_utils, train_state
 from rich.console import Console
 from rich.live import Live
+from contextlib import nullcontext
 
 from physnetjax.data.data import print_shapes
 from physnetjax.logger.tensorboard_logging import write_tb_log
@@ -44,30 +54,6 @@ CONVERSION = {
     "energy": 1 / (ase.units.kcal / ase.units.mol),
     "forces": 1 / (ase.units.kcal / ase.units.mol),
 }
-
-# def decide_batching(batch_method, batch_args_dict):
-#     if (batch_method == "advanced" and isinstance(batch_args_dict, dict) and
-#             "batch_shape" in batch_args_dict and "batch_nbl_len" in batch_args_dict):
-#         _prepare_batches = lambda x: prepare_batches_advanced_minibatching(
-#             x["key"],
-#             x["data"],
-#             x["batch_size"],
-#             batch_args_dict["batch_shape"],
-#             batch_args_dict["batch_nbl_len"],
-#             num_atoms=x["num_atoms"],
-#             data_keys=x["data_keys"],
-#         )
-#     else:
-#         prepare_batches = get_prepare_batches_fn()
-#         _prepare_batches = lambda x: prepare_batches(
-#             x["key"],
-#             x["data"],
-#             x["batch_size"],
-#             num_atoms=x["num_atoms"],
-#             data_keys=x["data_keys"],
-#         )
-#     return _prepare_batches
-
 
 def train_model(
     key,
@@ -115,7 +101,6 @@ def train_model(
     ):
         print("Using append batching method")
         from physnetjax.data.batches import prepare_batches_advanced_minibatching
-
         def _prepare_batches(x):
             return prepare_batches_advanced_minibatching(
                 x["key"],
@@ -126,12 +111,9 @@ def train_model(
                 num_atoms=x["num_atoms"],
                 data_keys=x["data_keys"],
             )
-
     else:
         print("Using default (fat) batching method")
-        from physnetjax.data.batches import get_prepare_batches_fn
-
-        _prepare_batches = get_prepare_batches_fn()
+        from physnetjax.data.batches import _prepare_batches
 
     console = Console(width=200, color_system="auto")
 
@@ -194,7 +176,13 @@ def train_model(
     }
     if batch_method == "advanced":
         kwargs.update(batch_args_dict)
-    valid_batches = _prepare_batches(kwargs)
+        valid_batches = _prepare_batches(kwargs)
+    else:
+        valid_batches = _prepare_batches(key,
+                                         data=valid_data,
+                                         batch_size=batch_size,
+                                         num_atoms=num_atoms,
+                                         data_keys=data_keys)
 
     print_shapes(valid_batches[0], name="Validation Batch[0]")
     jax.debug.print("Extra Validation Info:")
@@ -249,14 +237,40 @@ def train_model(
     if console is not None:
         console.print(table)
 
-    from contextlib import nullcontext
+    SHARDING = False
+    if SHARDING:
+        """
+        Data sharding
+        """
+        num_devices = len(jax.local_devices())
+        print(f"Running on {num_devices} devices: {jax.local_devices()}")
+        devices = mesh_utils.create_device_mesh((num_devices,))
 
-    with Live(auto_refresh=False) if console is not None else nullcontext() as live:
-        gc.collect()
+        # Data will be split along the batch axis
+        data_mesh = Mesh(devices, axis_names=("batch",))  # naming axes of the mesh
+        data_sharding = NamedSharding(
+            data_mesh,
+            P(
+                "batch",
+            ),
+        )  # naming axes of the sharded partition
+
+        # Display data sharding
+        x = next(iter(train_data))
+        for y in train_data:
+            train_data[y] = jax.device_put(train_data[y],
+                                           data_sharding)
+            print(f"Data sharding for {y}")
+            if len(train_data[y].shape) < 3:
+                jax.debug.visualize_array_sharding(train_data[y])
+        ####################################################################
+
+    with (Live(auto_refresh=False) if console is not None \
+          else nullcontext() as live):
         # Train for 'num_epochs' epochs.
         for epoch in range(step, num_epochs + 1):
             # Prepare batches.
-            key, shuffle_key = jax.random.split(key)
+
             kwargs = {
                 "key": shuffle_key,
                 "data": train_data,
@@ -271,7 +285,17 @@ def train_model(
                 and "batch_nbl_len" in batch_args_dict
             ):
                 kwargs.update(batch_args_dict)
-            train_batches = _prepare_batches(kwargs)
+            else:
+                print("...")
+
+            if batch_method == "advanced":
+                train_batches = _prepare_batches(kwargs)
+            else:
+                train_batches = _prepare_batches(key,
+                                                 data=train_data,
+                                                 batch_size=batch_size,
+                                                 num_atoms=num_atoms,
+                                                 data_keys=data_keys)
             # Loop over train batches.
             train_loss = 0.0
             train_energy_mae = 0.0
@@ -307,7 +331,6 @@ def train_model(
                 train_energy_mae += (energy_mae - train_energy_mae) / (i + 1)
                 train_forces_mae += (forces_mae - train_forces_mae) / (i + 1)
                 train_dipoles_mae += (dipole_mae - train_dipoles_mae) / (i + 1)
-            gc.collect()
             # Evaluate on validation set.
             valid_loss = 0.0
             valid_energy_mae = 0.0
@@ -421,7 +444,9 @@ def train_model(
                     save_time,
                 )
                 live.update(combined, refresh=True)
-                gc.collect()
+                # gc.collect()
+                if PROFILE:
+                    jax.profiler.save_device_memory_profile(f"{save_time}-memory-{epoch}.prof")
 
     # Return final model parameters.
     return ema_params
