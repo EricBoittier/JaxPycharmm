@@ -6,6 +6,7 @@ and forces using message passing and equivariant transformations.
 """
 
 import functools
+from typing import Union
 from typing import Dict, List, Optional, Tuple
 
 import e3x

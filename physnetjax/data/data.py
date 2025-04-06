@@ -72,7 +72,7 @@ def prepare_multiple_datasets(
         tuple: A tuple containing the prepared data and keys.
     """
     # Load the datasets
-    datasets = [np.load(f) for f in filename]
+    datasets = [np.load(f, allow_pickle=True) for f in filename]
     # datasets_keys() = datasets.keys()
     if verbose:
         for i, dataset in enumerate(datasets):

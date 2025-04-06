@@ -38,6 +38,7 @@ Q_KEYS = ["quadrupole", "q"]
 ESP_KEYS = ["esp", "ESP"]
 ESP_GRID_KEYS = ["esp_grid", "ESP_GRID"]
 COM_KEYS = ["com", "center_of_mass"]
+N_KEYS = ["number_of_atoms", "N"]
 
 
 def check_keys(keys: List, data_keys: List) -> Optional[str]:
