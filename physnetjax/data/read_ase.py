@@ -39,8 +39,8 @@ def save_traj_to_npz(traj_file, output_file, FORCES=True, ENERGY=True):
     # Convert lists to NumPy arrays
     positions_array = np.array(positions_list)
     cell_array = np.array(cell_list)
-    forces_array = np.array(forces_list) if None not in forces_list else None
-    energies_array = np.array(energies_list) if None not in energies_list else None
+    forces_array = np.array(forces_list) 
+    energies_array = np.array(energies_list) 
     N_array = np.array(N_list)
     # Save in compressed format
     np.savez_compressed(output_file, 
