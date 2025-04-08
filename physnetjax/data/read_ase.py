@@ -19,7 +19,7 @@ from physnetjax.utils.enums import (
     N_KEYS,
 )
 
-def save_traj_to_npz(traj_file, output_file):
+def save_traj_to_npz(traj_file, output_file, FORCES=True, ENERGY=True):
     """Efficiently saves ASE trajectory data to compressed NPZ format."""
     positions_list = []
     atomic_numbers = None  # Assume all structures have the same atomic numbers
@@ -30,8 +30,8 @@ def save_traj_to_npz(traj_file, output_file):
     for i, atoms in enumerate(read(traj_file, index=':')):  # Load one by one
         positions_list.append(atoms.get_positions())
         cell_list.append(atoms.get_cell())
-        forces_list.append(atoms.get_forces() if atoms.has('forces') else None)
-        energies_list.append(atoms.get_potential_energy() if atoms.has('energy') else None)
+        forces_list.append(atoms.get_forces() if FORCES else None)
+        energies_list.append(atoms.get_potential_energy() if ENERGY else None)
         N_list.append(atoms.get_number_of_atoms())
         if atomic_numbers is None:
             atomic_numbers = atoms.get_atomic_numbers()  # Same for all frames
