@@ -32,7 +32,7 @@ def save_traj_to_npz(traj_file, output_file, FORCES=True, ENERGY=True):
         cell_list.append(atoms.get_cell())
         forces_list.append(atoms.get_forces() if FORCES else None)
         energies_list.append(atoms.get_potential_energy() if ENERGY else None)
-        N_list.append(atoms.get_number_of_atoms())
+        N_list.append(len(atoms))
         if atomic_numbers is None:
             atomic_numbers = atoms.get_atomic_numbers()  # Same for all frames
 

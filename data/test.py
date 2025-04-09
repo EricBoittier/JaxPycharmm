@@ -814,6 +814,11 @@ SPATIAL_DIMS: int = 3  # Number of spatial dimensions (x, y, z)
 # Batch processing constants
 BATCH_SIZE: int = 200  # Number of systems per batch
 
+# After SPATIAL_DIMS, BATCH_SIZE constants
+all_monomer_idxs = [np.arange(ATOMS_PER_MONOMER) + i * ATOMS_PER_MONOMER for i in range(n_monomers)]
+all_dimer_idxs = [np.concatenate([all_monomer_idxs[a], all_monomer_idxs[b]]) for a,b in dimer_permutations(n_monomers)]
+dimer_perms = dimer_permutations(n_monomers)
+
 def get_MM_energy_forces_fns():
     """Creates functions for calculating MM energies and forces with switching.
     
@@ -1161,16 +1166,9 @@ def get_spherical_cutoff_calculator(
     def get_energy_fn(
         atomic_numbers: Array,  # Shape: (n_atoms,)
         positions: Array,  # Shape: (n_atoms, 3)
+        batch_size: int,
     ) -> Tuple[Any, Dict[str, Array]]:
-        """Prepares the ML model and batching for energy calculations.
-        
-        Args:
-            atomic_numbers: Array of atomic numbers
-            positions: Atomic positions in Angstroms
-            
-        Returns:
-            Tuple of (model_apply_fn, batched_inputs)
-        """
+        """Prepares the ML model and batching for energy calculations."""
         batch_data: Dict[str, Array] = {}
         
         # Prepare monomer data
@@ -1205,7 +1203,7 @@ def get_spherical_cutoff_calculator(
             jnp.full((n_dimers,), MAX_ATOMS_PER_SYSTEM)
         ])
         
-        batches = prepare_batches_md(batch_data, batch_size=BATCH_SIZE, num_atoms=MAX_ATOMS_PER_SYSTEM)[0]
+        batches = prepare_batches_md(batch_data, batch_size=batch_size, num_atoms=MAX_ATOMS_PER_SYSTEM)[0]
         MODEL.charges = True
         
         @jax.jit
@@ -1213,15 +1211,7 @@ def get_spherical_cutoff_calculator(
             atomic_numbers: Array,  # Shape: (batch_size * num_atoms,)
             positions: Array,  # Shape: (batch_size * num_atoms, 3)
         ) -> Dict[str, Array]:
-            """Applies the ML model to batched inputs.
-            
-            Args:
-                atomic_numbers: Batched atomic numbers
-                positions: Batched atomic positions
-                
-            Returns:
-                Dictionary containing 'energy' and 'forces'
-            """
+            """Applies the ML model to batched inputs."""
             return MODEL.apply(
                 params,
                 atomic_numbers=atomic_numbers,
@@ -1229,7 +1219,7 @@ def get_spherical_cutoff_calculator(
                 dst_idx=batches["dst_idx"],
                 src_idx=batches["src_idx"],
                 batch_segments=batches["batch_segments"],
-                batch_size=BATCH_SIZE,
+                batch_size=batch_size,
                 batch_mask=batches["batch_mask"],
                 atom_mask=batches["atom_mask"]
             )
@@ -1258,7 +1248,7 @@ def get_spherical_cutoff_calculator(
         """
         output_list: List[Dict[str, Array]] = []
 
-        apply_model, batches = get_energy_fn(atomic_numbers, positions)
+        apply_model, batches = get_energy_fn(atomic_numbers, positions, BATCH_SIZE)
         
         output = apply_model(batches["Z"], batches["R"])
         
