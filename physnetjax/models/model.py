@@ -148,7 +148,7 @@ class EF(nn.Module):
             batch_segments,
             graph_mask,
         )
-        # print(x)
+
         return self._calculate(
             x,
             atomic_numbers,
@@ -354,6 +354,7 @@ class EF(nn.Module):
             atomic_charges,
             batch_electrostatics,
             repulsion,
+            x,
         )
 
     def _calculate_atomic_charges(
@@ -615,7 +616,7 @@ class EF(nn.Module):
         #     jax.debug.print("atom_mask {x}", x=atom_mask.shape)
 
         # Calculate energies and forces
-        (_, (energy, charges, electrostatics, repulsion)), forces = energy_and_forces(
+        (_, (energy, charges, electrostatics, repulsion, state)), forces = energy_and_forces(
             atomic_numbers,
             positions,
             dst_idx,
@@ -657,6 +658,7 @@ class EF(nn.Module):
             "repulsion": repulsion,
             "dipoles": dipoles,
             "sum_charges": sum_charges,
+            "state": state,
         }
         # Debug output values
         # jax.debug.print("Energy {x}", x=energy)
