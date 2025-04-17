@@ -132,7 +132,7 @@ dependencies = [
     "tensorflow",
     "flax",
     "scikit-learn",
-    "pycharmm",
+    #"pycharmm",
  #   "ff_energy",
     "gpu4pyscf-cuda12x",
     "cutensor-cu12",
