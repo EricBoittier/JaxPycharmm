@@ -133,7 +133,7 @@ dependencies = [
     "flax",
     "scikit-learn",
     "pycharmm",
-    "ff_energy",
+ #   "ff_energy",
     "gpu4pyscf-cuda12x",
     "cutensor-cu12",
 "nbformat>=4.2.0",
@@ -143,7 +143,7 @@ dependencies = [
 "scikit-image",
 "ipython_genutils",
 "dscribe",
-"openff-toolkit",
+#"openff-toolkit",
 "openmm-cuda-12",
 	"molpipx",
 	"plotly",
@@ -152,10 +152,10 @@ dependencies = [
 "torch",
 "Cython",
 "torchani",
-"openmmml",
+#"openmmml",
 "pyarrow",
 "fastparquet",
-"mmml"
+#"mmml"
 ]
 
 [tool.uv.sources]
@@ -164,13 +164,13 @@ pycharmm = { path = "/pchem-data/meuwly/boittier/home/charmm/tool/pycharmm", edi
 ff_energy = {path = "/pchem-data/meuwly/boittier/home/FF-Fit" , editable = true}
 molpipx = {path = "/pchem-data/meuwly/boittier/home/molpipx", editable = true}
 #openff-units = {path = "https://github.com/openforcefield/openff-units.git"}
-openff-toolkit = {git = "https://github.com/openforcefield/openff-toolkit"}
+#openff-toolkit = {git = "https://github.com/openforcefield/openff-toolkit"}
 topography-search = {path = "/pchem-data/meuwly/boittier/home/topography-searcher", editable = true}
-openff-evaluator = {path =  "/pchem-data/meuwly/boittier/home/openff-evaluator", editable=true}
-openff-units = {path =  "/pchem-data/meuwly/boittier/home/openff-units", editable=true}
+#openff-evaluator = {path =  "/pchem-data/meuwly/boittier/home/openff-evaluator", editable=true}
+#openff-units = {path =  "/pchem-data/meuwly/boittier/home/openff-units", editable=true}
 #openmm = {path = "/pchem-data/meuwly/boittier/home/openmm", editable=true}
-openmmml = {path = "/pchem-data/meuwly/boittier/home/openmm-ml", editable=true}
-mmml = {path = "/pchem-data/meuwly/boittier/home/project-mmml/mmml", editable=true}
+#openmmml = {path = "/pchem-data/meuwly/boittier/home/openmm-ml", editable=true}
+#mmml = {path = "/pchem-data/meuwly/boittier/home/project-mmml/mmml", editable=true}
 
 #openmm-torch
 [dependency-groups]
