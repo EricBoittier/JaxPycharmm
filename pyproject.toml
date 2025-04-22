@@ -41,7 +41,7 @@ dependencies = [
     #    "jax-cuda12-pjrt==0.4.34",
     "jax==0.4.34",
     #    "jax-cuda12-plugin==0.4.34",
-    "jax-md",
+   # "jax-md",
     "jaxlib==0.4.34",
     "jaxtyping==0.2.34",
     "jedi==0.19.1",
@@ -147,7 +147,7 @@ dependencies = [
 "openmm-cuda-12",
 #"molpipx",
 "plotly",
-"topsearch",
+#"topsearch",
 "pubchempy",
 "torch",
 "Cython",
@@ -160,12 +160,12 @@ dependencies = [
 
 [tool.uv.sources]
 jax-md = { git = "https://github.com/google/jax-md.git", rev = "05221c551e71f1b5f64458c0e3533452c22efec0" }
-pycharmm = { path = "/pchem-data/meuwly/boittier/home/charmm/tool/pycharmm", editable = true }
-ff_energy = {path = "/pchem-data/meuwly/boittier/home/FF-Fit" , editable = true}
+#pycharmm = { path = "/pchem-data/meuwly/boittier/home/charmm/tool/pycharmm", editable = true }
+#ff_energy = {path = "/pchem-data/meuwly/boittier/home/FF-Fit" , editable = true}
 #molpipx = {path = "/pchem-data/meuwly/boittier/home/molpipx", editable = true}
 #openff-units = {path = "https://github.com/openforcefield/openff-units.git"}
 #openff-toolkit = {git = "https://github.com/openforcefield/openff-toolkit"}
-topography-search = {path = "/pchem-data/meuwly/boittier/home/topography-searcher", editable = true}
+#topography-search = {path = "/pchem-data/meuwly/boittier/home/topography-searcher", editable = true}
 #openff-evaluator = {path =  "/pchem-data/meuwly/boittier/home/openff-evaluator", editable=true}
 #openff-units = {path =  "/pchem-data/meuwly/boittier/home/openff-units", editable=true}
 #openmm = {path = "/pchem-data/meuwly/boittier/home/openmm", editable=true}
