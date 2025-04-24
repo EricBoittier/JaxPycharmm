@@ -14,10 +14,6 @@ import flax.linen as nn
 import jax
 import jax.numpy as jnp
 from jax import Array
-# from jax.experimental import mesh_utils
-# from jax.sharding import Mesh
-# from jax.sharding import NamedSharding
-# from jax.sharding import PartitionSpec as P
 
 from physnetjax.models.euclidean_fast_attention import fast_attention as efa
 from physnetjax.models.zbl import ZBLRepulsion
@@ -30,7 +26,7 @@ DTYPE = jnp.float32
 HARTREE_TO_KCAL_MOL = 627.509  # Conversion factor for energy units
 
 
-class EF(nn.Module):
+class EFef(nn.Module):
     """Energy and Forces Neural Network Model.
 
     A neural network model that predicts molecular energies and forces using message passing
@@ -105,6 +101,7 @@ class EF(nn.Module):
 
     def energy(
         self,
+        ef: jnp.ndarray, 
         atomic_numbers: jnp.ndarray,
         positions: jnp.ndarray,
         dst_idx: jnp.ndarray,
@@ -139,7 +136,8 @@ class EF(nn.Module):
         graph_mask = jnp.ones(batch_size)
 
         # Embed and process atomic features
-        x = self._process_atomic_features(
+        x, x_equi = self._process_atomic_features(
+            ef,
             atomic_numbers,
             basis,
             dst_idx,
@@ -151,6 +149,7 @@ class EF(nn.Module):
 
         return self._calculate(
             x,
+            x_equi,
             atomic_numbers,
             displacements,
             dst_idx,
@@ -185,6 +184,7 @@ class EF(nn.Module):
 
     def _process_atomic_features(
         self,
+        ef: jnp.ndarray,
         atomic_numbers: jnp.ndarray,
         basis: jnp.ndarray,
         dst_idx: jnp.ndarray,
@@ -207,11 +207,21 @@ class EF(nn.Module):
             )
             x = self._refinement_iteration(x)
 
+        # equivariant part
+        x_equivariant = e3x.nn.modules.TensorDense(
+            features=self.features,
+            max_degree=self.max_degree,
+            include_pseudotensors=False,
+        )(x, ef)
+        x_equivariant = self._refinement_iteration(x_equivariant)
+
+
+        # invariant part
         basis = e3x.nn.change_max_degree_or_type(
             basis, max_degree=0, include_pseudotensors=False
         )
         x = e3x.nn.change_max_degree_or_type(
-            x, max_degree=0, include_pseudotensors=False
+            x_equivariant, max_degree=0, include_pseudotensors=False
         )
         if self.n_res <= -1:
             for i in range(self.num_iterations):
@@ -219,7 +229,8 @@ class EF(nn.Module):
                     x, basis, dst_idx, src_idx, num_heads=self.features // 8
                 )
                 x = self._refinement_iteration(x)
-        return x
+
+        return x, x_equivariant
 
     def _attention(self, x, basis, dst_idx, src_idx, num_heads=2):
         return e3x.nn.modules.SelfAttention(
@@ -250,7 +261,7 @@ class EF(nn.Module):
         # if it is the last iteration
         if iteration == self.num_iterations - 1:
             x = e3x.nn.MessagePass(
-                max_degree=0,
+                # max_degree=0,
                 include_pseudotensors=False,
                 # dense_kernel_init=jax.nn.initializers.he_uniform(),
                 # dense_bias_init=jax.nn.initializers.zeros,
@@ -493,17 +504,14 @@ class EF(nn.Module):
             segment_ids=dst_idx,
             num_segments=batch_size * self.natoms,
         )
-        # atomic_electrostatics *= atom_mask
+
         batch_electrostatics = jax.ops.segment_sum(
             atomic_electrostatics,
             segment_ids=batch_segments,
             num_segments=batch_size,
         )
         atomic_electrostatics = atomic_electrostatics[..., None, None, None]
-        # if not self.debug and "ele" in self.debug:
-        #     jax.debug.print(
-        #         f"{atomic_electrostatics}", atomic_electrostatics=atomic_electrostatics
-        #     )
+ 
         return atomic_electrostatics, batch_electrostatics
 
     def _calculate_dipole(
@@ -548,6 +556,7 @@ class EF(nn.Module):
     @nn.compact
     def __call__(
         self,
+        ef: jnp.ndarray, 
         atomic_numbers: jnp.ndarray,
         positions: jnp.ndarray,
         dst_idx: jnp.ndarray,
@@ -582,6 +591,9 @@ class EF(nn.Module):
             batch_mask = jnp.ones_like(dst_idx)
             atom_mask = jnp.ones_like(atomic_numbers)
 
+        """
+        Calculate energies and forces
+        """
 
         # Since we want to also predict forces, i.e. the gradient of the energy w.r.t. positions (argument 1), we use
         # jax.value_and_grad to create a function for predicting both energy and forces for us.
@@ -598,7 +610,27 @@ class EF(nn.Module):
             batch_mask,
             atom_mask,
         )
+        
         forces *= atom_mask[..., None]
+
+
+        """
+        Calculate hessian
+        """
+
+        hessian_func = jax.hessian(self.energy, argnums=1)
+        hessian = hessian_func(
+            atomic_numbers,
+            positions,
+            dst_idx,
+            src_idx,
+            batch_segments,
+            batch_size,
+        )
+
+        """
+        Calculate dipoles and their derivatives
+        """
 
         dipoles = (
             self._calculate_dipole(
@@ -611,6 +643,55 @@ class EF(nn.Module):
             if self.charges
             else None
         )
+
+        def dipole_X(positions, atomic_numbers, charges, batch_segments, batch_size, batch_mask, atom_mask):
+            D = self._calculate_dipole(positions, atomic_numbers, charges, batch_segments, batch_size)
+            return D[0]
+        def dipole_Y(positions, atomic_numbers, charges, batch_segments, batch_size, batch_mask, atom_mask):
+            D = self._calculate_dipole(positions, atomic_numbers, charges, batch_segments, batch_size)
+            return D[1]
+        def dipole_Z(positions, atomic_numbers, charges, batch_segments, batch_size, batch_mask, atom_mask):
+            D = self._calculate_dipole(positions, atomic_numbers, charges, batch_segments, batch_size)
+            return D[2]
+
+        dipole_and_dipole_derivatives_X_func = jax.value_and_grad(dipole_X, argnums=1, has_aux=True)        
+        dipole_and_dipole_derivatives_X = dipole_and_dipole_derivatives_X_func(
+            positions,
+            atomic_numbers,
+            charges,
+            batch_segments,
+            batch_size,
+            batch_mask,
+            atom_mask,
+        )
+        dipole_and_dipole_derivatives_Y_func = jax.value_and_grad(dipole_Y, argnums=1, has_aux=True)
+        dipole_and_dipole_derivatives_Y = dipole_and_dipole_derivatives_Y_func(
+            positions,
+            atomic_numbers,
+            charges,    
+            batch_segments,
+            batch_size,
+            batch_mask,
+            atom_mask,
+        )
+        dipole_and_dipole_derivatives_Z_func = jax.value_and_grad(dipole_Z, argnums=1, has_aux=True)
+        dipole_and_dipole_derivatives_Z = dipole_and_dipole_derivatives_Z_func(
+            positions,
+            atomic_numbers,
+            charges,
+            batch_segments,
+            batch_size,
+        )
+        dipole_derivatives = jnp.stack([dipole_and_dipole_derivatives_X[1], dipole_and_dipole_derivatives_Y[1], dipole_and_dipole_derivatives_Z[1]], axis=1)
+        assert dipole[0] == dipole_and_dipole_derivatives_X[0], "dipole_X is not equal to dipole"
+        assert dipole[1] == dipole_and_dipole_derivatives_Y[0], "dipole_Y is not equal to dipole"
+        assert dipole[2] == dipole_and_dipole_derivatives_Z[0], "dipole_Z is not equal to dipole"
+
+
+        """
+        Calculate sum of charges
+        """
+        
         sum_charges = (
             jax.ops.segment_sum(
                 charges,
@@ -625,6 +706,8 @@ class EF(nn.Module):
         output = {
             "energy": energy,
             "forces": forces,
+            "hessian": hessian,
+            "dipole_derivatives": dipole_derivatives,
             "charges": charges,
             "electrostatics": electrostatics,
             "repulsion": repulsion,
