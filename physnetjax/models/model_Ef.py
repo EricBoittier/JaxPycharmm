@@ -133,6 +133,7 @@ class EFef(nn.Module):
             positions, dst_idx, src_idx
         )
 
+        # TODO: not always appropriate in the case of padding
         graph_mask = jnp.ones(batch_size)
 
         # Embed and process atomic features
@@ -148,6 +149,7 @@ class EFef(nn.Module):
         )
 
         return self._calculate(
+            ef,
             x,
             x_equi,
             atomic_numbers,
@@ -297,7 +299,9 @@ class EFef(nn.Module):
 
     def _calculate(
         self,
+        ef: jnp.ndarray,
         x: jnp.ndarray,
+        x_equi: jnp.ndarray,
         atomic_numbers: jnp.ndarray,
         displacements: jnp.ndarray,
         dst_idx: jnp.ndarray,
@@ -362,6 +366,7 @@ class EFef(nn.Module):
             batch_electrostatics,
             repulsion,
             x,
+            x_equi,
         )
 
     def _calculate_atomic_charges(
@@ -600,7 +605,8 @@ class EFef(nn.Module):
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
 
         # Calculate energies and forces
-        (_, (energy, charges, electrostatics, repulsion, state)), forces = energy_and_forces(
+        (_, (energy, charges, electrostatics, repulsion, state, x_equi)), forces = energy_and_forces(
+            ef,
             atomic_numbers,
             positions,
             dst_idx,
@@ -610,7 +616,7 @@ class EFef(nn.Module):
             batch_mask,
             atom_mask,
         )
-        
+
         forces *= atom_mask[..., None]
 
 
@@ -713,7 +719,7 @@ class EFef(nn.Module):
             "repulsion": repulsion,
             "dipoles": dipoles,
             "sum_charges": sum_charges,
-            "state": state,
+            "state": state, # should contain the hidden states of the last layer
         }
 
         return output
