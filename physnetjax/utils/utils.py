@@ -8,7 +8,10 @@ import jax.numpy as jnp
 
 DTYPE = jnp.float32
 
+def parse_non_int(s):
+    return "".join([_ for _ in s if _.isalpha()]).lower().capitalize()
 
+    
 def create_checkpoint_dir(name: str, base: Path) -> Path:
     """Create a unique checkpoint directory path.
 

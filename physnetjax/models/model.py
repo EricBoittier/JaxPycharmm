@@ -6,6 +6,7 @@ and forces using message passing and equivariant transformations.
 """
 
 import functools
+from typing import Union
 from typing import Dict, List, Optional, Tuple
 
 import e3x
@@ -147,7 +148,7 @@ class EF(nn.Module):
             batch_segments,
             graph_mask,
         )
-        # print(x)
+
         return self._calculate(
             x,
             atomic_numbers,
@@ -334,10 +335,6 @@ class EF(nn.Module):
                 batch_segments,
                 batch_size,
             )
-            # # repulsion *= batch_mask[..., None]
-            # if not self.debug and "repulsion" in self.debug:
-            #     jax.debug.print("Repulsion shape: {x}", x=repulsion.shape)
-            #     jax.debug.print("Repulsion: {x}", x=repulsion)
 
         else:
             repulsion = 0.0
@@ -353,6 +350,7 @@ class EF(nn.Module):
             atomic_charges,
             batch_electrostatics,
             repulsion,
+            x,
         )
 
     def _calculate_atomic_charges(
@@ -584,37 +582,13 @@ class EF(nn.Module):
             batch_mask = jnp.ones_like(dst_idx)
             atom_mask = jnp.ones_like(atomic_numbers)
 
-        # import lovely_jax as lj
-        #
-        # lj.monkey_patch()
-        #
-        # jax.debug.print("atomic_numbers {x}", x=atomic_numbers[::])
-        # jax.debug.print("positions {x}", x=positions[::])
-        # jax.debug.print("dst_idx {x}", x=dst_idx[::])
-        # jax.debug.print("src_idx {x}", x=src_idx[::])
-        # jax.debug.print("batch_segments {x}", x=batch_segments[::])
-        # # jax.debug.print("batch_size {x}", x=batch_size[::1])
-        # jax.debug.print("batch_mask {x}", x=batch_mask[::])
-        # jax.debug.print("atom_mask {x}", x=atom_mask[::])
 
         # Since we want to also predict forces, i.e. the gradient of the energy w.r.t. positions (argument 1), we use
         # jax.value_and_grad to create a function for predicting both energy and forces for us.
         energy_and_forces = jax.value_and_grad(self.energy, argnums=1, has_aux=True)
 
-        # Debug input shapes
-        # if not self.debug and "idx" in self.debug:
-        # # if True:
-        #     jax.debug.print("atomic_numbers {x}", x=atomic_numbers.shape)
-        #     jax.debug.print("positions {x}", x=positions.shape)
-        #     jax.debug.print("dst_idx {x}", x=dst_idx.shape)
-        #     jax.debug.print("src_idx {x}", x=src_idx.shape)
-        #     jax.debug.print("batch_segments {x}", x=batch_segments.shape)
-        #     jax.debug.print("batch_size {x}", x=batch_size)
-        #     jax.debug.print("batch_mask {x}", x=batch_mask.shape)
-        #     jax.debug.print("atom_mask {x}", x=atom_mask.shape)
-
         # Calculate energies and forces
-        (_, (energy, charges, electrostatics, repulsion)), forces = energy_and_forces(
+        (_, (energy, charges, electrostatics, repulsion, state)), forces = energy_and_forces(
             atomic_numbers,
             positions,
             dst_idx,
@@ -656,12 +630,7 @@ class EF(nn.Module):
             "repulsion": repulsion,
             "dipoles": dipoles,
             "sum_charges": sum_charges,
+            "state": state,
         }
-        # Debug output values
-        # jax.debug.print("Energy {x}", x=energy)
-        # jax.debug.print("Forces {x}", x=forces)
-        # batches
-        # jax.debug.print("Ref. Energy {x}", x=batch["E"])
-        # jax.debug.print("Ref. Forces {x}", x=batch["F"])
 
         return output

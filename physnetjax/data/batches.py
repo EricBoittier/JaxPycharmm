@@ -407,7 +407,7 @@ def create_batch(
     batch["N"] = np.array(n, dtype=np.int32).reshape(-1)
     batch["Z"] = np.array(batch["Z"], dtype=np.int32).reshape(-1)
     batch["E"] = np.pad(batch["E"], (0, batch_size - len(batch["E"])))
-    # print("batch[N]", batch["N"])
+
     batch_mask_atoms = np.concatenate(
         [np.ones(int(x)) * i for i, x in enumerate(batch["N"])]
     )
