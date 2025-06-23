@@ -1,0 +1,12 @@
+REMARK  EXECUTING CHARMM SCRIPT FROM PYTHON                                           
+REMARK   DATE:     6/19/25      2:19:36      CREATED BY USER: boittier                
+ATOM      1  H11 ETHA    1       3.879   3.665   3.608  1.00  0.00      ETHA
+ATOM      2  H12 ETHA    1       2.128   3.234   3.578  1.00  0.00      ETHA
+ATOM      3  H13 ETHA    1       2.649   4.920   3.207  1.00  0.00      ETHA
+ATOM      4  C1  ETHA    1       2.914   3.848   3.086  1.00  0.00      ETHA
+ATOM      5  H21 ETHA    1       3.815   4.099   1.109  1.00  0.00      ETHA
+ATOM      6  H22 ETHA    1       2.065   3.668   1.079  1.00  0.00      ETHA
+ATOM      7  H23 ETHA    1       3.295   2.413   1.480  1.00  0.00      ETHA
+ATOM      8  C2  ETHA    1       3.029   3.485   1.601  1.00  0.00      ETHA
+TER       9      ETHA     1
+END

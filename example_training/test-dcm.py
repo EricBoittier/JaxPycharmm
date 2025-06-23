@@ -36,10 +36,13 @@ data_key, train_key = jax.random.split(jax.random.PRNGKey(42), 2)
 
 from pathlib import Path
 
-# files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
+
 NATOMS = 10
+batch_size = 4
+restart= False #"/home/boittier/github/JaxPycharmm/ckpts/dichloromethane-abee5b14-e000-43e8-ad2d-361c0a4d9c77"
+# files = list(Path("/pchem-data/meuwly/boittier/home/pycharmm_test/data/basepairs").glob("*.npz"))
 files = [
-    Path("/pchem-data/meuwly/boittier/home/dcm_dimers_MP2_20999.npz"),
+    Path("../../data/dcm_dimers_MP2_20999.npz"),
 
 ]
 
@@ -84,15 +87,16 @@ params = train_model(
     valid_data,
     num_epochs=int(1e6),
     learning_rate=0.001,
-    energy_weight=1,
+    energy_weight=100,
     # charges_weight=1,
     # forces_weight=100,
     schedule_fn="constant",
     optimizer="amsgrad",
-    batch_size=1,
+    batch_size=batch_size,
     num_atoms=NATOMS,
     data_keys=DEFAULT_DATA_KEYS,
-    # restart=restart,
+    restart=False, #"/home/boittier/github/JaxPycharmm/ckpts/dichloromethane-dc3afe06-33fe-423b-a477-5aa7e7656faa",
+    log_tb=False,
     name="dichloromethane",
     print_freq=1,
     objective="valid_loss",
