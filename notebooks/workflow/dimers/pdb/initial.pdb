@@ -1,19 +1,18 @@
 REMARK  EXECUTING CHARMM SCRIPT FROM PYTHON                                           
-REMARK   DATE:     6/23/25     19:57:41      CREATED BY USER: boittier                
-ATOM      1  C1  CPEN    1       1.492   1.130   1.059  1.00  0.00      CPEN
-ATOM      2  H11 CPEN    1       2.546   1.084   1.369  1.00  0.00      CPEN
-ATOM      3  H12 CPEN    1       1.156   2.166   1.236  1.00  0.00      CPEN
-ATOM      4  C2  CPEN    1       1.283   0.760  -0.418  1.00  0.00      CPEN
-ATOM      5  H21 CPEN    1       2.033   0.018  -0.731  1.00  0.00      CPEN
-ATOM      6  H22 CPEN    1       1.406   1.626  -1.084  1.00  0.00      CPEN
-ATOM      7  C3  CPEN    1      -0.129   0.143  -0.506  1.00  0.00      CPEN
-ATOM      8  H31 CPEN    1      -0.077  -0.855  -0.972  1.00  0.00      CPEN
-ATOM      9  H32 CPEN    1      -0.802   0.742  -1.135  1.00  0.00      CPEN
-ATOM     10  C4  CPEN    1      -0.652   0.046   0.939  1.00  0.00      CPEN
-ATOM     11  H41 CPEN    1      -1.233  -0.867   1.125  1.00  0.00      CPEN
-ATOM     12  H42 CPEN    1      -1.327   0.894   1.143  1.00  0.00      CPEN
-ATOM     13  C5  CPEN    1       0.592   0.159   1.826  1.00  0.00      CPEN
-ATOM     14  H51 CPEN    1       1.085  -0.824   1.915  1.00  0.00      CPEN
-ATOM     15  H52 CPEN    1       0.365   0.494   2.847  1.00  0.00      CPEN
-TER      16      CPEN     1
+REMARK   DATE:     6/26/25     15:59:56      CREATED BY USER: boittier                
+ATOM      1  C1  MPRO    1       1.748   0.536   1.027  1.00  0.00      MPRO
+ATOM      2  C   MPRO    1       0.350  -0.087   0.986  1.00  0.00      MPRO
+ATOM      3  OM  MPRO    1      -0.012  -0.297  -0.279  1.00  0.00      MPRO
+ATOM      4  C2  MPRO    1      -1.325  -0.881  -0.392  1.00  0.00      MPRO
+ATOM      5  O   MPRO    1      -0.318  -0.359   1.967  1.00  0.00      MPRO
+ATOM      6  H12 MPRO    1       2.023   0.649   2.097  1.00  0.00      MPRO
+ATOM      7  H13 MPRO    1       2.454  -0.179   0.556  1.00  0.00      MPRO
+ATOM      8  H21 MPRO    1      -1.335  -1.912   0.026  1.00  0.00      MPRO
+ATOM      9  H22 MPRO    1      -2.083  -0.267   0.144  1.00  0.00      MPRO
+ATOM     10  H23 MPRO    1      -1.618  -0.936  -1.463  1.00  0.00      MPRO
+ATOM     11  C11 MPRO    1       1.823   1.908   0.318  1.00  0.00      MPRO
+ATOM     12 H111 MPRO    1       2.850   2.325   0.392  1.00  0.00      MPRO
+ATOM     13 H112 MPRO    1       1.566   1.808  -0.760  1.00  0.00      MPRO
+ATOM     14 H113 MPRO    1       1.116   2.629   0.782  1.00  0.00      MPRO
+TER      15      MPRO     1
 END
